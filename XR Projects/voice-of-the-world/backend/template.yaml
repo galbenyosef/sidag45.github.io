@@ -1,0 +1,281 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Voice of the World - submissions, automated moderation and the shared voice pool
+
+Parameters:
+  AllowedOrigins:
+    Type: CommaDelimitedList
+    Default: 'http://localhost:3000,http://127.0.0.1:5500'
+    Description: Sites allowed to call the API and upload, e.g. https://voice-of-the-world.vercel.app (comma separated, no trailing slash)
+  LanguageOptions:
+    Type: String
+    Default: 'en-US,es-US,hi-IN,fr-FR,zh-CN'
+    Description: 2-5 languages Amazon Transcribe chooses between when it identifies what was said
+  ToxicityThreshold:
+    Type: Number
+    Default: 0.5
+    MinValue: 0.05
+    MaxValue: 1
+    Description: Reject a clip if any toxicity score reaches this (lower = stricter)
+  RetentionDays:
+    Type: Number
+    Default: 365
+    MinValue: 0
+    Description: Days an approved voice stays in the pool (0 = until withdrawn)
+  MaxSubmissionsPerIpPerHour:
+    Type: Number
+    Default: 5
+
+Conditions:
+  HasRetention: !Not [!Equals [!Ref RetentionDays, 0]]
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Architectures: [arm64]
+    CodeUri: src/
+    Timeout: 30
+    MemorySize: 512
+    Environment:
+      Variables:
+        BUCKET: !Sub '${AWS::StackName}-voices-${AWS::AccountId}'
+        TABLE: !Ref VoicesTable
+        LANGUAGE_OPTIONS: !Ref LanguageOptions
+        TOXICITY_THRESHOLD: !Ref ToxicityThreshold
+        RETENTION_DAYS: !Ref RetentionDays
+        MAX_SUBMISSIONS_PER_IP_PER_HOUR: !Ref MaxSubmissionsPerIpPerHour
+        HASH_SALT: !Select [2, !Split ['/', !Ref AWS::StackId]]
+
+Resources:
+  # ---------- storage ----------
+  VoicesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${AWS::StackName}-voices-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules: [{ ObjectOwnership: BucketOwnerEnforced }]
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins: !Ref AllowedOrigins
+            AllowedMethods: [POST]
+            AllowedHeaders: ['*']
+            MaxAge: 3000
+      LifecycleConfiguration:
+        Rules:
+          - Id: incoming-1-day
+            Status: Enabled
+            Prefix: incoming/
+            ExpirationInDays: 1
+          - Id: transcripts-1-day
+            Status: Enabled
+            Prefix: transcripts/
+            ExpirationInDays: 1
+          - Id: pool-retention
+            Status: !If [HasRetention, Enabled, Disabled]
+            Prefix: pool/
+            ExpirationInDays: !If [HasRetention, !Ref RetentionDays, 3650]
+
+  VoicesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: id, AttributeType: S }
+        - { AttributeName: status, AttributeType: S }
+        - { AttributeName: createdAt, AttributeType: N }
+      KeySchema:
+        - { AttributeName: id, KeyType: HASH }
+      GlobalSecondaryIndexes:
+        - IndexName: byStatus
+          KeySchema:
+            - { AttributeName: status, KeyType: HASH }
+            - { AttributeName: createdAt, KeyType: RANGE }
+          Projection: { ProjectionType: ALL }
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  # ---------- CDN for approved voices (pool/ only) ----------
+  CdnOac:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${AWS::StackName}-oac'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  Cdn:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: Voice of the World pool
+        PriceClass: PriceClass_100
+        HttpVersion: http2and3
+        Origins:
+          - Id: voices
+            DomainName: !GetAtt VoicesBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt CdnOac.Id
+            S3OriginConfig: { OriginAccessIdentity: '' }
+        DefaultCacheBehavior:
+          TargetOriginId: voices
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD, OPTIONS]
+          Compress: true
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6          # Managed-CachingOptimized
+          ResponseHeadersPolicyId: 60669652-455b-4ae9-85a4-c4c02393f86c # Managed-SimpleCORS
+
+  VoicesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref VoicesBucket
+      PolicyDocument:
+        Statement:
+          - Sid: CloudFrontReadsPoolOnly
+            Effect: Allow
+            Principal: { Service: cloudfront.amazonaws.com }
+            Action: s3:GetObject
+            Resource: !Sub '${VoicesBucket.Arn}/pool/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Cdn}'
+          - Sid: HttpsOnly
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource: [!GetAtt VoicesBucket.Arn, !Sub '${VoicesBucket.Arn}/*']
+            Condition:
+              Bool: { aws:SecureTransport: 'false' }
+
+  # ---------- API ----------
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: !Ref AllowedOrigins
+        AllowMethods: [GET, POST, DELETE, OPTIONS]
+        AllowHeaders: [content-type, x-withdraw-token]
+        MaxAge: 3600
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 20
+        ThrottlingRateLimit: 10
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/api.handler
+      MemorySize: 256
+      Timeout: 10
+      Environment:
+        Variables:
+          CDN_URL: !Sub 'https://${Cdn.DomainName}'
+          DISTRIBUTION_ID: !Ref Cdn
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref VoicesTable }
+        - Statement:
+            - Effect: Allow
+              Action: [s3:PutObject, s3:DeleteObject]
+              Resource:
+                - !Sub 'arn:aws:s3:::${AWS::StackName}-voices-${AWS::AccountId}/incoming/*'
+                - !Sub 'arn:aws:s3:::${AWS::StackName}-voices-${AWS::AccountId}/pool/*'
+                - !Sub 'arn:aws:s3:::${AWS::StackName}-voices-${AWS::AccountId}/transcripts/*'
+            - Effect: Allow
+              Action: transcribe:DeleteTranscriptionJob
+              Resource: '*'
+            - Effect: Allow
+              Action: cloudfront:CreateInvalidation
+              Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Cdn}'
+      Events:
+        Submit:   { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: POST,   Path: /submissions } }
+        Status:   { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET,    Path: '/voices/{id}' } }
+        Withdraw: { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: DELETE, Path: '/voices/{id}' } }
+        Pool:     { Type: HttpApi, Properties: { ApiId: !Ref HttpApi, Method: GET,    Path: /pool } }
+
+  # ---------- automated pipeline ----------
+  IngestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/ingest.handler
+      MemorySize: 1024
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref VoicesTable }
+        - Statement:
+            - Effect: Allow
+              Action: [s3:GetObject, s3:DeleteObject]
+              Resource: !Sub 'arn:aws:s3:::${AWS::StackName}-voices-${AWS::AccountId}/incoming/*'
+            - Effect: Allow   # Transcribe writes its output with the caller's permissions
+              Action: s3:PutObject
+              Resource: !Sub 'arn:aws:s3:::${AWS::StackName}-voices-${AWS::AccountId}/transcripts/*'
+            - Effect: Allow
+              Action: transcribe:StartTranscriptionJob
+              Resource: '*'
+      Events:
+        Uploaded:
+          Type: S3
+          Properties:
+            Bucket: !Ref VoicesBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - { Name: prefix, Value: incoming/ }
+                  - { Name: suffix, Value: .wav }
+
+  ModerateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/moderate.handler
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref VoicesTable }
+        - Statement:
+            - Effect: Allow
+              Action: [s3:GetObject, s3:DeleteObject]
+              Resource:
+                - !Sub 'arn:aws:s3:::${AWS::StackName}-voices-${AWS::AccountId}/incoming/*'
+                - !Sub 'arn:aws:s3:::${AWS::StackName}-voices-${AWS::AccountId}/transcripts/*'
+            - Effect: Allow
+              Action: s3:PutObject
+              Resource: !Sub 'arn:aws:s3:::${AWS::StackName}-voices-${AWS::AccountId}/pool/*'
+            - Effect: Allow
+              Action:
+                - transcribe:GetTranscriptionJob
+                - transcribe:DeleteTranscriptionJob
+                - translate:TranslateText
+                - comprehend:DetectDominantLanguage   # needed by Translate's auto source language
+                - comprehend:DetectToxicContent
+                - comprehend:DetectPiiEntities
+              Resource: '*'
+      Events:
+        TranscriptionDone:
+          Type: EventBridgeRule
+          Properties:
+            Pattern:
+              source: [aws.transcribe]
+              detail-type: [Transcribe Job State Change]
+              detail:
+                TranscriptionJobStatus: [COMPLETED, FAILED]
+                TranscriptionJobName: [{ prefix: vow- }]
+
+Outputs:
+  ApiUrl:
+    Description: Paste into the page's <meta name="vow-api"> tag
+    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+  CdnUrl:
+    Description: Where approved voices are served from
+    Value: !Sub 'https://${Cdn.DomainName}'
+  Bucket:
+    Value: !Ref VoicesBucket
+  Table:
+    Value: !Ref VoicesTable

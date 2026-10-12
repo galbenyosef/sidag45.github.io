@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Voice of the World</title>
+<meta name="description" content="A choir made of everyone who adds their voice. Press listen and every voice is tuned to one key and sung together, drifting around you as the world turns.">
+<meta name="theme-color" content="#07080c">
+<!-- Paste the ApiUrl output from the AWS deploy here. Leave empty to run fully on-device. -->
+<meta name="vow-api" content="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07080c;
+  --panel:#0f1118;
+  --panel-2:#151823;
+  --ink:#efe8dc;
+  --muted:rgba(239,232,220,.64);
+  --faint:rgba(239,232,220,.38);
+  --line:rgba(239,232,220,.14);
+  --line-2:rgba(239,232,220,.24);
+  --warm:#ffb45e;
+  --mid:#f6c7b0;
+  --cool:#a6dcff;
+  --ok:#9be3b4;
+  --bad:#ff8f7a;
+  --serif:"Instrument Serif",ui-serif,Georgia,serif;
+  --sans:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{overflow:hidden;overscroll-behavior:none}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--warm);outline-offset:3px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+#globe{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#globe.dragging{cursor:grabbing}
+
+/* ---------- top ---------- */
+.intro{position:fixed;left:clamp(16px,4vw,48px);top:clamp(16px,4.5vh,44px);max-width:min(420px,calc(100vw - 32px));pointer-events:none}
+.overline{font:500 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin:0 0 14px}
+h1{font:400 clamp(44px,6.4vw,84px)/.92 var(--serif);letter-spacing:-.01em;margin:0}
+h1 em{font-style:italic;color:var(--warm)}
+.lede{font-size:15px;line-height:1.55;color:var(--muted);margin:16px 0 0;max-width:36ch;text-wrap:pretty}
+
+.readout{position:fixed;right:clamp(16px,4vw,48px);top:clamp(18px,4.5vh,46px);display:grid;grid-template-columns:auto auto;gap:9px 18px;font:500 11px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
+.readout dt{color:var(--faint)}
+.readout dd{margin:0;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.readout dd span{color:var(--warm)}
+
+/* ---------- bottom controls ---------- */
+.dock{position:fixed;left:50%;bottom:calc(clamp(18px,4.5vh,40px) + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:12px;width:max-content;max-width:calc(100vw - 32px)}
+.buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn{display:inline-flex;align-items:center;gap:10px;height:50px;padding:0 24px 0 20px;border-radius:999px;border:1px solid var(--line-2);background:rgba(15,17,24,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-weight:500;font-size:15px;transition:background .2s,border-color .2s,transform .15s}
+.btn:hover{border-color:rgba(239,232,220,.45)}
+.btn:active{transform:scale(.98)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.primary:hover{background:#fff}
+.btn[disabled]{opacity:.5;cursor:default}
+.hint{font-size:12.5px;color:var(--faint);margin:0;text-align:center}
+
+.corner{position:fixed;right:clamp(16px,4vw,48px);bottom:calc(clamp(18px,4.5vh,40px) + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.vol{display:flex;align-items:center;gap:10px;color:var(--faint)}
+.vol svg{width:16px;height:16px}
+.vol input{width:110px;accent-color:var(--warm)}
+.credit{font-size:12px;color:var(--faint);text-decoration:none}
+.credit:hover{color:var(--ink)}
+
+.yours{position:fixed;left:clamp(16px,4vw,48px);bottom:calc(clamp(18px,4.5vh,40px) + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;max-width:260px}
+.yours h2{font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:0 0 2px}
+.chip{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(15,17,24,.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:13.5px}
+.chip i{width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 10px #fff;flex:none}
+.chip span{flex:1;min-width:0}
+.chip small{color:var(--faint);font:12px var(--mono)}
+.chip small.ok{color:var(--ok)}
+.chip small.bad{color:var(--bad)}
+.chip small.busy::after{content:"";display:inline-block;width:6px;height:6px;margin-left:6px;border-radius:50%;background:var(--warm);animation:blink 1s ease-in-out infinite}
+@keyframes blink{50%{opacity:.2}}
+.chip button{border:1px solid var(--line-2);background:none;border-radius:8px;padding:5px 10px;font-size:12.5px;color:var(--muted)}
+.chip button:hover{color:var(--ink);border-color:var(--ink)}
+
+/* ---------- tooltip & toast ---------- */
+.tip{position:fixed;z-index:5;pointer-events:none;padding:10px 12px;border-radius:10px;background:rgba(15,17,24,.92);border:1px solid var(--line);font-size:13px;line-height:1.45;min-width:170px;transform:translate(-50%,calc(-100% - 16px));opacity:0;transition:opacity .15s}
+.tip.on{opacity:1}
+.tip b{display:block;font-weight:600}
+.tip .k{font:11.5px var(--mono);color:var(--faint);letter-spacing:.04em}
+.toast{position:fixed;left:50%;top:clamp(16px,4vh,32px);transform:translate(-50%,-12px);background:var(--panel-2);border:1px solid var(--line-2);border-radius:12px;padding:12px 16px;font-size:14px;max-width:min(440px,calc(100vw - 32px));opacity:0;transition:opacity .3s,transform .3s;z-index:20;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- contribute dialog ---------- */
+dialog{border:1px solid var(--line-2);border-radius:20px;background:var(--panel);color:var(--ink);padding:0;width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto}
+dialog::backdrop{background:rgba(4,5,8,.66);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.dlg{padding:26px 26px 24px}
+.dlg-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.steps{display:flex;gap:6px;list-style:none;margin:0;padding:0;font:500 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.steps li{display:flex;align-items:center;gap:6px}
+.steps li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--line-2)}
+.steps li.on{color:var(--ink)}
+.steps li.on::before{background:var(--warm)}
+.steps li.done::before{background:var(--ok)}
+.x{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:none;display:grid;place-items:center;color:var(--muted)}
+.x:hover{color:var(--ink);border-color:var(--line-2)}
+.x svg{width:14px;height:14px}
+dialog h2{font:400 34px/1.05 var(--serif);margin:0 0 10px}
+dialog p{color:var(--muted);line-height:1.55;margin:0 0 14px;font-size:14.5px;text-wrap:pretty}
+.consent{display:flex;flex-direction:column;gap:10px;margin:18px 0}
+.consent label{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:12px;cursor:pointer;font-size:14.5px;line-height:1.45}
+.consent label:hover{border-color:var(--line-2)}
+.consent input{width:18px;height:18px;margin:1px 0 0;accent-color:var(--warm);flex:none}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(166,220,255,.07);border:1px solid rgba(166,220,255,.18);font-size:13.5px;line-height:1.5;color:var(--muted);margin:0 0 18px}
+.note svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--cool)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:flex-end}
+.btn.sm{height:44px;font-size:14.5px;padding:0 18px}
+.link{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-size:14px}
+.link:hover{color:var(--ink)}
+
+.recorder{display:flex;flex-direction:column;align-items:center;gap:14px;padding:12px 0 6px}
+.recbtn{position:relative;width:104px;height:104px;border-radius:50%;border:0;background:none;padding:0;display:grid;place-items:center}
+.recbtn svg.ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.recbtn .core{width:64px;height:64px;border-radius:50%;background:#ff6b57;transition:border-radius .2s,width .2s,height .2s;box-shadow:0 0 0 0 rgba(255,107,87,.4)}
+.recbtn.rec .core{width:34px;height:34px;border-radius:8px;animation:pulse 1.4s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,107,87,.45)}100%{box-shadow:0 0 0 22px rgba(255,107,87,0)}}
+.meter{width:220px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--warm),#ff6b57);border-radius:3px;transition:width .06s}
+.recstate{font:500 13px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums;min-height:1.3em;text-align:center}
+
+.checks{list-style:none;margin:6px 0 18px;padding:0;display:flex;flex-direction:column;gap:2px}
+.checks li{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14.5px;opacity:.35;transition:opacity .25s}
+.checks li.shown{opacity:1}
+.checks li small{grid-column:2;color:var(--faint);font-size:12.5px;line-height:1.45;margin-top:-4px}
+.ico{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font:600 11px var(--mono);border:1px solid var(--line-2);color:var(--faint)}
+.ico.pass{background:rgba(155,227,180,.15);border-color:rgba(155,227,180,.5);color:var(--ok)}
+.ico.fail{background:rgba(255,143,122,.15);border-color:rgba(255,143,122,.5);color:var(--bad)}
+.ico.warn,.ico.info{background:rgba(166,220,255,.1);border-color:rgba(166,220,255,.35);color:var(--cool)}
+.result{padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.5;margin:0 0 16px}
+.result.fail{background:rgba(255,143,122,.08);border:1px solid rgba(255,143,122,.3);color:var(--ink)}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:0 0 18px}
+.facts div{background:var(--panel);padding:12px 14px}
+.facts dt{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.facts dd{margin:0;font-size:15px}
+
+/* ---------- responsive ---------- */
+@media (max-width:760px){
+  .intro{top:14px}
+  h1{font-size:40px}
+  .lede{font-size:13.5px;max-width:30ch}
+  .readout{top:auto;bottom:calc(146px + env(safe-area-inset-bottom,0px));right:16px;left:16px;grid-template-columns:auto 1fr;gap:6px 14px;font-size:10.5px}
+  .readout dd{text-align:left}
+  .corner{display:none}
+  .yours{bottom:calc(222px + env(safe-area-inset-bottom,0px));max-width:230px}
+  .btn{height:48px;padding:0 18px 0 16px;font-size:14.5px}
+}
+@media (max-height:560px) and (min-width:761px){.lede{display:none}}
+</style>
+</head>
+<body>
+<canvas id="globe" tabindex="0" role="img" aria-label="A turning dot globe. Each glowing light is a voice in the choir. Drag to turn the world, and the voices move around you."></canvas>
+
+<header class="intro">
+  <p class="overline">A choir anyone can join</p>
+  <h1>Voice of the <em>World</em></h1>
+  <p class="lede">Every light is someone's voice. Press listen and they sing together, tuned to one key, drifting around you as the world turns.</p>
+</header>
+
+<dl class="readout" aria-live="off">
+  <dt>Key</dt><dd id="roKey">—</dd>
+  <dt>Chord</dt><dd id="roChord">—</dd>
+  <dt>Voices</dt><dd id="roVoices">—</dd>
+</dl>
+
+<div class="dock">
+  <div class="buttons">
+    <button class="btn primary" id="playBtn" disabled aria-pressed="false">
+      <svg id="playIco" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg>
+      <span id="playLbl">Tuning the choir…</span>
+    </button>
+    <button class="btn" id="addBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+      <span>Add your voice</span>
+    </button>
+  </div>
+  <p class="hint">Best with headphones. Drag the globe to move the voices around you.</p>
+</div>
+
+<div class="corner">
+  <label class="vol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4.5 4.5 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/></svg><span class="sr-only">Volume</span><input id="vol" type="range" min="0" max="1" step="0.01" value="0.8"></label>
+  <a class="credit" href="https://www.linkedin.com/in/siddharthagarwal2608/" target="_blank" rel="noopener">Made with ❤️ by Siddharth Agarwal</a>
+</div>
+
+<section class="yours" id="yours" hidden aria-label="Your voices">
+  <h2>Your voice</h2>
+  <div id="yourList"></div>
+</section>
+
+<div class="tip" id="tip" role="status"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <div class="dlg">
+    <div class="dlg-head">
+      <ol class="steps" id="steps"><li data-s="1">Consent</li><li data-s="2">Record</li><li data-s="3">Check</li><li data-s="4">Join</li></ol>
+      <button class="x" id="dlgClose" aria-label="Close"><svg viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 2l10 10M12 2 2 12"/></svg></button>
+    </div>
+
+    <!-- step 1 -->
+    <div data-step="1">
+      <h2 id="dlgTitle">Lend the choir your voice</h2>
+      <p>Sing or speak for a few seconds. A long open sound like “aaah” or “ooo” works best. You can add a word or two after it, like hello in your language.</p>
+      <div class="consent">
+        <label><input type="checkbox" id="c1"> This is my own voice, and I'm the one recording it.</label>
+        <label><input type="checkbox" id="c2"> <span id="c2Text">I agree to it being tuned, blended and played as part of the choir.</span></label>
+      </div>
+      <div class="note"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg><span id="privacyNote">In this prototype your recording never leaves this browser. It's checked and analysed on your device, sung while this page is open, and gone when you close it. You can withdraw it at any time.</span></div>
+      <div class="row end"><button class="btn primary sm" id="toRecord" disabled>Continue</button></div>
+    </div>
+
+    <!-- step 2 -->
+    <div data-step="2" hidden>
+      <h2>Record a few seconds</h2>
+      <p>Hold one open note for a couple of seconds, then say a word if you like. The choir goes quiet while you record.</p>
+      <div class="recorder">
+        <button class="recbtn" id="recBtn" aria-label="Start recording">
+          <svg class="ring" viewBox="0 0 104 104" aria-hidden="true"><circle cx="52" cy="52" r="48" fill="none" stroke="rgba(239,232,220,.14)" stroke-width="3"/><circle id="ringArc" cx="52" cy="52" r="48" fill="none" stroke="#ff6b57" stroke-width="3" stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="301.6"/></svg>
+          <span class="core"></span>
+        </button>
+        <div class="meter" aria-hidden="true"><i id="meterBar"></i></div>
+        <div class="recstate" id="recState">Tap to record, up to 8 seconds</div>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-top:8px">
+        <label class="link" style="cursor:pointer">or upload a clip<input type="file" id="upload" accept="audio/*" class="sr-only"></label>
+        <div class="row">
+          <button class="btn sm" id="preview" hidden>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg><span>Play back</span></button>
+          <button class="btn primary sm" id="toCheck" hidden>Check my voice</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- step 3 -->
+    <div data-step="3" hidden>
+      <h2>Automatic checks</h2>
+      <p id="checksLede">Nobody listens to your clip. These checks run on their own, on this device.</p>
+      <ul class="checks" id="checks"></ul>
+      <div id="checkOut"></div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(() => {
+'use strict';
+
+/* =========================================================
+   Voice of the World — v1
+   1. Seed voices (synthesised stand-ins for real submissions)
+   2. Analysis: YIN pitch track, level, timbre, steady-vowel search
+   3. Choir engine: granular pitch correction to a shared key,
+      time-stretch, staggered entries, spatial spread, drones
+   4. Rules-based conductor: key/mood, chords, who sings, who rests
+   5. Globe: voices as lights; their position drives the 3D audio
+   6. Contribution: consent → record/upload → checks → analysis → join
+   ========================================================= */
+
+const $ = (id) => document.getElementById(id);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const rnd = (a, b) => a + Math.random() * (b - a);
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const hz2midi = (f) => 69 + 12 * Math.log2(f / 440);
+const NOTE = ['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];
+const noteName = (m) => { const r = Math.round(m); return NOTE[((r % 12) + 12) % 12] + (Math.floor(r / 12) - 1); };
+const idle = () => new Promise((r) => setTimeout(r, 0));
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const coarse = matchMedia('(pointer: coarse)').matches;
+const LAND = [-705,-536,-724,-514,-582,-514,-740,-492,-707,-492,-723,-470,-691,-470,-729,-448,-698,-448,-667,-448,1691,-448,-705,-426,-675,-426,-645,-426,1455,-426,1725,-426,-720,-404,-691,-404,-662,-404,-634,-404,1757,-404,-726,-382,-698,-382,-670,-382,-642,-382,-614,-382,-586,-382,1423,-382,1451,-382,1758,-382,-723,-360,-695,-360,-668,-360,-641,-360,-614,-360,-586,-360,1405,-360,1432,-360,1459,-360,1486,-360,-701,-338,-675,-338,-649,-338,-622,-338,-596,-338,-569,-338,-543,-338,199,-338,225,-338,251,-338,1151,-338,1178,-338,1204,-338,1231,-338,1363,-338,1390,-338,1416,-338,1443,-338,1469,-338,1496,-338,-699,-316,-673,-316,-647,-316,-622,-316,-596,-316,-570,-316,-544,-316,-518,-316,207,-316,233,-316,259,-316,285,-316,1165,-316,1191,-316,1217,-316,1243,-316,1269,-316,1295,-316,1321,-316,1347,-316,1373,-316,1399,-316,1424,-316,1450,-316,1476,-316,1502,-316,1528,-316,-705,-294,-680,-294,-655,-294,-629,-294,-604,-294,-579,-294,-554,-294,-529,-294,-503,-294,176,-294,201,-294,227,-294,252,-294,277,-294,302,-294,1158,-294,1183,-294,1208,-294,1234,-294,1259,-294,1284,-294,1309,-294,1334,-294,1359,-294,1385,-294,1410,-294,1435,-294,1460,-294,1485,-294,1510,-294,-703,-272,-678,-272,-653,-272,-629,-272,-604,-272,-579,-272,-555,-272,-530,-272,-505,-272,160,-272,185,-272,210,-272,234,-272,259,-272,284,-272,308,-272,1147,-272,1171,-272,1196,-272,1221,-272,1245,-272,1270,-272,1295,-272,1319,-272,1344,-272,1368,-272,1393,-272,1418,-272,1442,-272,1467,-272,1492,-272,1516,-272,-693,-250,-669,-250,-645,-250,-620,-250,-596,-250,-572,-250,-547,-250,-523,-250,-499,-250,158,-250,182,-250,207,-250,231,-250,255,-250,280,-250,304,-250,328,-250,450,-250,1155,-250,1180,-250,1204,-250,1228,-250,1253,-250,1277,-250,1301,-250,1326,-250,1350,-250,1374,-250,1399,-250,1423,-250,1447,-250,1472,-250,1496,-250,1520,-250,-691,-228,-668,-228,-644,-228,-620,-228,-596,-228,-572,-228,-548,-228,-525,-228,-501,-228,-477,-228,-453,-228,-429,-228,167,-228,191,-228,215,-228,238,-228,262,-228,286,-228,310,-228,334,-228,453,-228,477,-228,1144,-228,1168,-228,1192,-228,1216,-228,1240,-228,1264,-228,1287,-228,1311,-228,1335,-228,1359,-228,1383,-228,1407,-228,1430,-228,1454,-228,1478,-228,1502,-228,-682,-206,-659,-206,-635,-206,-612,-206,-588,-206,-565,-206,-541,-206,-518,-206,-494,-206,-471,-206,-447,-206,-424,-206,141,-206,165,-206,188,-206,212,-206,235,-206,259,-206,282,-206,306,-206,329,-206,447,-206,471,-206,1200,-206,1224,-206,1247,-206,1271,-206,1294,-206,1318,-206,1341,-206,1365,-206,1388,-206,1412,-206,1435,-206,1459,-206,1482,-206,1647,-206,-697,-184,-674,-184,-650,-184,-627,-184,-604,-184,-581,-184,-557,-184,-534,-184,-511,-184,-488,-184,-465,-184,-441,-184,-418,-184,139,-184,163,-184,186,-184,209,-184,232,-184,255,-184,279,-184,302,-184,325,-184,348,-184,441,-184,465,-184,488,-184,1231,-184,1254,-184,1277,-184,1301,-184,1324,-184,1347,-184,1370,-184,1394,-184,1417,-184,1440,-184,-734,-162,-711,-162,-688,-162,-665,-162,-642,-162,-619,-162,-596,-162,-573,-162,-550,-162,-527,-162,-504,-162,-482,-162,-459,-162,-436,-162,-413,-162,-390,-162,138,-162,161,-162,183,-162,206,-162,229,-162,252,-162,275,-162,298,-162,321,-162,344,-162,367,-162,390,-162,459,-162,482,-162,1238,-162,1261,-162,1284,-162,1307,-162,1330,-162,1353,-162,1422,-162,1445,-162,1674,-162,-747,-140,-725,-140,-702,-140,-679,-140,-657,-140,-634,-140,-611,-140,-589,-140,-566,-140,-543,-140,-521,-140,-498,-140,-475,-140,-453,-140,-430,-140,-408,-140,136,-140,158,-140,181,-140,204,-140,226,-140,249,-140,272,-140,294,-140,317,-140,340,-140,362,-140,385,-140,498,-140,1268,-140,1313,-140,1336,-140,1358,-140,1426,-140,-754,-118,-731,-118,-709,-118,-686,-118,-664,-118,-641,-118,-619,-118,-596,-118,-574,-118,-551,-118,-529,-118,-506,-118,-484,-118,-461,-118,-439,-118,-416,-118,-394,-118,146,-118,169,-118,191,-118,214,-118,236,-118,259,-118,281,-118,304,-118,326,-118,349,-118,371,-118,394,-118,1429,-118,-783,-96,-760,-96,-738,-96,-716,-96,-693,-96,-671,-96,-648,-96,-626,-96,-604,-96,-581,-96,-559,-96,-537,-96,-514,-96,-492,-96,-470,-96,-447,-96,-425,-96,-402,-96,-380,-96,-358,-96,134,-96,157,-96,179,-96,201,-96,224,-96,246,-96,268,-96,291,-96,313,-96,335,-96,358,-96,380,-96,1476,-96,-789,-74,-767,-74,-744,-74,-722,-74,-700,-74,-678,-74,-656,-74,-633,-74,-611,-74,-589,-74,-567,-74,-544,-74,-522,-74,-500,-74,-478,-74,-456,-74,-433,-74,-411,-74,-389,-74,-367,-74,144,-74,167,-74,189,-74,211,-74,233,-74,256,-74,278,-74,300,-74,322,-74,344,-74,367,-74,389,-74,1078,-74,1100,-74,1122,-74,1389,-74,1411,-74,1433,-74,1456,-74,-795,-52,-773,-52,-751,-52,-729,-52,-707,-52,-685,-52,-663,-52,-640,-52,-618,-52,-596,-52,-574,-52,-552,-52,-530,-52,-508,-52,-486,-52,-464,-52,-442,-52,-420,-52,-398,-52,-375,-52,133,-52,155,-52,177,-52,199,-52,221,-52,243,-52,265,-52,287,-52,309,-52,331,-52,353,-52,375,-52,1391,-52,1413,-52,1436,-52,1458,-52,1546,-52,-795,-30,-773,-30,-751,-30,-729,-30,-707,-30,-685,-30,-663,-30,-640,-30,-618,-30,-596,-30,-574,-30,-552,-30,-530,-30,-508,-30,-486,-30,-464,-30,-442,-30,-420,-30,-398,-30,110,-30,133,-30,155,-30,177,-30,199,-30,221,-30,243,-30,265,-30,287,-30,309,-30,331,-30,353,-30,375,-30,398,-30,1016,-30,1038,-30,1060,-30,1126,-30,1148,-30,1193,-30,1215,-30,1281,-30,1325,-30,1347,-30,1369,-30,1391,-30,1413,-30,-801,-8,-779,-8,-757,-8,-735,-8,-713,-8,-691,-8,-670,-8,-648,-8,-626,-8,-604,-8,-582,-8,-560,-8,-538,-8,-516,-8,-494,-8,-472,-8,99,-8,121,-8,143,-8,165,-8,187,-8,209,-8,230,-8,252,-8,274,-8,296,-8,318,-8,340,-8,362,-8,384,-8,406,-8,1021,-8,1109,-8,1130,-8,1152,-8,1174,-8,1196,-8,1328,-8,-779,14,-757,14,-735,14,-713,14,-691,14,-670,14,-648,14,-626,14,-604,14,-582,14,-560,14,-538,14,-516,14,99,14,121,14,143,14,165,14,187,14,209,14,230,14,252,14,274,14,296,14,318,14,340,14,362,14,384,14,406,14,428,14,999,14,1021,14,1109,14,1130,14,1152,14,1174,14,1284,14,-773,36,-751,36,-729,36,-707,36,-685,36,-663,36,-640,36,-618,36,-596,36,-574,36,-552,36,-530,36,110,36,133,36,155,36,177,36,199,36,221,36,243,36,265,36,287,36,309,36,331,36,353,36,375,36,398,36,420,36,442,36,464,36,972,36,1016,36,1148,36,1171,36,-773,58,-751,58,-729,58,-707,58,-685,58,-663,58,-640,58,-618,58,-596,58,-574,58,-552,58,-88,58,-66,58,-44,58,-22,58,0,58,66,58,88,58,110,58,133,58,155,58,177,58,199,58,221,58,243,58,265,58,287,58,309,58,331,58,353,58,375,58,398,58,420,58,442,58,464,58,486,58,1016,58,1171,58,-811,80,-767,80,-744,80,-722,80,-700,80,-678,80,-656,80,-633,80,-611,80,-122,80,-100,80,-78,80,-56,80,-33,80,-11,80,11,80,33,80,56,80,78,80,100,80,122,80,144,80,167,80,189,80,211,80,233,80,256,80,278,80,300,80,322,80,344,80,367,80,389,80,411,80,433,80,456,80,478,80,500,80,811,80,1233,80,1256,80,-850,102,-738,102,-693,102,-671,102,-626,102,-134,102,-112,102,-89,102,-67,102,-45,102,-22,102,0,102,22,102,45,102,67,102,89,102,112,102,134,102,157,102,179,102,201,102,224,102,246,102,268,102,291,102,313,102,335,102,358,102,380,102,402,102,425,102,447,102,470,102,492,102,783,102,1051,102,1230,102,-866,124,-844,124,-146,124,-124,124,-101,124,-79,124,-56,124,-34,124,-11,124,11,124,34,124,56,124,79,124,101,124,124,124,146,124,169,124,191,124,214,124,236,124,259,124,281,124,304,124,326,124,349,124,371,124,394,124,416,124,754,124,776,124,799,124,1024,124,1046,124,1069,124,1091,124,1249,124,-923,146,-900,146,-877,146,-854,146,-171,146,-148,146,-125,146,-103,146,-80,146,-57,146,-34,146,-11,146,11,146,34,146,57,146,80,146,103,146,125,146,148,146,171,146,194,146,216,146,239,146,262,146,285,146,308,146,330,146,353,146,376,146,399,146,444,146,467,146,490,146,763,146,786,146,991,146,1014,146,1037,146,1059,146,1082,146,-986,168,-963,168,-940,168,-917,168,-894,168,-161,168,-138,168,-115,168,-92,168,-69,168,-46,168,-23,168,0,168,23,168,46,168,69,168,92,168,115,168,138,168,161,168,183,168,206,168,229,168,252,168,275,168,298,168,321,168,344,168,367,168,390,168,436,168,459,168,482,168,504,168,527,168,734,168,757,168,780,168,803,168,963,168,986,168,1009,168,1032,168,1055,168,1215,168,-1022,190,-999,190,-975,190,-906,190,-883,190,-720,190,-697,190,-139,190,-116,190,-93,190,-70,190,-46,190,-23,190,0,190,23,190,46,190,70,190,93,190,116,190,139,190,163,190,186,190,209,190,232,190,255,190,279,190,302,190,325,190,348,190,372,190,418,190,441,190,465,190,488,190,511,190,534,190,557,190,743,190,766,190,790,190,813,190,836,190,952,190,975,190,999,190,1022,190,1045,190,1092,190,-1035,212,-1012,212,-988,212,-894,212,-871,212,-776,212,-165,212,-141,212,-118,212,-94,212,-71,212,-47,212,-24,212,0,212,24,212,47,212,71,212,94,212,118,212,141,212,165,212,188,212,212,212,235,212,259,212,282,212,306,212,329,212,353,212,400,212,424,212,447,212,471,212,494,212,518,212,541,212,565,212,588,212,706,212,729,212,753,212,776,212,800,212,824,212,847,212,941,212,965,212,988,212,1012,212,1035,212,1059,212,1106,212,-1044,234,-1020,234,-996,234,-156,234,-132,234,-108,234,-84,234,-60,234,-36,234,-12,234,12,234,36,234,60,234,84,234,108,234,132,234,156,234,180,234,204,234,228,234,252,234,276,234,300,234,324,234,348,234,396,234,420,234,444,234,468,234,492,234,516,234,540,234,564,234,588,234,708,234,732,234,756,234,780,234,804,234,828,234,852,234,876,234,900,234,924,234,948,234,972,234,996,234,1020,234,1044,234,1068,234,1092,234,1116,234,1140,234,1164,234,1212,234,-1082,256,-1058,256,-1034,256,-1009,256,-985,256,-134,256,-109,256,-85,256,-61,256,-36,256,-12,256,12,256,36,256,61,256,85,256,109,256,134,256,158,256,182,256,207,256,231,256,255,256,280,256,304,256,328,256,377,256,401,256,426,256,450,256,474,256,499,256,596,256,620,256,645,256,669,256,693,256,718,256,742,256,766,256,791,256,815,256,839,256,864,256,888,256,912,256,936,256,961,256,985,256,1009,256,1034,256,1058,256,1082,256,1107,256,1131,256,1155,256,1180,256,-1142,278,-1092,278,-1068,278,-1043,278,-1018,278,-993,278,-819,278,-124,278,-99,278,-74,278,-50,278,-25,278,0,278,25,278,50,278,74,278,99,278,124,278,149,278,174,278,199,278,223,278,248,278,273,278,298,278,323,278,372,278,397,278,422,278,447,278,472,278,521,278,546,278,571,278,596,278,621,278,646,278,670,278,695,278,720,278,745,278,770,278,794,278,819,278,844,278,869,278,894,278,919,278,943,278,968,278,993,278,1018,278,1043,278,1068,278,1092,278,1117,278,1142,278,1167,278,1192,278,-1154,300,-1103,300,-1077,300,-1052,300,-1027,300,-1001,300,-976,300,-951,300,-925,300,-900,300,-849,300,-824,300,-89,300,-63,300,-38,300,-13,300,13,300,38,300,63,300,89,300,114,300,139,300,165,300,190,300,215,300,241,300,266,300,292,300,317,300,342,300,368,300,393,300,418,300,444,300,469,300,520,300,545,300,570,300,596,300,621,300,646,300,672,300,697,300,723,300,748,300,773,300,799,300,824,300,849,300,875,300,900,300,925,300,951,300,976,300,1001,300,1027,300,1052,300,1077,300,1103,300,1128,300,1154,300,1179,300,1204,300,-1161,322,-1135,322,-1109,322,-1083,322,-1057,322,-1030,322,-1004,322,-978,322,-952,322,-926,322,-900,322,-874,322,-848,322,-822,322,-91,322,-65,322,-39,322,-13,322,13,322,39,322,65,322,91,322,117,322,143,322,222,322,352,322,378,322,404,322,430,322,457,322,483,322,509,322,535,322,561,322,587,322,613,322,639,322,665,322,691,322,717,322,743,322,770,322,796,322,822,322,848,322,874,322,900,322,926,322,952,322,978,322,1004,322,1030,322,1057,322,1083,322,1109,322,1135,322,1161,322,1187,322,1213,322,-1173,344,-1147,344,-1120,344,-1093,344,-1067,344,-1040,344,-1013,344,-987,344,-960,344,-933,344,-907,344,-880,344,-853,344,-827,344,-800,344,-53,344,-27,344,0,344,27,344,53,344,80,344,373,344,400,344,427,344,453,344,480,344,507,344,533,344,560,344,587,344,613,344,640,344,667,344,693,344,720,344,747,344,773,344,800,344,827,344,853,344,880,344,907,344,933,344,960,344,987,344,1013,344,1040,344,1067,344,1093,344,1120,344,1147,344,1173,344,1200,344,1333,344,1360,344,-1209,366,-1182,366,-1154,366,-1127,366,-1099,366,-1072,366,-1044,366,-1017,366,-989,366,-962,366,-934,366,-907,366,-879,366,-852,366,-824,366,-797,366,-769,366,-55,366,27,366,55,366,82,366,302,366,330,366,357,366,385,366,412,366,440,366,467,366,495,366,522,366,550,366,577,366,605,366,632,366,660,366,687,366,715,366,742,366,769,366,797,366,824,366,852,366,879,366,907,366,934,366,962,366,989,366,1017,366,1044,366,1072,366,1099,366,1127,366,1154,366,1182,366,1209,366,1264,366,1292,366,1374,366,1402,366,-1223,388,-1195,388,-1167,388,-1139,388,-1111,388,-1083,388,-1055,388,-1027,388,-998,388,-970,388,-942,388,-914,388,-886,388,-858,388,-830,388,-802,388,-773,388,-70,388,-42,388,-14,388,211,388,267,388,295,388,323,388,352,388,380,388,408,388,436,388,464,388,548,388,577,388,605,388,633,388,661,388,689,388,717,388,745,388,773,388,802,388,830,388,858,388,886,388,914,388,942,388,970,388,998,388,1027,388,1055,388,1083,388,1111,388,1139,388,1167,388,1252,388,1280,388,-1229,410,-1200,410,-1171,410,-1141,410,-1112,410,-1083,410,-1054,410,-1024,410,-995,410,-966,410,-937,410,-907,410,-878,410,-849,410,-820,410,-790,410,-761,410,-732,410,-59,410,-29,410,0,410,146,410,205,410,234,410,263,410,293,410,322,410,351,410,380,410,410,410,439,410,468,410,556,410,585,410,615,410,644,410,673,410,702,410,732,410,761,410,790,410,820,410,849,410,878,410,907,410,937,410,966,410,995,410,1024,410,1054,410,1083,410,1112,410,1141,410,1171,410,1200,410,1229,410,1259,410,1288,410,1405,410,-1240,432,-1210,432,-1180,432,-1150,432,-1119,432,-1089,432,-1059,432,-1029,432,-998,432,-968,432,-938,432,-908,432,-877,432,-847,432,-817,432,-787,432,-756,432,-726,432,-61,432,-30,432,0,432,30,432,61,432,121,432,182,432,212,432,242,432,272,432,424,432,454,432,514,432,545,432,575,432,605,432,635,432,666,432,696,432,726,432,756,432,787,432,817,432,847,432,877,432,908,432,938,432,968,432,998,432,1029,432,1059,432,1089,432,1119,432,1150,432,1180,432,1210,432,1240,432,1271,432,1301,432,1331,432,1422,432,-1221,454,-1190,454,-1158,454,-1127,454,-1096,454,-1064,454,-1033,454,-1002,454,-970,454,-939,454,-908,454,-877,454,-845,454,-814,454,-783,454,-751,454,-720,454,-689,454,-657,454,-626,454,0,454,31,454,63,454,94,454,157,454,188,454,219,454,250,454,282,454,344,454,376,454,407,454,438,454,470,454,532,454,563,454,595,454,626,454,657,454,689,454,720,454,751,454,783,454,814,454,845,454,877,454,908,454,939,454,970,454,1002,454,1033,454,1064,454,1096,454,1127,454,1158,454,1190,454,1221,454,1252,454,1283,454,1315,454,1346,454,-1195,476,-1162,476,-1129,476,-1096,476,-1064,476,-1031,476,-998,476,-965,476,-933,476,-900,476,-867,476,-835,476,-802,476,-769,476,-736,476,-704,476,-671,476,-573,476,-16,476,16,476,49,476,82,476,115,476,147,476,180,476,213,476,245,476,278,476,311,476,344,476,376,476,409,476,442,476,475,476,507,476,540,476,573,476,605,476,638,476,671,476,704,476,736,476,769,476,802,476,835,476,867,476,900,476,933,476,965,476,998,476,1031,476,1064,476,1096,476,1129,476,1162,476,1195,476,1227,476,1260,476,1293,476,1325,476,1358,476,1391,476,1424,476,-1240,498,-1206,498,-1172,498,-1138,498,-1104,498,-1070,498,-1036,498,-1002,498,-968,498,-934,498,-900,498,-866,498,-832,498,-798,498,-764,498,-730,498,-696,498,-560,498,17,498,51,498,85,498,119,498,153,498,187,498,221,498,255,498,289,498,323,498,357,498,391,498,425,498,458,498,492,498,526,498,560,498,594,498,628,498,662,498,696,498,730,498,764,498,798,498,832,498,866,498,900,498,934,498,968,498,1002,498,1036,498,1070,498,1104,498,1138,498,1172,498,1206,498,1240,498,1274,498,1308,498,1342,498,1375,498,-1248,520,-1212,520,-1176,520,-1141,520,-1105,520,-1069,520,-1034,520,-998,520,-962,520,-927,520,-891,520,-855,520,-820,520,-784,520,-749,520,-713,520,-677,520,-642,520,-606,520,-570,520,-36,520,0,520,71,520,107,520,143,520,178,520,214,520,250,520,285,520,321,520,356,520,392,520,428,520,463,520,499,520,535,520,570,520,606,520,642,520,677,520,713,520,749,520,784,520,820,520,855,520,891,520,927,520,962,520,998,520,1034,520,1069,520,1105,520,1141,520,1176,520,1212,520,1248,520,1283,520,1319,520,1354,520,1390,520,1426,520,1568,520,-1294,542,-1256,542,-1219,542,-1181,542,-1144,542,-1106,542,-1069,542,-1031,542,-994,542,-956,542,-919,542,-881,542,-844,542,-769,542,-731,542,-694,542,-656,542,-619,542,-581,542,-19,542,94,542,131,542,169,542,206,542,244,542,281,542,319,542,356,542,394,542,431,542,469,542,506,542,544,542,581,542,619,542,656,542,694,542,731,542,769,542,806,542,844,542,881,542,919,542,956,542,994,542,1031,542,1069,542,1106,542,1144,542,1181,542,1219,542,1256,542,1294,542,1331,542,1369,542,1594,542,-1582,564,-1305,564,-1266,564,-1226,564,-1187,564,-1147,564,-1108,564,-1068,564,-1029,564,-989,564,-949,564,-910,564,-752,564,-712,564,-673,564,-633,564,-40,564,158,564,237,564,277,564,316,564,356,564,396,564,435,564,475,564,514,564,554,564,593,564,633,564,673,564,712,564,752,564,791,564,831,564,870,564,910,564,949,564,989,564,1029,564,1068,564,1108,564,1147,564,1187,564,1226,564,1266,564,1305,564,1345,564,1582,564,1622,564,-1567,586,-1355,586,-1313,586,-1271,586,-1228,586,-1186,586,-1144,586,-1101,586,-1059,586,-1016,586,-974,586,-932,586,-762,586,-720,586,-635,586,85,586,127,586,254,586,296,586,339,586,381,586,424,586,466,586,508,586,551,586,593,586,635,586,678,586,720,586,762,586,805,586,847,586,889,586,932,586,974,586,1016,586,1059,586,1101,586,1144,586,1186,586,1228,586,1271,586,1313,586,1355,586,1398,586,1609,586,-1642,608,-1597,608,-1552,608,-1507,608,-1462,608,-1417,608,-1372,608,-1327,608,-1282,608,-1237,608,-1192,608,-1147,608,-1102,608,-1057,608,-1012,608,-967,608,-742,608,-697,608,68,608,113,608,158,608,248,608,293,608,338,608,383,608,428,608,473,608,518,608,563,608,608,608,653,608,698,608,743,608,788,608,833,608,878,608,923,608,968,608,1013,608,1058,608,1103,608,1148,608,1193,608,1238,608,1283,608,1328,608,1373,608,1418,608,1463,608,1508,608,1553,608,1643,608,1688,608,-1630,630,-1581,630,-1532,630,-1484,630,-1435,630,-1386,630,-1338,630,-1289,630,-1241,630,-1192,630,-1143,630,-1095,630,-1046,630,-997,630,-949,630,-705,630,-657,630,-462,630,73,630,122,630,170,630,219,630,268,630,316,630,365,630,414,630,462,630,511,630,559,630,608,630,657,630,705,630,754,630,803,630,851,630,900,630,949,630,997,630,1046,630,1095,630,1143,630,1192,630,1241,630,1289,630,1338,630,1386,630,1435,630,1484,630,1532,630,1581,630,1630,630,1678,630,1727,630,1776,630,-1670,652,-1617,652,-1565,652,-1513,652,-1461,652,-1409,652,-1357,652,-1304,652,-1252,652,-1200,652,-1148,652,-1096,652,-1043,652,-991,652,-939,652,-887,652,-730,652,-678,652,-522,652,-470,652,-417,652,-209,652,-157,652,157,652,209,652,261,652,313,652,417,652,470,652,522,652,574,652,626,652,678,652,730,652,783,652,835,652,887,652,939,652,991,652,1043,652,1096,652,1148,652,1200,652,1252,652,1304,652,1357,652,1409,652,1461,652,1513,652,1565,652,1617,652,1670,652,1722,652,1774,652,-1771,674,-1600,674,-1543,674,-1486,674,-1429,674,-1371,674,-1314,674,-1257,674,-1200,674,-1143,674,-1086,674,-1029,674,-971,674,-914,674,-857,674,-686,674,-514,674,-457,674,-400,674,-343,674,171,674,229,674,286,674,343,674,400,674,514,674,571,674,629,674,686,674,800,674,857,674,914,674,971,674,1029,674,1086,674,1143,674,1200,674,1257,674,1314,674,1371,674,1429,674,1486,674,1543,674,1600,674,1657,674,1714,674,1771,674,-1579,696,-1516,696,-1453,696,-1263,696,-1137,696,-1074,696,-947,696,-758,696,-695,696,-505,696,-442,696,-379,696,-316,696,-253,696,189,696,253,696,316,696,695,696,758,696,821,696,884,696,947,696,1011,696,1074,696,1137,696,1200,696,1263,696,1326,696,1389,696,1453,696,1516,696,1579,696,1642,696,1705,696,1768,696,-1129,718,-1059,718,-988,718,-847,718,-776,718,-494,718,-424,718,-353,718,-282,718,706,718,776,718,847,718,918,718,988,718,1059,718,1129,718,1200,718,1271,718,1412,718,1482,718,-1200,740,-560,740,-480,740,-400,740,-320,740,-240,740,560,740,880,740,960,740,1040,740,-1200,762,-1015,762,-923,762,-646,762,-554,762,-462,762,-369,762,-277,762,646,762,1015,762,1108,762,-982,784,-873,784,-764,784,-655,784,-545,784,-436,784,-327,784,-218,784,-933,806,-800,806,-667,806,-533,806,-400,806,-267,806,933,806]; // [lon*10, lat*10, ...] land sample points (Natural Earth 110m)
+
+// Server: set <meta name="vow-api"> (or ?api=…) to the AWS ApiUrl. Empty = on-device only.
+const API = (new URLSearchParams(location.search).get('api') || document.querySelector('meta[name="vow-api"]')?.content || '').trim().replace(/\/$/, '');
+const CONSENT_VERSION = '2026-10-v1';
+const MIN_VOICES = 8;   // seed voices fill in until the shared pool has this many
+const POOL_SIZE = coarse ? 10 : 16;
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem('vow.mine') || '[]'); } catch { return []; } },
+  set(list) { try { localStorage.setItem('vow.mine', JSON.stringify(list)); } catch {} },
+  add(rec) { this.set([...this.get().filter((r) => r.id !== rec.id), rec]); },
+  remove(id) { this.set(this.get().filter((r) => r.id !== id)); },
+};
+
+/* ---------------------------------------------------------
+   1. Seed voices — formant synthesis (glottal pulse → 5 resonators).
+   Deliberately sung slightly off-key so the tuning is audible.
+   --------------------------------------------------------- */
+const VOWELS = {
+  a: [[730, 1090, 2440, 3400, 4200], [90, 110, 160, 250, 300]],
+  o: [[570, 840, 2410, 3350, 4200], [80, 100, 150, 250, 300]],
+  u: [[320, 800, 2240, 3300, 4200], [70, 100, 150, 250, 300]],
+  e: [[530, 1840, 2480, 3500, 4300], [80, 120, 160, 250, 300]],
+  i: [[290, 2250, 3010, 3600, 4400], [70, 120, 180, 250, 300]],
+};
+const SEEDS = [
+  { f0: 98,  fs: 1.00, vib: .22, vr: 5.0, br: .05, tilt: .55, segs: [['a', 0, 1.5], ['o', 2.3, 1.1, 1], ['a', -.4, 1.6, 1]] },
+  { f0: 127, fs: 1.02, vib: .28, vr: 5.3, br: .06, tilt: .5,  segs: [['o', 0, 1.8], ['a', 4.6, .9, 1], ['a', 2.8, 1.3, 1]] },
+  { f0: 163, fs: 1.04, vib: .30, vr: 5.6, br: .07, tilt: .4,  segs: [['a', 0, 2.0], ['e', -1.7, .8, 1], ['u', -3.2, 1.2, 1]] },
+  { f0: 192, fs: 1.08, vib: .32, vr: 5.8, br: .08, tilt: .35, segs: [['u', 0, 1.2], ['o', 1.6, 1.4, 1], ['a', 5.3, 1.4, 1]] },
+  { f0: 216, fs: 1.15, vib: .30, vr: 5.4, br: .10, tilt: .4,  segs: [['a', 0, 1.7], ['a', 3.4, 1.0, 1], ['o', 1.2, 1.4, 1]] },
+  { f0: 251, fs: 1.17, vib: .34, vr: 5.2, br: .11, tilt: .45, segs: [['o', 0, 1.4], ['u', -2.4, 1.2, 1], ['a', 2.1, 1.6, 1]] },
+  { f0: 288, fs: 1.18, vib: .38, vr: 5.7, br: .09, tilt: .35, segs: [['a', 0, 2.2], ['e', 2.2, .9, 1], ['a', -1.1, 1.2, 1]] },
+  { f0: 342, fs: 1.20, vib: .40, vr: 5.9, br: .10, tilt: .3,  segs: [['u', 0, 1.3], ['a', -2.9, 1.6, 1], ['o', -.6, 1.2, 1]] },
+  { f0: 384, fs: 1.30, vib: .25, vr: 6.0, br: .12, tilt: .3,  segs: [['a', 0, 1.4], ['i', 1.9, .8, 1], ['a', -2.6, 1.6, 1]] },
+  { f0: 236, fs: 1.14, vib: .20, vr: 5.0, br: .20, tilt: .6,  segs: [['o', 0, 2.4], ['a', -1.3, 1.6, 1]] },
+];
+
+function synthVoice(sr, s) {
+  const lead = 0.12, tail = 0.35;
+  const segs = s.segs.map(([v, p, d, art]) => ({ v, p, d, art }));
+  const st = []; let acc = lead;
+  for (const g of segs) { st.push(acc); acc += g.d; }
+  const end = acc, N = Math.ceil((end + tail) * sr), out = new Float32Array(N), T = 1 / sr;
+  const f0Base = s.f0 * 2 ** (rnd(-0.45, 0.45) / 12); // never quite the same twice
+  const y1 = new Float64Array(5), y2 = new Float64Array(5), A = new Float64Array(5), B = new Float64Array(5), C = new Float64Array(5);
+  const fsHi = 1 + (s.fs - 1) * 0.6, tiltK = 0.12;
+  let phase = 0, gPrev = 0, lp = 0, drift = 0, jit = 1, shim = 1, f0 = f0Base, amp = 0;
+  for (let n = 0; n < N; n++) {
+    const t = n * T;
+    if ((n & 31) === 0) {
+      let i = 0; while (i < st.length - 1 && t >= st[i + 1]) i++;
+      const g = segs[i], pg = i > 0 ? segs[i - 1] : g, tin = t - st[i];
+      let semi = pg.p + (g.p - pg.p) * smooth(0, 0.09, tin);
+      semi += s.vib * smooth(0.35, 0.85, tin) * Math.sin(2 * Math.PI * s.vr * t);
+      drift = (drift + (Math.random() - 0.5) * 0.012) * 0.9995;
+      f0 = f0Base * 2 ** ((semi + drift) / 12);
+      const vp = VOWELS[pg.v], vc = VOWELS[g.v], vm = smooth(0, 0.14, tin);
+      for (let k = 0; k < 5; k++) {
+        let F = (vp[0][k] + (vc[0][k] - vp[0][k]) * vm) * (k < 3 ? s.fs : fsHi);
+        if (k === 0 && F < f0 * 1.08) F = f0 * 1.08; // singers raise F1 to sit above the pitch
+        const bw = (vp[1][k] + (vc[1][k] - vp[1][k]) * vm) * (1 + (s.fs - 1) * 0.5);
+        const r = Math.exp(-Math.PI * bw * T);
+        C[k] = -r * r; B[k] = 2 * r * Math.cos(2 * Math.PI * F * T); A[k] = 1 - B[k] - C[k];
+      }
+      amp = smooth(lead, lead + 0.22, t) * (1 - smooth(end - 0.3, end + 0.05, t));
+      if (g.art && tin < 0.13) amp *= 1 - 0.5 * Math.sin(Math.PI * tin / 0.13);
+    }
+    phase += f0 * jit * T;
+    if (phase >= 1) { phase -= 1; jit = 1 + (Math.random() - 0.5) * 0.012; shim = 1 + (Math.random() - 0.5) * 0.06; }
+    const a = 0.42, b = 0.2;
+    const gl = phase < a ? 0.5 * (1 - Math.cos(Math.PI * phase / a)) : phase < a + b ? Math.cos(Math.PI * (phase - a) / (2 * b)) : 0;
+    const d = (gl - gPrev) * sr / (f0 * 4); gPrev = gl;
+    lp += (d - lp) * tiltK;
+    let x = (d * (1 - s.tilt) + lp * s.tilt * 3) * shim;
+    x += (Math.random() * 2 - 1) * s.br * (0.3 + 0.7 * gl);
+    x *= amp;
+    for (let k = 0; k < 5; k++) { const y = A[k] * x + B[k] * y1[k] + C[k] * y2[k]; y2[k] = y1[k]; y1[k] = y; x = y; }
+    out[n] = x;
+  }
+  let pk = 0; for (let n = 0; n < N; n++) pk = Math.max(pk, Math.abs(out[n]));
+  const k = 0.8 / (pk || 1); for (let n = 0; n < N; n++) out[n] *= k;
+  return out;
+}
+
+/* ---------------------------------------------------------
+   2. Analysis — the same code runs on seeds and on submissions
+   --------------------------------------------------------- */
+const ASR = 12000, AW = 600, AH = 192;
+async function analyse(buf) {
+  const len = Math.max(AW * 2, Math.ceil(buf.duration * ASR));
+  const off = new OfflineAudioContext(1, len, ASR);
+  const src = off.createBufferSource(); src.buffer = buf; src.connect(off.destination); src.start();
+  const x = (await off.startRendering()).getChannelData(0);
+  const tMin = Math.floor(ASR / 1000), tMax = Math.ceil(ASR / 65);
+  const nF = Math.max(1, Math.floor((x.length - AW - tMax) / AH) + 1);
+  const rms = new Float32Array(nF), f0 = new Float32Array(nF), d = new Float32Array(tMax + 1);
+  let maxR = 0;
+  for (let f = 0; f < nF; f++) {
+    const o = f * AH; let e = 0;
+    for (let j = 0; j < AW; j++) { const v = x[o + j] || 0; e += v * v; }
+    rms[f] = Math.sqrt(e / AW); if (rms[f] > maxR) maxR = rms[f];
+  }
+  const gate = Math.max(maxR * 0.1, 0.003);
+  for (let f = 0; f < nF; f++) {
+    if (rms[f] < gate) continue;
+    const o = f * AH;
+    for (let tau = 1; tau <= tMax; tau++) {
+      let s = 0;
+      for (let j = 0; j < AW; j++) { const q = (x[o + j] || 0) - (x[o + j + tau] || 0); s += q * q; }
+      d[tau] = s;
+    }
+    let run = 0, best = -1;
+    for (let tau = 1; tau <= tMax; tau++) { run += d[tau]; d[tau] = run > 0 ? d[tau] * tau / run : 1; }
+    for (let tau = tMin; tau <= tMax; tau++) {
+      if (d[tau] < 0.15) { while (tau + 1 <= tMax && d[tau + 1] < d[tau]) tau++; best = tau; break; }
+    }
+    if (best > 0) {
+      const a = d[best - 1], b = d[best], c = d[Math.min(tMax, best + 1)];
+      const den = a - 2 * b + c, sh = den ? 0.5 * (a - c) / den : 0;
+      f0[f] = ASR / (best + clamp(sh, -1, 1));
+    }
+    if ((f & 31) === 31) await idle();
+  }
+  // pitch track in semitones, octave-error cleanup, then smoothing (keeps intonation, drops vibrato)
+  const raw = Array.from(f0, (v) => (v > 0 ? hz2midi(v) : NaN));
+  const vm = raw.filter((v) => !Number.isNaN(v)).sort((a, b) => a - b);
+  const med = vm.length ? vm[vm.length >> 1] : 60;
+  for (let i = 0; i < nF; i++) {
+    let m = raw[i]; if (Number.isNaN(m)) continue;
+    if (m - med > 8) m -= 12; else if (med - m > 8) m += 12;
+    raw[i] = Math.abs(m - med) > 12 ? NaN : m;
+  }
+  for (let i = 1; i < nF - 1; i++) if (Number.isNaN(raw[i - 1]) && Number.isNaN(raw[i + 1])) raw[i] = NaN; // lone blips
+  const midi = new Float32Array(nF).fill(NaN);
+  for (let i = 0; i < nF; i++) {
+    if (Number.isNaN(raw[i])) continue;
+    let s = 0, w = 0;
+    for (let j = -8; j <= 8; j++) {
+      const v = raw[i + j]; if (v === undefined || Number.isNaN(v)) continue;
+      const k = 0.5 + 0.5 * Math.cos(Math.PI * j / 9); s += v * k; w += k;
+    }
+    midi[i] = s / w;
+  }
+  const hop = AH / ASR, tOf = (f) => (f * AH + AW / 2) / ASR;
+  let active = 0, voiced = 0, first = -1, last = -1, eV = 0;
+  for (let i = 0; i < nF; i++) {
+    if (rms[i] >= gate) active++;
+    if (!Number.isNaN(midi[i])) { voiced++; eV += rms[i] * rms[i]; if (first < 0) first = i; last = i; }
+  }
+  const vs = Array.from(midi).filter((v) => !Number.isNaN(v)).sort((a, b) => a - b);
+  const q = (p) => vs.length ? vs[Math.min(vs.length - 1, Math.floor(p * vs.length))] : 60;
+  // steadiest ~0.7 s of voiced, loud sound = the drone source
+  const L = Math.round(0.7 / hop); let stable = null, bestS = Infinity;
+  for (let i = 0; i + L <= nF; i++) {
+    let ok = true, s = 0, s2 = 0;
+    for (let j = i; j < i + L; j++) {
+      const m = midi[j]; if (Number.isNaN(m) || rms[j] < maxR * 0.3) { ok = false; break; }
+      s += m; s2 += m * m;
+    }
+    if (!ok) continue;
+    const mean = s / L, sd = Math.sqrt(Math.max(0, s2 / L - mean * mean));
+    if (sd < bestS) { bestS = sd; stable = { start: tOf(i) - AW / 2 / ASR, end: tOf(i + L - 1) + AW / 2 / ASR, midi: mean, sd }; }
+  }
+  if (stable && stable.sd > 0.9) stable = null;
+  // level, clipping and a cheap spectral-centroid estimate on the original signal
+  const ch = buf.getChannelData(0), sr = buf.sampleRate;
+  let pk = 0, clip = 0, ex = 0, ed = 0, prev = 0;
+  for (let i = 0; i < ch.length; i++) {
+    const v = ch[i], av = Math.abs(v); if (av > pk) pk = av; if (av >= 0.985) clip++;
+    ex += v * v; const dv = v - prev; ed += dv * dv; prev = v;
+  }
+  const centroid = sr / (2 * Math.PI) * Math.sqrt(ed / (ex || 1));
+  return {
+    dur: buf.duration, hop, nF, rms, midi, gate,
+    medianMidi: q(0.5), lowMidi: q(0.1), highMidi: q(0.9),
+    voicedRatio: active ? voiced / active : 0, voicedSec: voiced * hop,
+    vStart: first >= 0 ? Math.max(0, tOf(first) - 0.08) : 0,
+    vEnd: last >= 0 ? Math.min(buf.duration, tOf(last) + 0.08) : buf.duration,
+    stable, peak: pk, clipFrac: clip / ch.length, centroid,
+    rmsVoiced: voiced ? Math.sqrt(eV / voiced) : maxR || 0.05,
+  };
+}
+const frameAt = (A, t) => clamp(Math.round((t * ASR - AW / 2) / AH), 0, A.nF - 1);
+const timbreOf = (A) => (A.centroid < 680 ? 'warm' : A.centroid < 800 ? 'balanced' : 'bright'); // rough spectral-centroid buckets
+
+/* ---------------------------------------------------------
+   3. Choir engine
+   --------------------------------------------------------- */
+const E = {
+  ctx: null, voices: [], streams: [], playing: false, ready: false,
+  tonic: 2, mode: null, prog: null, chordI: 0, chord: null, tones: [], epoch: 0,
+  chordEnd: 0, moodEnd: 0, nextEntry: 0, nextConduct: 0, drone: null, phi: rnd(0, 6.28),
+  maxP: coarse ? 4 : 6, minP: 2, ripples: [], recording: false, volume: 0.8,
+};
+const MODES = [
+  { name: 'Lydian',  mood: 'Dreaming', scale: [0, 2, 4, 6, 7, 9, 11], progs: [[0, 1, 0, 4], [0, 1, 5, 4], [0, 4, 1, 0]] },
+  { name: 'Major',   mood: 'Bright',   scale: [0, 2, 4, 5, 7, 9, 11], progs: [[0, 5, 3, 4], [0, 3, 5, 4], [3, 0, 4, 5], [0, 4, 5, 3]] },
+  { name: 'Dorian',  mood: 'Warm',     scale: [0, 2, 3, 5, 7, 9, 10], progs: [[0, 3, 0, 6], [0, 3, 6, 0], [0, 6, 3, 3]] },
+  { name: 'Minor',   mood: 'Longing',  scale: [0, 2, 3, 5, 7, 8, 10], progs: [[0, 5, 2, 6], [0, 3, 5, 6], [0, 6, 5, 6]] },
+];
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+const HANN = new Float32Array(64).map((_, i) => 0.5 * (0.5 - 0.5 * Math.cos(2 * Math.PI * i / 63)));
+const HANN_SOFT = HANN.map((v) => v * 0.3);
+
+function setMood(first) {
+  const m = first ? MODES[Math.random() < 0.6 ? 0 : 1 + Math.floor(Math.random() * 3)] : MODES.filter((x) => x !== E.mode)[Math.floor(Math.random() * 3)];
+  if (!first) E.tonic = (E.tonic + [0, 5, 7, -5, 2, -2][Math.floor(Math.random() * 6)] + 12) % 12;
+  else E.tonic = [0, 2, 3, 5, 7, 9][Math.floor(Math.random() * 6)];
+  E.mode = m; E.prog = m.progs[Math.floor(Math.random() * m.progs.length)]; E.chordI = -1;
+}
+function nextChord(now) {
+  if (now >= E.moodEnd) { setMood(!E.mode); E.moodEnd = now + rnd(130, 190); }
+  E.chordI = (E.chordI + 1) % E.prog.length;
+  if (E.chordI === 0 && Math.random() < 0.35) E.prog = E.mode.progs[Math.floor(Math.random() * E.mode.progs.length)];
+  const sc = E.mode.scale, deg = E.prog[E.chordI];
+  const pc = (k) => (E.tonic + sc[(deg + k) % 7]) % 12;
+  const third = (sc[(deg + 2) % 7] - sc[deg] + 12) % 12, fifth = (sc[(deg + 4) % 7] - sc[deg] + 12) % 12;
+  const q = third === 4 ? 'maj' : fifth === 6 ? 'dim' : 'min';
+  const pcs = [pc(0), pc(2), pc(4)];
+  if (Math.random() < 0.55) pcs.push(q === 'maj' ? pc(1) : pc(6)); // add9 on major chords, 7th on minor
+  E.chord = { deg, q, root: pc(0), fifth: pc(4), pcs };
+  E.tones = []; for (let m = 28; m <= 96; m++) if (pcs.includes(m % 12)) E.tones.push(m);
+  E.epoch++;
+  E.chordEnd = now + rnd(8, 12.5) * (E.chordI === 0 ? 1.2 : 1);
+  // drones swell into the new chord
+  if (E.drone) for (const s of E.drone.streams.splice(0)) {
+    if (s.endT - now > 3.5) { const ns = startStream(s.v, 'drone', { len: s.endT - now, level: s.baseLevel, fadeIn: 2.6, fadeOut: s.fadeOut, pc: s.which === 'root' ? E.chord.root : E.chord.fifth, which: s.which }); E.drone.streams.push(ns); }
+    releaseStream(s, 2.6);
+  }
+  updateReadout();
+}
+const nearestTone = (m) => { let b = E.tones[0], bd = 99; for (const t of E.tones) { const dd = Math.abs(t - m); if (dd < bd) { bd = dd; b = t; } } return b; };
+const nearestPc = (m, pc) => { let b = 60, bd = 99; for (let t = 24; t <= 96; t++) if (t % 12 === pc && Math.abs(t - m) < bd) { bd = Math.abs(t - m); b = t; } return b; };
+
+function ensureCtx() {
+  if (E.ctx) return E.ctx;
+  const ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
+  E.ctx = ctx;
+  // master: voices → (dry + convolution reverb) → tone shaping → glue compressor → limiter → volume
+  const dry = ctx.createGain(); dry.gain.value = 0.85;
+  const verb = ctx.createConvolver(); verb.buffer = makeIR(ctx, 4.2);
+  const verbRet = ctx.createGain(); verbRet.gain.value = 0.9;
+  const sum = ctx.createGain();
+  const low = ctx.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 180; low.gain.value = 1.5;
+  const high = ctx.createBiquadFilter(); high.type = 'highshelf'; high.frequency.value = 6500; high.gain.value = -4;
+  const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -20; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.03; comp.release.value = 0.4;
+  const lim = ctx.createDynamicsCompressor(); lim.threshold.value = -3; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.1;
+  const duck = ctx.createGain(); duck.gain.value = 1;
+  const vol = ctx.createGain(); vol.gain.value = 0;
+  dry.connect(sum); verb.connect(verbRet).connect(sum);
+  sum.connect(low).connect(high).connect(comp).connect(lim).connect(duck).connect(vol).connect(ctx.destination);
+  Object.assign(E, { dry, verb, vol, duck, out: vol });
+  const L = ctx.listener;
+  if (L.forwardZ) { L.positionX.value = 0; L.positionY.value = 0; L.positionZ.value = 0; L.forwardX.value = 0; L.forwardY.value = 0; L.forwardZ.value = -1; L.upX.value = 0; L.upY.value = 1; L.upZ.value = 0; }
+  else if (L.setOrientation) { L.setPosition(0, 0, 0); L.setOrientation(0, 0, -1, 0, 1, 0); }
+  setInterval(tick, 25);
+  return ctx;
+}
+function makeIR(ctx, sec) {
+  const sr = ctx.sampleRate, n = Math.floor(sec * sr), ir = ctx.createBuffer(2, n, sr), pre = Math.floor(0.024 * sr);
+  for (let c = 0; c < 2; c++) {
+    const d = ir.getChannelData(c); let lp = 0;
+    for (let i = pre; i < n; i++) {
+      const t = (i - pre) / sr, k = 0.25 + 0.7 * (t / sec); // darker as it decays
+      lp += ((Math.random() * 2 - 1) - lp) * (1 - k);
+      d[i] = lp * Math.exp(-t * 6.9 / sec) * (t < 0.06 ? t / 0.06 : 1);
+    }
+    for (let r = 0; r < 7; r++) { const at = pre + Math.floor(rnd(0.006, 0.08) * sr); d[at] += rnd(-0.5, 0.5); }
+  }
+  return ir;
+}
+function ensureChain(v) {
+  if (v.input) return;
+  const ctx = E.ctx;
+  v.input = ctx.createGain(); v.input.gain.value = v.norm;
+  v.lp = ctx.createBiquadFilter(); v.lp.type = 'lowpass'; v.lp.frequency.value = 12000; v.lp.Q.value = 0.5;
+  v.pan = ctx.createPanner();
+  v.pan.panningModel = coarse ? 'equalpower' : 'HRTF';
+  v.pan.distanceModel = 'inverse'; v.pan.refDistance = 1.3; v.pan.rolloffFactor = 0.7; v.pan.maxDistance = 50;
+  v.send = ctx.createGain(); v.send.gain.value = 0.4;
+  v.input.connect(v.lp).connect(v.pan); v.pan.connect(E.dry); v.pan.connect(v.send).connect(E.verb);
+  placeAudio(v, true);
+}
+
+function startStream(v, kind, o) {
+  const ctx = E.ctx, t0 = ctx.currentTime + 0.06;
+  ensureChain(v);
+  const out = ctx.createGain(); out.gain.value = 0; out.connect(v.input);
+  const s = { v, kind, out, t0, nextT: t0, detune: rnd(-0.07, 0.07), level: o.level, baseLevel: o.level, fadeIn: o.fadeIn, fadeOut: o.fadeOut, which: o.which };
+  if (kind === 'phrase') { s.speed = o.speed; s.read = v.A.vStart; s.endT = t0 + (v.A.vEnd - v.A.vStart) / s.speed; s.GL = 0.11; s.hop = 0.027; }
+  else { s.endT = t0 + o.len; s.GL = 0.19; s.hop = 0.048; s.target = nearestPc(v.A.stable.midi + (o.which === 'root' ? -2 : 1), o.pc); }
+  s.fadeIn = Math.min(s.fadeIn, (s.endT - t0) * 0.45); s.fadeOut = Math.min(s.fadeOut, (s.endT - t0) * 0.45);
+  const g = out.gain;
+  g.setValueAtTime(0, t0); g.linearRampToValueAtTime(s.level, t0 + s.fadeIn);
+  g.setValueAtTime(s.level, s.endT - s.fadeOut); g.linearRampToValueAtTime(0, s.endT);
+  E.streams.push(s);
+  return s;
+}
+function releaseStream(s, fade) {
+  const now = E.ctx.currentTime; if (s.endT <= now) return;
+  const v = envAt(s, now); s.rel = { t: now, v }; s.endT = now + fade;
+  const g = s.out.gain;
+  if (g.cancelAndHoldAtTime) g.cancelAndHoldAtTime(now); else { g.cancelScheduledValues(now); g.setValueAtTime(v, now); }
+  g.linearRampToValueAtTime(0, now + fade);
+}
+function envAt(s, t) {
+  if (t < s.t0 || t >= s.endT) return 0;
+  if (s.rel && t >= s.rel.t) return s.rel.v * (1 - (t - s.rel.t) / (s.endT - s.rel.t));
+  const a = (t - s.t0) / s.fadeIn; if (a < 1) return s.level * a;
+  const r = (s.endT - t) / s.fadeOut; if (r < 1) return s.level * r;
+  return s.level;
+}
+
+function grain(s, t) {
+  const v = s.v, A = v.A, ctx = E.ctx, GL = s.GL;
+  let pos;
+  if (s.kind === 'phrase') pos = s.read + rnd(-0.006, 0.006);
+  else pos = rnd(A.stable.start, Math.max(A.stable.start, A.stable.end - GL));
+  const fi = frameAt(A, pos + GL / 2);
+  let m = A.midi[fi]; const voiced = !Number.isNaN(m);
+  if (voiced) s.lastM = m; else m = s.lastM ?? A.medianMidi;
+  let target;
+  if (s.kind === 'drone') target = s.target;
+  else {
+    if (s.target == null) s.target = nearestTone(m);
+    else if (s.epoch !== E.epoch) s.target = nearestTone(s.target);      // voice-lead into the new chord
+    else if (voiced && Math.abs(m - s.target) > 2.1) s.target = nearestTone(m); // follow the singer's intonation
+    s.epoch = E.epoch; target = s.target;
+  }
+  const semis = clamp(target - m + s.detune + rnd(-0.025, 0.025), -10, 10);
+  const src = ctx.createBufferSource(); src.buffer = v.buffer; src.playbackRate.value = 2 ** (semis / 12);
+  const g = ctx.createGain(); g.gain.value = 0;
+  g.gain.setValueCurveAtTime(voiced ? HANN : HANN_SOFT, t, GL);
+  src.connect(g); g.connect(s.out);
+  src.start(t, clamp(pos, 0, v.buffer.duration - 0.02));
+  src.stop(t + GL + 0.01);
+  src.onended = () => { g.disconnect(); };
+  s.rmsNow = A.rms[fi] / (A.rmsVoiced || 0.05);
+}
+
+function tick() {
+  const ctx = E.ctx; if (!ctx || ctx.state !== 'running' || !E.playing) return;
+  const now = ctx.currentTime, horizon = now + 0.22;
+  if (now >= E.nextConduct) { conduct(now); E.nextConduct = now + 0.25; }
+  for (const s of E.streams) {
+    if (s.nextT < now) { const lag = now + 0.01 - s.nextT; if (s.kind === 'phrase') s.read += lag * s.speed; s.nextT = now + 0.01; }
+    while (s.nextT < horizon && s.nextT < s.endT - 0.02) {
+      grain(s, s.nextT);
+      const h = s.hop * rnd(0.85, 1.15);
+      if (s.kind === 'phrase') s.read = Math.min(s.read + h * s.speed, s.v.A.vEnd);
+      s.nextT += h;
+    }
+  }
+  E.streams = E.streams.filter((s) => { if (now > s.endT + 0.5) { s.out.disconnect(); return false; } return true; });
+}
+
+/* ---------------------------------------------------------
+   4. Conductor (rules for v1; this is where AI can slot in later)
+   --------------------------------------------------------- */
+const register = (v) => v.A.medianMidi < 50 ? 0 : v.A.medianMidi < 57 ? 1 : v.A.medianMidi < 64 ? 2 : 3;
+function conduct(now) {
+  if (now >= E.chordEnd) nextChord(now);
+  const live = E.voices.filter((v) => v.A);
+  const phrases = E.streams.filter((s) => s.kind === 'phrase' && s.endT - now > 1.4);
+  const breath = 0.5 + 0.5 * Math.sin(now * 2 * Math.PI / 58 + E.phi) * Math.sin(now * 2 * Math.PI / 141 + 1.3);
+  const maxP = Math.min(E.maxP, Math.max(1, live.length - 1));
+  const want = Math.round(E.minP + (maxP - E.minP) * clamp(breath, 0, 1));
+  const fresh = live.find((v) => v.own && !v.debuted && now >= v.busyUntil);
+  if (fresh || (phrases.length < want && now >= E.nextEntry)) {
+    const v = fresh || chooseVoice(now, phrases);
+    if (v) { startPhrase(v, now); E.nextEntry = now + rnd(1.0, 2.6); }
+  }
+  if (!E.drone || now > E.drone.until - 6) startDrone(now);
+}
+function chooseVoice(now, phrases) {
+  const count = [0, 0, 0, 0]; for (const s of phrases) count[register(s.v)]++;
+  let best = null, bs = -Infinity;
+  for (const v of E.voices) {
+    if (!v.A || now < v.restUntil || now < v.busyUntil) continue;
+    const r = register(v);
+    const sc = Math.min(now - v.lastSang, 60) + (count[r] === 0 ? 25 : -count[r] * 10) + rnd(0, 15) + (v.own ? 8 : 0);
+    if (sc > bs) { bs = sc; best = v; }
+  }
+  return best;
+}
+function startPhrase(v, now) {
+  const s = startStream(v, 'phrase', { level: rnd(0.75, 1) * (v.own ? 1.25 : 1), speed: v.own && !v.debuted ? 0.8 : rnd(0.55, 0.85), fadeIn: rnd(0.4, 1.3), fadeOut: rnd(1, 2) });
+  v.debuted = true; v.lastSang = now; v.busyUntil = s.endT; v.restUntil = s.endT + rnd(3, 10);
+  E.ripples.push({ v, t: performance.now(), big: v.own });
+}
+function startDrone(now) {
+  let best = null, bs = -Infinity;
+  for (const v of E.voices) {
+    if (!v.A || !v.A.stable || now < v.busyUntil || now < v.restUntil) continue;
+    const sc = -v.A.stable.midi * 0.35 + Math.min(now - v.lastSang, 60) * 0.5 + rnd(0, 10);
+    if (sc > bs) { bs = sc; best = v; }
+  }
+  if (!best) return;
+  const len = rnd(16, 26);
+  const streams = [
+    startStream(best, 'drone', { len, level: 0.62, fadeIn: rnd(3.5, 5), fadeOut: rnd(4, 6), pc: E.chord.root, which: 'root' }),
+    startStream(best, 'drone', { len, level: 0.42, fadeIn: rnd(4.5, 6), fadeOut: rnd(4, 6), pc: E.chord.fifth, which: 'fifth' }),
+  ];
+  E.drone = { v: best, streams, until: now + len };
+  best.lastSang = now; best.busyUntil = now + len; best.restUntil = now + len + rnd(6, 12);
+}
+
+/* ---------------------------------------------------------
+   5. Globe — orthographic dot globe; voice position drives 3D audio
+   --------------------------------------------------------- */
+const cv = $('globe'), g2 = cv.getContext('2d');
+const G = { lon: -40, lat: 18, vlon: 0, vlat: 0, drag: null, W: 0, H: 0, R: 0, cx: 0, cy: 0, dpr: 1 };
+const DEG = Math.PI / 180;
+function resize() {
+  G.dpr = Math.min(2, window.devicePixelRatio || 1);
+  G.W = innerWidth; G.H = innerHeight;
+  cv.width = Math.round(G.W * G.dpr); cv.height = Math.round(G.H * G.dpr);
+  const mobile = G.W < 761;
+  G.R = Math.min(G.W, G.H) * (mobile ? 0.4 : 0.31);
+  G.cx = G.W / 2; G.cy = G.H * (mobile ? 0.47 : 0.48);
+}
+addEventListener('resize', resize); resize();
+function project(lon, lat) {
+  const l = (lon - G.lon) * DEG, p = lat * DEG, p0 = G.lat * DEG;
+  const cp = Math.cos(p), sp = Math.sin(p), cl = Math.cos(l);
+  return [cp * Math.sin(l), Math.cos(p0) * sp - Math.sin(p0) * cp * cl, Math.sin(p0) * sp + Math.cos(p0) * cp * cl];
+}
+function placeAudio(v, now) {
+  if (!v.pan) return;
+  const [x, y, z] = project(v.lon, v.lat);
+  const px = x * 2.4, py = y * 1.6, pz = -3.2 + z * 2.2, front = (z + 1) / 2;
+  const t = E.ctx.currentTime;
+  if (v.pan.positionX) {
+    if (now) { v.pan.positionX.value = px; v.pan.positionY.value = py; v.pan.positionZ.value = pz; }
+    else { v.pan.positionX.setTargetAtTime(px, t, 0.08); v.pan.positionY.setTargetAtTime(py, t, 0.08); v.pan.positionZ.setTargetAtTime(pz, t, 0.08); }
+  } else v.pan.setPosition(px, py, pz);
+  v.lp.frequency.setTargetAtTime(1800 + 14200 * front * front, t, 0.15);
+  v.send.gain.setTargetAtTime(0.28 + 0.55 * (1 - front), t, 0.15);
+}
+const COLORS = { warm: [255, 180, 94], balanced: [246, 199, 176], bright: [166, 220, 255], own: [255, 255, 255] };
+
+let lastT = performance.now(), audioFrame = 0;
+function frame(ts) {
+  const dt = Math.min(0.05, (ts - lastT) / 1000); lastT = ts;
+  if (!G.drag) {
+    G.lon += (reduceMotion ? 0.5 : 2.2) * dt + G.vlon; G.lat = clamp(G.lat + G.vlat, -35, 50);
+    G.vlon *= 0.94; G.vlat *= 0.9; G.lat += (18 - G.lat) * 0.004;
+  }
+  const W = G.W, H = G.H, R = G.R, cx = G.cx, cy = G.cy, c = g2;
+  c.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
+  c.fillStyle = '#07080c'; c.fillRect(0, 0, W, H);
+  // atmosphere and body
+  let gr = c.createRadialGradient(cx, cy, R * 0.9, cx, cy, R * 1.55);
+  gr.addColorStop(0, 'rgba(255,170,100,0.075)'); gr.addColorStop(1, 'rgba(255,170,100,0)');
+  c.fillStyle = gr; c.beginPath(); c.arc(cx, cy, R * 1.55, 0, 7); c.fill();
+  gr = c.createRadialGradient(cx - R * 0.35, cy - R * 0.4, R * 0.1, cx, cy, R);
+  gr.addColorStop(0, '#141826'); gr.addColorStop(1, '#0a0c13');
+  c.fillStyle = gr; c.beginPath(); c.arc(cx, cy, R, 0, 7); c.fill();
+  c.strokeStyle = 'rgba(239,232,220,0.07)'; c.lineWidth = 1; c.stroke();
+  // land dots, bucketed by depth for speed
+  const buckets = Array.from({ length: 7 }, () => []);
+  for (let i = 0; i < LAND.length; i += 2) {
+    const [x, y, z] = project(LAND[i] / 10, LAND[i + 1] / 10);
+    const b = z < 0 ? (z < -0.2 ? -1 : 0) : 1 + Math.min(5, Math.floor(z * 6));
+    if (b >= 0) buckets[b].push(cx + x * R, cy - y * R);
+  }
+  for (let b = 0; b < 7; b++) {
+    const z = b === 0 ? -0.1 : (b - 0.5) / 6, a = b === 0 ? 0.05 : 0.14 + 0.5 * z, s = b === 0 ? 0.9 : 1 + 0.9 * z;
+    c.fillStyle = `rgba(232,222,205,${a})`; c.beginPath();
+    const arr = buckets[b]; for (let i = 0; i < arr.length; i += 2) c.rect(arr[i] - s / 2, arr[i + 1] - s / 2, s, s);
+    c.fill();
+  }
+  // voices
+  const at = E.ctx ? E.ctx.currentTime : 0;
+  const pts = [];
+  for (const v of E.voices) {
+    const [x, y, z] = project(v.lon, v.lat);
+    let lvl = 0;
+    if (E.ctx && E.playing) for (const s of E.streams) if (s.v === v) lvl += envAt(s, at) * (s.kind === 'drone' ? 0.8 : clamp(s.rmsNow ?? 1, 0, 1.6));
+    v.vis += (clamp(lvl, 0, 1.5) - v.vis) * (lvl > v.vis ? 0.25 : 0.06);
+    if (v.fade !== undefined) v.fade = Math.max(0, v.fade - dt * 1.2);
+    const fadeK = v.fade ?? Math.min(1, (v.born ? (ts - v.born) / 900 : 1));
+    pts.push({ v, x: cx + x * R, y: cy - y * R, z, k: (z < 0 ? 0.22 + 0.3 * (1 + z) : 0.55 + 0.45 * z) * fadeK });
+  }
+  pts.sort((a, b) => a.z - b.z);
+  c.globalCompositeOperation = 'lighter';
+  // faint threads between the voices that are singing together
+  const singing = pts.filter((p) => p.v.vis > 0.08);
+  c.lineWidth = 1;
+  for (let i = 0; i < singing.length; i++) for (let j = i + 1; j < singing.length; j++) {
+    const p = singing[i], q = singing[j], a = 0.07 * Math.min(p.v.vis, q.v.vis, 1) * Math.min(p.k, q.k);
+    if (a < 0.004) continue;
+    c.strokeStyle = `rgba(255,214,170,${a})`; c.beginPath(); c.moveTo(p.x, p.y);
+    c.quadraticCurveTo((p.x + q.x) / 2 + (cx - (p.x + q.x) / 2) * 0.25, (p.y + q.y) / 2 + (cy - (p.y + q.y) / 2) * 0.25, q.x, q.y); c.stroke();
+  }
+  for (const p of pts) {
+    const col = p.v.own ? COLORS.own : COLORS[p.v.timbre], vis = p.v.vis, k = p.k;
+    const rr = (7 + 34 * vis) * (0.6 + 0.4 * Math.max(0, p.z + 0.4));
+    const h = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr);
+    h.addColorStop(0, `rgba(${col},${(0.35 + 0.5 * Math.min(vis, 1)) * k})`); h.addColorStop(1, `rgba(${col},0)`);
+    c.fillStyle = h; c.beginPath(); c.arc(p.x, p.y, rr, 0, 7); c.fill();
+    c.fillStyle = `rgba(${col},${(0.6 + 0.4 * Math.min(vis, 1)) * k})`; c.beginPath(); c.arc(p.x, p.y, 1.8 + 1.6 * Math.min(vis, 1), 0, 7); c.fill();
+    p.v.sx = p.x; p.v.sy = p.y; p.v.sz = p.z;
+  }
+  // ripples when a voice enters
+  const nowP = performance.now();
+  E.ripples = E.ripples.filter((r) => nowP - r.t < (r.big ? 2600 : 1700));
+  for (const r of E.ripples) {
+    if (r.v.sx === undefined) continue;
+    const u = (nowP - r.t) / (r.big ? 2600 : 1700), col = r.v.own ? COLORS.own : COLORS[r.v.timbre];
+    const vis = r.v.sz < 0 ? 0.35 : 1;
+    c.strokeStyle = `rgba(${col},${(1 - u) * (r.big ? 0.6 : 0.3) * vis})`; c.lineWidth = r.big ? 1.5 : 1;
+    c.beginPath(); c.arc(r.v.sx, r.v.sy, 6 + u * (r.big ? 90 : 46), 0, 7); c.stroke();
+  }
+  c.globalCompositeOperation = 'source-over';
+  // own voice label
+  for (const v of E.voices) if (v.own && v.sx !== undefined && v.sz > 0.05 && v.fade === undefined) {
+    c.font = '500 11px "Geist Mono", monospace'; c.fillStyle = `rgba(255,255,255,${0.75 * v.sz})`; c.textAlign = 'left';
+    c.fillText('YOU', v.sx + 10, v.sy - 8);
+  }
+  // spatial audio follows the globe
+  if (E.ctx && ++audioFrame % 4 === 0) for (const v of E.voices) placeAudio(v, false);
+  if (tipVoice) showTip(tipVoice);
+  requestAnimationFrame(frame);
+}
+
+// drag / hover / keyboard
+let tipVoice = null, tipPinned = false;
+cv.addEventListener('pointerdown', (e) => { cv.setPointerCapture(e.pointerId); G.drag = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t: performance.now() }; cv.classList.add('dragging'); });
+cv.addEventListener('pointermove', (e) => {
+  if (G.drag) {
+    const dx = e.clientX - G.drag.x, dy = e.clientY - G.drag.y, k = 70 / G.R;
+    G.lon -= dx * k; G.lat = clamp(G.lat + dy * k, -35, 50);
+    G.vlon = -dx * k * 0.5; G.vlat = dy * k * 0.3; G.drag.x = e.clientX; G.drag.y = e.clientY;
+  } else if (e.pointerType === 'mouse') { const v = hit(e.clientX, e.clientY); tipPinned = false; setTip(v); }
+});
+const endDrag = (e) => {
+  if (!G.drag) return;
+  const moved = Math.hypot(e.clientX - G.drag.sx, e.clientY - G.drag.sy);
+  G.drag = null; cv.classList.remove('dragging');
+  if (moved < 5) { const v = hit(e.clientX, e.clientY); tipPinned = !!v; setTip(v); }
+};
+cv.addEventListener('pointerup', endDrag); cv.addEventListener('pointercancel', endDrag);
+cv.addEventListener('pointerleave', () => { if (!tipPinned) setTip(null); });
+cv.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') G.vlon -= 1.2; else if (e.key === 'ArrowRight') G.vlon += 1.2;
+  else if (e.key === 'ArrowUp') G.vlat += 0.8; else if (e.key === 'ArrowDown') G.vlat -= 0.8; else return;
+  e.preventDefault();
+});
+function hit(x, y) {
+  let best = null, bd = 22;
+  for (const v of E.voices) { if (v.sx === undefined || v.sz < -0.15) continue; const d = Math.hypot(v.sx - x, v.sy - y); if (d < bd) { bd = d; best = v; } }
+  return best;
+}
+const tip = $('tip');
+function setTip(v) { tipVoice = v; if (!v) tip.classList.remove('on'); else showTip(v); }
+function showTip(v) {
+  if (!E.voices.includes(v)) return setTip(null);
+  const now = E.ctx ? E.ctx.currentTime : 0;
+  const status = !E.playing ? 'Waiting for you to press listen' : E.drone && E.drone.v === v && now < E.drone.until ? 'Holding the drone' : now < v.busyUntil ? 'Singing' : 'Resting';
+  tip.innerHTML = `<b>${v.name}</b><span class="k">${noteName(v.A.medianMidi)} · ${v.timbre === 'balanced' ? 'clear' : v.timbre} tone</span><br>${status}<br><span class="k">${v.own ? (v.remote && v.remote.state === 'approved' ? 'Your voice, in the world choir' : 'Only you can hear it so far') : v.poolId ? 'Shared by a visitor' : 'Synthesised stand-in voice'}</span>`;
+  tip.style.left = clamp(v.sx, 100, G.W - 100) + 'px'; tip.style.top = v.sy + 'px'; tip.classList.add('on');
+}
+
+/* ---------------------------------------------------------
+   UI: listen / volume / readout / toast
+   --------------------------------------------------------- */
+const playBtn = $('playBtn');
+function updateReadout() {
+  if (E.mode) {
+    $('roKey').innerHTML = `${NOTE[E.tonic]} ${E.mode.name} · <span>${E.mode.mood}</span>`;
+    const ch = E.chord, num = ROMAN[ch.deg];
+    $('roChord').textContent = `${ch.q === 'maj' ? num : num.toLowerCase() + (ch.q === 'dim' ? '°' : '')} · ${NOTE[ch.root]}${ch.q === 'min' ? 'm' : ch.q === 'dim' ? '°' : ''}`;
+  }
+  const now = E.ctx ? E.ctx.currentTime : 0;
+  const singing = E.playing ? E.voices.filter((v) => now < v.busyUntil).length : 0;
+  $('roVoices').textContent = `${E.voices.length} · ${singing} singing`;
+}
+setInterval(updateReadout, 700);
+
+async function play() {
+  const ctx = ensureCtx();
+  await ctx.resume();
+  if (!E.mode) { const now = ctx.currentTime; E.moodEnd = 0; nextChord(now); E.nextEntry = now + 0.8; }
+  E.playing = true;
+  E.vol.gain.cancelScheduledValues(ctx.currentTime);
+  E.vol.gain.setTargetAtTime(E.volume, ctx.currentTime, 0.4);
+  playBtn.setAttribute('aria-pressed', 'true');
+  $('playLbl').textContent = 'Pause';
+  $('playIco').innerHTML = '<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>';
+  updateReadout();
+}
+function pause() {
+  const ctx = E.ctx; if (!ctx) return;
+  E.vol.gain.setTargetAtTime(0, ctx.currentTime, 0.15);
+  playBtn.setAttribute('aria-pressed', 'false');
+  $('playLbl').textContent = 'Listen';
+  $('playIco').innerHTML = '<path d="M7 4.5v15l12.5-7.5z"/>';
+  setTimeout(() => { if (playBtn.getAttribute('aria-pressed') === 'false') { E.playing = false; ctx.suspend(); } }, 700);
+}
+playBtn.addEventListener('click', () => (E.playing && playBtn.getAttribute('aria-pressed') === 'true' ? pause() : play()));
+$('vol').addEventListener('input', (e) => { E.volume = +e.target.value; if (E.ctx && E.playing) E.vol.gain.setTargetAtTime(E.volume, E.ctx.currentTime, 0.05); });
+let toastT;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 4200); }
+
+/* ---------------------------------------------------------
+   Pool
+   --------------------------------------------------------- */
+let vid = 0;
+function landPoint(nearFront) {
+  if (nearFront) {
+    let best = 0, bz = -2;
+    for (let i = 0; i < LAND.length; i += 2) {
+      const [x, y, z] = project(LAND[i] / 10, LAND[i + 1] / 10);
+      const s = z - Math.abs(x) * 0.6 - Math.abs(y + 0.15) * 0.4 + Math.random() * 0.05;
+      if (s > bz) { bz = s; best = i; }
+    }
+    return [LAND[best] / 10, LAND[best + 1] / 10];
+  }
+  for (let tries = 0; tries < 40; tries++) {
+    const i = 2 * Math.floor(Math.random() * LAND.length / 2), lon = LAND[i] / 10, lat = LAND[i + 1] / 10;
+    if (E.voices.every((v) => Math.hypot(v.lon - lon, v.lat - lat) > 18)) return [lon, lat];
+  }
+  const i = 2 * Math.floor(Math.random() * LAND.length / 2); return [LAND[i] / 10, LAND[i + 1] / 10];
+}
+function addVoice(buffer, A, opts = {}) {
+  const [lon, lat] = landPoint(opts.own);
+  const v = {
+    id: ++vid, name: opts.name, own: !!opts.own, buffer, A, lon, lat, timbre: timbreOf(A),
+    norm: clamp(0.15 / (A.rmsVoiced || 0.05), 0.2, 18), vis: 0, lastSang: -60, busyUntil: 0, restUntil: 0,
+    born: performance.now(), debuted: !opts.own,
+  };
+  E.voices.push(v);
+  return v;
+}
+function removeVoice(v) {
+  for (const s of E.streams) if (s.v === v) releaseStream(s, 1.2);
+  if (E.drone && E.drone.v === v) E.drone.until = 0;
+  v.fade = 1; v.busyUntil = Infinity; v.restUntil = Infinity;
+  setTimeout(() => {
+    E.voices = E.voices.filter((x) => x !== v);
+    if (v.input) setTimeout(() => { v.input.disconnect(); v.pan.disconnect(); v.send.disconnect(); }, 400);
+    v.buffer = null;
+  }, 1300);
+  if (tipVoice === v) setTip(null);
+}
+
+async function boot() {
+  let list = [];
+  if (API) {
+    try {
+      const r = await fetch(`${API}/pool?n=${POOL_SIZE}`, { cache: 'no-store' });
+      if (r.ok) list = (await r.json()).voices || [];
+    } catch (e) { console.warn('pool unavailable, using seed voices', e); }
+  }
+  const sr = 48000, nSeeds = API ? Math.max(0, MIN_VOICES - list.length) : SEEDS.length;
+  const order = SEEDS.map((_, i) => i).sort(() => Math.random() - 0.5).slice(0, nSeeds).sort((a, b) => a - b);
+  for (const i of order) {
+    const data = synthVoice(sr, SEEDS[i]);
+    const buf = new AudioBuffer({ length: data.length, sampleRate: sr, numberOfChannels: 1 });
+    buf.copyToChannel(data, 0);
+    const A = await analyse(buf);
+    addVoice(buf, A, { name: `Seed voice ${String(i + 1).padStart(2, '0')}` });
+    await idle();
+  }
+  const ready = () => { if (E.ready) return; E.ready = true; playBtn.disabled = false; $('playLbl').textContent = 'Listen'; updateReadout(); };
+  if (E.voices.length >= 3 || !list.length) ready();
+  // shared voices stream in a few at a time
+  const mine = new Map(store.get().map((r) => [r.id, r]));
+  const dec = new OfflineAudioContext(1, 1, sr);
+  let next = 0;
+  const worker = async () => {
+    while (next < list.length) {
+      const it = list[next++];
+      try {
+        const ab = await (await fetch(it.url)).arrayBuffer();
+        const buf = await dec.decodeAudioData(ab);
+        const A = await analyse(buf);
+        const rec = mine.get(it.id);
+        const v = addVoice(buf, A, rec ? { own: true, name: rec.name || 'Your voice' } : { name: 'A voice from the world' });
+        v.poolId = it.id;
+        if (rec) { v.remote = { id: it.id, token: rec.token, state: 'approved' }; v.debuted = true; renderYours(); }
+        if (E.voices.length >= 3) ready();
+      } catch (e) { console.warn('could not load voice', it.id, e); }
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  ready();
+  // submissions still being checked from an earlier visit
+  for (const r of store.get()) if (!E.voices.some((v) => v.remote && v.remote.id === r.id)) pollStatus(null, r);
+}
+
+/* ---------------------------------------------------------
+   6. Contribution — consent, capture, automated checks, join
+   --------------------------------------------------------- */
+const dlg = $('dlg');
+let mic = null, recorder = null, chunks = [], recStart = 0, recRAF = 0, clip = null, clipA = null, previewSrc = null;
+const MAX_REC = 8;
+function step(n) {
+  dlg.querySelectorAll('[data-step]').forEach((el) => { el.hidden = +el.dataset.step !== n; });
+  dlg.querySelectorAll('.steps li').forEach((li) => { const s = +li.dataset.s; li.classList.toggle('on', s === n); li.classList.toggle('done', s < n); });
+}
+$('addBtn').addEventListener('click', () => {
+  if (E.voices.filter((v) => v.own).length >= 3) { toast('You can add up to three voices in one visit. Withdraw one to add another.'); return; }
+  resetRecorder(); step(1); dlg.showModal();
+});
+$('dlgClose').addEventListener('click', () => dlg.close());
+dlg.addEventListener('close', () => { stopMic(); stopPreview(); unduck(); });
+dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+const c1 = $('c1'), c2 = $('c2');
+const consentOk = () => { $('toRecord').disabled = !(c1.checked && c2.checked); };
+c1.addEventListener('change', consentOk); c2.addEventListener('change', consentOk);
+$('toRecord').addEventListener('click', () => step(2));
+
+function resetRecorder() {
+  clip = null; clipA = null;
+  $('recState').textContent = 'Tap to record, up to 8 seconds';
+  $('ringArc').style.strokeDashoffset = 301.6; $('meterBar').style.width = '0';
+  $('preview').hidden = true; $('toCheck').hidden = true;
+  $('recBtn').classList.remove('rec'); $('recBtn').setAttribute('aria-label', 'Start recording');
+}
+function duck() { if (E.ctx) E.duck.gain.setTargetAtTime(0, E.ctx.currentTime, 0.08); }
+function unduck() { if (E.ctx) E.duck.gain.setTargetAtTime(1, E.ctx.currentTime, 0.3); }
+function stopMic() {
+  if (recorder && recorder.state === 'recording') { recorder.onstop = null; recorder.stop(); }
+  if (mic) { mic.getTracks().forEach((t) => t.stop()); mic = null; }
+  cancelAnimationFrame(recRAF); recorder = null; $('recBtn').classList.remove('rec');
+}
+$('recBtn').addEventListener('click', async () => {
+  if (recorder && recorder.state === 'recording') { recorder.stop(); return; }
+  stopPreview();
+  const ctx = ensureCtx(); ctx.resume();
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+    $('recState').textContent = 'Recording isn\'t available here. Upload a clip instead.'; return;
+  }
+  try {
+    mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true, autoGainControl: false, channelCount: 1 } });
+  } catch (err) {
+    $('recState').textContent = location.protocol === 'file:' ? 'The mic needs the page served over https (your GitHub Pages link works). Or upload a clip.' : 'No microphone access. Allow it in the browser, or upload a clip.';
+    return;
+  }
+  duck();
+  const an = ctx.createAnalyser(); an.fftSize = 1024; const ms = ctx.createMediaStreamSource(mic); ms.connect(an);
+  const buf = new Float32Array(an.fftSize);
+  chunks = []; recorder = new MediaRecorder(mic);
+  recorder.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+  recorder.onstop = async () => {
+    cancelAnimationFrame(recRAF); ms.disconnect();
+    const type = recorder.mimeType; stopMic(); unduck();
+    $('recState').textContent = 'Reading your clip…';
+    try { await loadClip(await new Blob(chunks, { type }).arrayBuffer()); }
+    catch { $('recState').textContent = 'That recording couldn\'t be read. Try again.'; }
+  };
+  recorder.start(); recStart = performance.now();
+  $('recBtn').classList.add('rec'); $('recBtn').setAttribute('aria-label', 'Stop recording');
+  $('preview').hidden = true; $('toCheck').hidden = true;
+  const loop = () => {
+    const t = (performance.now() - recStart) / 1000;
+    an.getFloatTimeDomainData(buf); let pk = 0; for (const v of buf) pk = Math.max(pk, Math.abs(v));
+    $('meterBar').style.width = Math.min(100, Math.sqrt(pk) * 110) + '%';
+    $('ringArc').style.strokeDashoffset = 301.6 * (1 - Math.min(1, t / MAX_REC));
+    $('recState').textContent = `Recording… ${t.toFixed(1)} s`;
+    if (t >= MAX_REC && recorder && recorder.state === 'recording') recorder.stop(); else recRAF = requestAnimationFrame(loop);
+  };
+  loop();
+});
+$('upload').addEventListener('change', async (e) => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  ensureCtx(); stopPreview();
+  $('recState').textContent = 'Reading your clip…';
+  try { await loadClip(await f.arrayBuffer()); } catch { $('recState').textContent = 'That file couldn\'t be read as audio. Try another.'; }
+});
+async function loadClip(ab) {
+  const ctx = ensureCtx();
+  const dec = await new Promise((res, rej) => { const p = ctx.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej); });
+  // mix to mono, trim silence at both ends, cap at 10 s
+  const n = dec.length, sr = dec.sampleRate, mono = new Float32Array(n);
+  for (let c = 0; c < dec.numberOfChannels; c++) { const d = dec.getChannelData(c); for (let i = 0; i < n; i++) mono[i] += d[i] / dec.numberOfChannels; }
+  const win = Math.floor(sr * 0.02), fr = [];
+  for (let i = 0; i + win <= n; i += win) { let e = 0; for (let j = 0; j < win; j++) e += mono[i + j] ** 2; fr.push(Math.sqrt(e / win)); }
+  const mx = Math.max(0.0001, ...fr), th = mx * 0.08;
+  let a = fr.findIndex((v) => v > th), b = fr.length - 1 - [...fr].reverse().findIndex((v) => v > th);
+  if (a < 0) { a = 0; b = fr.length - 1; }
+  const s0 = Math.max(0, a * win - Math.floor(sr * 0.08)), s1 = Math.min(n, Math.min((b + 1) * win + Math.floor(sr * 0.12), s0 + sr * 10));
+  const out = ctx.createBuffer(1, Math.max(1, s1 - s0), sr);
+  out.copyToChannel(mono.subarray(s0, s1), 0);
+  let rawPeak = 0; for (let i = 0; i < n; i++) { const av = Math.abs(mono[i]); if (av > rawPeak) rawPeak = av; }
+  clip = { buffer: out, rawPeak, seconds: (s1 - s0) / sr };
+  $('recState').textContent = `Got ${clip.seconds.toFixed(1)} seconds`;
+  $('preview').hidden = false; $('toCheck').hidden = false;
+}
+function stopPreview() { if (previewSrc) { try { previewSrc.stop(); } catch {} previewSrc = null; } }
+$('preview').addEventListener('click', () => {
+  if (!clip) return; stopPreview();
+  const ctx = ensureCtx(); ctx.resume(); duck();
+  previewSrc = ctx.createBufferSource(); previewSrc.buffer = clip.buffer; previewSrc.connect(ctx.destination); previewSrc.start();
+  previewSrc.onended = () => { previewSrc = null; if (!(recorder && recorder.state === 'recording')) unduck(); };
+});
+$('toCheck').addEventListener('click', runChecks);
+
+/* The automated gate. In the full system the same checks run server-side,
+   plus content moderation, before a clip reaches the shared pool. */
+async function runChecks() {
+  stopPreview(); step(3);
+  const list = $('checks'), outEl = $('checkOut');
+  list.innerHTML = ''; outEl.innerHTML = '<p>Analysing…</p>';
+  clipA = await analyse(clip.buffer);
+  const A = clipA;
+  const checks = [
+    { label: 'Real audio, not silence', ok: clip.rawPeak > 0.015 && A.peak > 0.015, why: 'We couldn\'t hear anything. Check the mic and come a little closer.' },
+    { label: 'Clean level, not distorted', ok: A.clipFrac < 0.003, why: 'It was too loud and distorted. Move back a little and try again.' },
+    { label: 'Between 1.5 and 10 seconds of sound', ok: clip.seconds >= 1.5, why: 'That was a little short. Hold the note for a couple of seconds.' },
+    { label: 'Sounds like a human voice', ok: A.voicedRatio >= 0.3 && A.voicedSec >= 0.5, why: 'We couldn\'t find a steady voice in it. Try a long, open “aaah”.' },
+    { label: 'A steady note for the drone', ok: !!A.stable, soft: true, note: A.stable ? `Found at ${A.stable.start.toFixed(1)}–${A.stable.end.toFixed(1)} s` : 'None found, so your voice will sing phrases but not hold the drone.' },
+    API
+      ? { label: 'Content safety', info: true, note: 'Runs next, on the server, after you add your voice: any words are turned into text and screened for abuse and personal details. No person listens.' }
+      : { label: 'Content safety', info: true, note: 'Runs on the server in the connected version. This copy of the page is on-device only, so your voice stays with you.' },
+  ];
+  outEl.innerHTML = '';
+  for (const c of checks) {
+    const li = document.createElement('li');
+    const cls = c.info ? 'info' : c.ok ? 'pass' : c.soft ? 'warn' : 'fail';
+    li.innerHTML = `<span class="ico ${cls}" aria-hidden="true">${c.info ? 'i' : c.ok ? '✓' : c.soft ? '–' : '✕'}</span><span>${c.label}<span class="sr-only">: ${c.info ? 'not run' : c.ok ? 'passed' : c.soft ? 'not found' : 'failed'}</span></span>${c.note ? `<small>${c.note}</small>` : ''}`;
+    list.appendChild(li);
+  }
+  const items = [...list.children];
+  for (let i = 0; i < items.length; i++) { await new Promise((r) => setTimeout(r, reduceMotion ? 0 : 260)); items[i].classList.add('shown'); }
+  const fail = checks.find((c) => !c.ok && !c.soft && !c.info);
+  if (fail) {
+    outEl.innerHTML = `<div class="result fail">${fail.why}</div><div class="row end"><button class="btn primary sm" id="again">Record again</button></div>`;
+    $('again').onclick = () => { resetRecorder(); step(2); };
+    return;
+  }
+  const t = timbreOf(A);
+  outEl.innerHTML = `
+    <dl class="facts">
+      <div><dt>Centres on</dt><dd>${noteName(A.medianMidi)} · ${Math.round(440 * 2 ** ((A.medianMidi - 69) / 12))} Hz</dd></div>
+      <div><dt>Range</dt><dd>${noteName(A.lowMidi)} to ${noteName(A.highMidi)}</dd></div>
+      <div><dt>Tone</dt><dd>${t === 'balanced' ? 'Clear' : t[0].toUpperCase() + t.slice(1)}</dd></div>
+      <div><dt>Length</dt><dd>${clip.seconds.toFixed(1)} s</dd></div>
+    </dl>
+    <div class="row" style="justify-content:space-between"><button class="link" id="redo">Record again</button><button class="btn primary sm" id="join">Add my voice to the choir</button></div>`;
+  $('redo').onclick = () => { resetRecorder(); step(2); };
+  $('join').onclick = join;
+  $('join').focus();
+}
+function join() {
+  const n = E.voices.filter((v) => v.own).length;
+  const v = addVoice(clip.buffer, clipA, { own: true, name: n ? `Your voice ${n + 1}` : 'Your voice' });
+  E.ripples.push({ v, t: performance.now(), big: true });
+  dlg.close();
+  if (!E.playing) play();
+  if (API) {
+    v.remote = { state: 'uploading' };
+    upload(v);
+    setTimeout(() => toast('You can hear your voice in the choir now. It joins for everyone once it passes the automatic checks.'), 200);
+  } else {
+    setTimeout(() => toast(`Your voice joined the choir. It's being tuned to ${NOTE[E.tonic]} ${E.mode ? E.mode.name : ''} and will come in first.`), 200);
+  }
+  renderYours();
+}
+
+// 16-bit mono WAV at 22.05 kHz: small enough to upload, and what the server checks and serves
+async function encodeWav(buffer) {
+  const sr = 22050, len = Math.max(1, Math.ceil(buffer.duration * sr));
+  const off = new OfflineAudioContext(1, len, sr), src = off.createBufferSource();
+  src.buffer = buffer; src.connect(off.destination); src.start();
+  const x = (await off.startRendering()).getChannelData(0);
+  let pk = 0; for (const s of x) pk = Math.max(pk, Math.abs(s));
+  const g = pk > 0.98 ? 0.98 / pk : 1; // resampling can overshoot slightly
+  const out = new DataView(new ArrayBuffer(44 + x.length * 2));
+  const w = (o, str) => { for (let i = 0; i < str.length; i++) out.setUint8(o + i, str.charCodeAt(i)); };
+  w(0, 'RIFF'); out.setUint32(4, 36 + x.length * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+  out.setUint32(16, 16, true); out.setUint16(20, 1, true); out.setUint16(22, 1, true);
+  out.setUint32(24, sr, true); out.setUint32(28, sr * 2, true); out.setUint16(32, 2, true); out.setUint16(34, 16, true);
+  w(36, 'data'); out.setUint32(40, x.length * 2, true);
+  for (let i = 0; i < x.length; i++) out.setInt16(44 + i * 2, Math.round(clamp(x[i] * g, -1, 1) * 32767), true);
+  return new Blob([out.buffer], { type: 'audio/wav' });
+}
+async function upload(v) {
+  const fail = (msg) => { v.remote = { state: 'failed', msg }; renderYours(); };
+  try {
+    const wav = await encodeWav(v.buffer);
+    const r = await fetch(`${API}/submissions`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ consent: { ownVoice: true, agree: true, version: CONSENT_VERSION } }) });
+    if (r.status === 429) return fail('Too many voices from here this hour. Try again later.');
+    if (!r.ok) return fail("Couldn't reach the choir server. It's only on this device.");
+    const { id, token, upload: up } = await r.json();
+    const fd = new FormData();
+    for (const [k, val] of Object.entries(up.fields)) fd.append(k, val);
+    fd.append('file', wav, 'voice.wav');
+    const u = await fetch(up.url, { method: 'POST', body: fd });
+    if (!u.ok) return fail('The upload failed. It\'s only on this device.');
+    if (!E.voices.includes(v) || v.fade !== undefined) { // withdrawn while uploading
+      fetch(`${API}/voices/${id}`, { method: 'DELETE', headers: { 'x-withdraw-token': token } }).catch(() => {});
+      return;
+    }
+    v.remote = { id, token, state: 'checking' };
+    store.add({ id, token, name: v.name, at: Date.now() });
+    renderYours();
+    pollStatus(v, { id, token });
+  } catch (e) {
+    console.warn(e); fail("Couldn't reach the choir server. It's only on this device.");
+  }
+}
+async function pollStatus(v, rec) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < 5 * 60 * 1000) {
+    await new Promise((r) => setTimeout(r, 3000));
+    if (v && !E.voices.includes(v)) return; // withdrawn
+    let st;
+    try { const r = await fetch(`${API}/voices/${rec.id}`, { cache: 'no-store' }); if (r.status === 404) { store.remove(rec.id); return; } st = await r.json(); } catch { continue; }
+    if (st.status === 'approved') {
+      if (v) { v.remote.state = 'approved'; v.poolId = rec.id; renderYours(); }
+      toast('Your voice passed the checks. It\'s now part of the choir for everyone who visits.');
+      return;
+    }
+    if (st.status === 'rejected') {
+      store.remove(rec.id);
+      if (v) { removeVoice(v); setTimeout(renderYours, 50); }
+      toast(st.reason || "Your voice wasn't added.");
+      return;
+    }
+  }
+}
+const STATE_LABEL = {
+  uploading: ['Uploading', 'busy'], checking: ['Being checked', 'busy'], approved: ['In the world choir', 'ok'],
+};
+function renderYours() {
+  const mine = E.voices.filter((v) => v.own && v.fade === undefined);
+  $('yours').hidden = !mine.length;
+  const list = $('yourList'); list.innerHTML = '';
+  for (const v of mine) {
+    const d = document.createElement('div'); d.className = 'chip';
+    const st = v.remote ? (STATE_LABEL[v.remote.state] || [v.remote.msg, 'bad']) : ['On this device', ''];
+    d.innerHTML = `<i aria-hidden="true"></i><span>${v.name} · ${noteName(v.A.medianMidi)}<br><small class="${st[1]}">${st[0]}</small></span><button type="button">Withdraw</button>`;
+    d.querySelector('button').onclick = () => withdrawVoice(v, d.querySelector('button'));
+    list.appendChild(d);
+  }
+}
+async function withdrawVoice(v, btn) {
+  if (v.remote && v.remote.id && v.remote.token) {
+    btn.disabled = true; btn.textContent = 'Removing…';
+    try {
+      const r = await fetch(`${API}/voices/${v.remote.id}`, { method: 'DELETE', headers: { 'x-withdraw-token': v.remote.token } });
+      if (!r.ok && r.status !== 404) throw new Error(r.status);
+      store.remove(v.remote.id);
+    } catch {
+      btn.disabled = false; btn.textContent = 'Withdraw';
+      toast("Couldn't reach the server to remove it. Please try again.");
+      return;
+    }
+  }
+  removeVoice(v); renderYours();
+  toast(v.remote && v.remote.id ? 'Your voice has been deleted from the choir and our storage.' : 'Your voice has been removed from the choir.');
+}
+
+if (API) {
+  $('c2Text').textContent = 'I agree to it being uploaded, checked automatically and, if it passes, played in the shared choir for everyone who visits.';
+  $('privacyNote').textContent = "No person listens to your clip. Software checks the sound, turns any words into text, screens them for abuse and personal details, then deletes the text. If it passes, your voice is kept for up to a year so it can sing with others. If it doesn't, it's deleted straight away. You can withdraw it from this browser at any time.";
+  $('checksLede').textContent = 'Nobody listens to your clip. These first checks run on your device; the server repeats them before anything is shared.';
+}
+window.__vow = E; // handy for debugging in the console
+requestAnimationFrame(frame);
+boot();
+})();
+</script>
+</body>
+</html>

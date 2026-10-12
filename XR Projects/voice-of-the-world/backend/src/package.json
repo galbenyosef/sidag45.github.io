@@ -1,0 +1,19 @@
+{
+  "name": "voice-of-the-world-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-cloudfront": "^3.1149.0",
+    "@aws-sdk/client-comprehend": "^3.1149.0",
+    "@aws-sdk/client-dynamodb": "^3.1149.0",
+    "@aws-sdk/client-s3": "^3.1149.0",
+    "@aws-sdk/client-transcribe": "^3.1149.0",
+    "@aws-sdk/client-translate": "^3.1149.0",
+    "@aws-sdk/lib-dynamodb": "^3.1149.0",
+    "@aws-sdk/s3-presigned-post": "^3.1149.0"
+  },
+  "scripts": {
+    "test": "node ../test/pipeline.test.mjs"
+  }
+}
