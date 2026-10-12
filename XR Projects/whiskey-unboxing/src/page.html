@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en" class="is-loading">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eighteen Year Oloroso · Kestrel &amp; Oak</title>
+  <meta name="description" content="Kestrel &amp; Oak Eighteen Year Oloroso, St George edition — a 3D case that unboxes as you scroll. Concept by Enclave Labs." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Manrope:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="importmap">
+    { "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+</head>
+<body>
+  <noscript><style>.loader{display:none}html.is-loading body{overflow:auto}</style></noscript>
+  <div class="loader" id="loader" role="status" aria-live="polite" aria-label="Loading the 3D case">
+    <div class="ld-inner">
+      <svg class="ld-seal" viewBox="0 0 120 120" aria-hidden="true">
+        <defs>
+          <linearGradient id="ldFoil" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+            <stop offset="0" stop-color="#9c7a3c"/><stop offset=".45" stop-color="#d6ad62"/><stop offset=".55" stop-color="#f6dfa4"/><stop offset="1" stop-color="#9c7a3c"/>
+            <animateTransform attributeName="gradientTransform" type="translate" values="-1 0;1 0" dur="2.6s" repeatCount="indefinite"/>
+          </linearGradient>
+        </defs>
+        <circle class="ld-ring" cx="60" cy="60" r="54"/>
+        <circle class="ld-ring2" cx="60" cy="60" r="47"/>
+        <text class="ld-k" x="60" y="78" text-anchor="middle">K</text>
+      </svg>
+      <p class="ld-brand">Kestrel &amp; Oak</p>
+      <p class="ld-name">Eighteen Year <em>Oloroso</em></p>
+      <div class="ld-bar"><i id="ldBar"></i></div>
+      <p class="ld-meta"><span id="ldStep">Opening the cellar</span><span id="ldPct">0%</span></p>
+      <button type="button" class="ld-skip" id="ldSkip" hidden>Continue to the page</button>
+    </div>
+  </div>
+
+  <header class="nav">
+    <a class="brand" href="#top"><span class="mark">K&amp;O</span><span class="word">Kestrel &amp; Oak</span></a>
+    <nav class="links">
+      <a href="#case">The Case</a>
+      <a href="#cask">The Cask</a>
+      <a href="#spirit">The Spirit</a>
+    </nav>
+    <a class="cart" href="#buy" aria-label="Cart">Cart <span class="cart-count" id="cartCount">0</span></a>
+  </header>
+
+  <div class="layout">
+    <aside class="stage" id="stage" data-pose="closed" aria-label="Product view">
+
+      <ol class="dots" id="dots" aria-hidden="true"></ol>
+      <div class="stage-ui">
+        <div class="stage-caption"><span class="cap-num" id="capNum">00</span><span class="cap-name" id="capName">The Bottle</span></div>
+        <div class="stage-hint">Drag to rotate</div>
+      </div>
+
+    </aside>
+    <main class="content" id="top">
+      <div class="sheet-bar">
+        <span class="sheet-grip" aria-hidden="true"></span>
+        <span class="sheet-title" id="sheetTitle">The Bottle</span>
+        <button type="button" class="sheet-toggle" id="sheetToggle" aria-expanded="false" aria-controls="top">
+          <span class="st-label">Expand</span>
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 10.5l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <nav class="tabs" aria-label="Chapters">
+        <a href="#case" data-for="case">Case</a>
+        <a href="#opening" data-for="opening">Opening</a>
+        <a href="#cask" data-for="cask">Cask</a>
+        <a href="#spirit" data-for="spirit">Spirit</a>
+        <a href="#buy" data-for="buy">Buy</a>
+      </nav>
+
+      <section class="ch ch-hero" id="hero" data-pose="closed" data-name="The Bottle">
+        <p class="eyebrow">Speyside Single Malt · Kestrel &amp; Oak</p>
+        <h1>Eighteen Year <em>Oloroso</em></h1>
+        <p class="sub">A single first-fill sherry butt, bottled at 46% and presented with a nosing glass in a St George foil case.</p>
+        <div class="price-row">
+          <span class="price">$140</span>
+          <span class="meta">700 ml · 46% ABV · Natural colour</span>
+        </div>
+        <div class="cta-row">
+          <button class="btn btn-primary" data-add="standard">Add to cart</button>
+          <a class="btn btn-ghost" href="#buy">Gift edition</a>
+        </div>
+        <a class="scroll-cue" href="#case"><span>Scroll to unbox</span><i aria-hidden="true"></i></a>
+      </section>
+
+      <section class="ch" id="case" data-pose="seal" data-name="The Case">
+        <p class="num">01</p>
+        <h2>Sealed by hand.</h2>
+        <p class="body">Each case is wrapped in midnight linen board and stamped in gold foil with St George and the dragon, framed by a gloss-embossed gothic window. A wax seal pressed at the distillery closes the lid. It's meant to be broken once, by whoever opens it.</p>
+        <dl class="specs">
+          <div><dt>Case</dt><dd>Linen board, velvet-lined</dd></div>
+          <div><dt>Artwork</dt><dd>St George, gold foil</dd></div>
+          <div><dt>Seal</dt><dd>Midnight wax, gold-leaf crest</dd></div>
+        </dl>
+      </section>
+
+      <section class="ch" id="opening" data-pose="open" data-name="The Opening">
+        <p class="num">02</p>
+        <h2>Lift the lid.</h2>
+        <p class="body">Inside, the bottle and a stemmed nosing glass sit side by side in a velvet cradle, the glass raised on its own plinth.</p>
+        <dl class="specs">
+          <div><dt>In the case</dt><dd>700 ml bottle</dd></div>
+          <div><dt></dt><dd>Nosing glass, gold crest</dd></div>
+          <div><dt></dt><dd>Tasting card</dd></div>
+        </dl>
+      </section>
+
+      <section class="ch" id="cask" data-pose="cask" data-name="The Cask">
+        <p class="num">03</p>
+        <h2>One cask. <em>612 bottles.</em></h2>
+        <p class="body">Distilled in 2008 and laid down in a single first-fill Oloroso butt from Jerez. Every bottle carries its cask and bottle number on the back label.</p>
+        <dl class="specs">
+          <div><dt>Cask No.</dt><dd>0417</dd></div>
+          <div><dt>Type</dt><dd>First-fill Oloroso butt</dd></div>
+          <div><dt>Filled</dt><dd>March 2008</dd></div>
+          <div><dt>Bottled</dt><dd>June 2026</dd></div>
+          <div><dt>Outturn</dt><dd>612 bottles</dd></div>
+        </dl>
+      </section>
+
+      <section class="ch" id="spirit" data-pose="label" data-name="The Spirit">
+        <p class="num">04</p>
+        <h2>Dried fig, dark honey, <em>a curl of smoke.</em></h2>
+        <div class="notes">
+          <div><h3>Nose</h3><p>Fig, sultana, orange peel, old leather.</p></div>
+          <div><h3>Palate</h3><p>Dark honey, clove, toasted walnut, cocoa.</p></div>
+          <div><h3>Finish</h3><p>Long. Sherry oak, then a soft wisp of peat.</p></div>
+        </div>
+        <dl class="specs">
+          <div><dt>Strength</dt><dd>46.0% ABV</dd></div>
+          <div><dt>Colour</dt><dd>Natural, no caramel</dd></div>
+          <div><dt>Filtration</dt><dd>Non-chill filtered</dd></div>
+        </dl>
+      </section>
+
+      <section class="ch ch-buy" id="buy" data-pose="buy" data-name="Make it Yours">
+        <p class="num">05</p>
+        <h2>Make it yours.</h2>
+        <fieldset class="options">
+          <legend class="sr">Edition</legend>
+          <label class="opt">
+            <input type="radio" name="edition" value="standard" checked />
+            <span class="opt-body"><span class="opt-name">Bottle + glass in case</span><span class="opt-desc">Wax-sealed, with tasting card</span></span>
+            <span class="opt-price">$140</span>
+          </label>
+          <label class="opt">
+            <input type="radio" name="edition" value="gift" />
+            <span class="opt-body"><span class="opt-name">Gift edition</span><span class="opt-desc">Engraved lid and handwritten note</span></span>
+            <span class="opt-price">$185</span>
+          </label>
+        </fieldset>
+        <label class="engrave" id="engraveField" hidden>
+          <span>Engraving <small>(shows on the lid)</small></span>
+          <input type="text" id="engraveInput" maxlength="16" placeholder="e.g. S.A. · 2026" autocomplete="off" />
+        </label>
+        <div class="buy-row">
+          <div class="qty" role="group" aria-label="Quantity">
+            <button type="button" data-q="-1" aria-label="Decrease">−</button>
+            <output id="qty">1</output>
+            <button type="button" data-q="1" aria-label="Increase">+</button>
+          </div>
+          <button class="btn btn-primary btn-wide" id="buyBtn" data-add="selected">Add to cart · <span id="total">$140</span></button>
+        </div>
+        <p class="fine">Ships in 3 business days. Adult signature (21+) required on delivery.</p>
+      </section>
+
+      <footer class="foot">
+        <p>Kestrel &amp; Oak is a fictional brand. Concept by Enclave Labs. Please enjoy responsibly.</p>
+      </footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="main.js"></script>
+  <script type="module" src="scene.js"></script>
+</body>
+</html>

@@ -1,17 +1,30 @@
-/* Kestrel & Oak — Sticky Product Stage (2D build)
- *
- * Each chapter <section data-pose="..."> sets stage[data-pose]; CSS does the 2D motion.
- * POSES is the hand-off spec for the 3D pass: when the SVG becomes a three.js scene,
- * each entry becomes a camera + model keyframe that GSAP tweens between.
- */
-const POSES = {
-  closed: { label: 'The Bottle',   camera: 'three-quarter, eye level',       case: 'closed, sealed',          bottle: 'hidden inside case' },
-  seal:   { label: 'The Case',     camera: 'push in on wax seal',            case: 'closed, slow turn',       bottle: 'hidden' },
-  open:   { label: 'The Opening',  camera: 'slight high angle',              case: 'lid lifts and hovers',    bottle: 'rises out of tissue' },
-  cask:   { label: 'The Cask',     camera: 'front, eye level',               case: 'drops out of frame',      bottle: 'turns 180° to back label' },
-  label:  { label: 'The Spirit',   camera: 'macro on front label',           case: 'hidden',                  bottle: 'turns back to front, light sweep' },
-  buy:    { label: 'Make it Yours', camera: 'wide, both objects',            case: 'closed, back-right',      bottle: 'front-left' },
-};
+/* ---------- loading screen: tracks the 3D stage's real milestones, lifts once full-quality frames exist ---------- */
+const loader = document.getElementById('loader');
+const ldBar = document.getElementById('ldBar'), ldStep = document.getElementById('ldStep'), ldPct = document.getElementById('ldPct'), ldSkip = document.getElementById('ldSkip');
+let ldShown = 0, ldDone = false;
+function ldProgress(p, label) {
+  ldShown = Math.max(ldShown, p);
+  ldBar.style.transform = `scaleX(${Math.max(0.04, ldShown)})`;
+  ldPct.textContent = Math.round(ldShown * 100) + '%';
+  if (label) ldStep.textContent = label;
+}
+function ldFinish() {
+  if (ldDone) return; ldDone = true;
+  setTimeout(() => { loader.classList.add('done'); document.documentElement.classList.remove('is-loading'); }, 400);
+}
+function ldFail(msg) {
+  if (ldDone) return;
+  loader.classList.add('failed'); ldStep.textContent = msg; ldSkip.hidden = false;
+}
+ldProgress(0.08, 'Opening the cellar');
+// keep the bar moving through long steps (shader compile), easing toward but never reaching the next milestone
+const ldCreep = setInterval(() => { if (ldDone) return clearInterval(ldCreep); ldProgress(ldShown + (Math.min(0.96, ldShown + 0.12) - ldShown) * 0.06); }, 250);
+addEventListener('stage-progress', e => ldProgress(e.detail.p, e.detail.label));
+addEventListener('stage-ready', ldFinish);
+addEventListener('error', () => ldFail('The 3D view could not load on this device'));
+addEventListener('unhandledrejection', () => ldFail('The 3D view could not load on this device'));
+setTimeout(() => { if (!ldDone) { ldSkip.hidden = false; ldStep.textContent = 'Still pouring\u2026'; } }, 20000);
+ldSkip.addEventListener('click', () => { ldDone = false; ldFinish(); });
 
 const stage    = document.getElementById('stage');
 const sections = [...document.querySelectorAll('.ch[data-pose]')];
@@ -35,8 +48,7 @@ function setChapter(i) {
   const pose = s.dataset.pose;
   if (stage.dataset.pose !== pose) stage.dataset.pose = pose;
   capNum.textContent = String(i).padStart(2, '0');
-  capName.textContent = s.dataset.name || POSES[pose].label;
-  sheetTitle.textContent = capName.textContent;
+  capName.textContent = sheetTitle.textContent = s.dataset.name;
   dots.forEach((d, k) => d.classList.toggle('on', k === i));
   tabLinks.forEach(a => a.classList.toggle('on', a.dataset.for === s.id));
   tabs.classList.toggle('show', i > 0);
@@ -123,7 +135,6 @@ const PRICES = { standard: 140, gift: 185 };
 const radios       = [...document.querySelectorAll('input[name="edition"]')];
 const engraveField = document.getElementById('engraveField');
 const engraveInput = document.getElementById('engraveInput');
-const lidEngrave   = document.getElementById('lidEngrave');
 const qtyOut       = document.getElementById('qty');
 const totalEl      = document.getElementById('total');
 let qty = 1;
@@ -134,8 +145,7 @@ const money = n => '$' + n.toLocaleString('en-US');
 function refresh() {
   const gift = edition() === 'gift';
   engraveField.hidden = !gift;
-  lidEngrave.textContent = gift ? engraveInput.value.trim() : '';
-  dispatchEvent(new CustomEvent('engrave', { detail: lidEngrave.textContent }));
+  dispatchEvent(new CustomEvent('engrave', { detail: gift ? engraveInput.value.trim() : '' }));
   qtyOut.textContent = qty;
   totalEl.textContent = money(PRICES[edition()] * qty);
 }
