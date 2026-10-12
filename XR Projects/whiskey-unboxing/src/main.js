@@ -10,7 +10,7 @@ function ldProgress(p, label) {
 }
 function ldFinish() {
   if (ldDone) return; ldDone = true;
-  setTimeout(() => { loader.classList.add('done'); document.documentElement.classList.remove('is-loading'); }, 400);
+  setTimeout(() => { loader.classList.add('done'); document.documentElement.classList.remove('is-loading'); autoScroll(); }, 400);
 }
 function ldFail(msg) {
   if (ldDone) return;
@@ -175,3 +175,36 @@ document.querySelectorAll('[data-add]').forEach(btn => btn.addEventListener('cli
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }));
+
+/* ---------- autoscroll: starts 3s after the loader lifts, one screen at a time; Esc stops it ----------
+   desktop scrolls the page; the phone layout scrolls the text sheet */
+function autoScroll() {
+  const interval = 1750; // ms to hold on each screen
+  const duration = 1500; // ms each scroll takes (0 = instant jump)
+  const delay = 3000;    // ms after the loader lifts before the first scroll
+  let stop = false, timer;
+  addEventListener('keydown', e => { if (e.key === 'Escape') { stop = true; clearTimeout(timer); } });
+
+  const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const box = () => phone.matches ? sheet : null;
+  const pos = () => box() ? box().scrollTop : scrollY;
+  const view = () => box() ? box().clientHeight : innerHeight;
+  const maxY = () => box() ? box().scrollHeight - box().clientHeight : document.documentElement.scrollHeight - innerHeight;
+  const go = y => (box() || window).scrollTo({ top: y, behavior: 'instant' });
+
+  const scrollPage = () => {
+    if (stop) return;
+    const from = pos(), to = Math.min(from + view(), maxY());
+    if (to <= from) return; // reached the bottom
+    const start = performance.now();
+    const frame = now => {
+      if (stop) return;
+      const t = duration ? Math.min((now - start) / duration, 1) : 1;
+      go(from + (to - from) * ease(t));
+      if (t < 1) requestAnimationFrame(frame);
+      else timer = setTimeout(scrollPage, interval);
+    };
+    requestAnimationFrame(frame);
+  };
+  timer = setTimeout(scrollPage, delay);
+}
