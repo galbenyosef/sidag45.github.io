@@ -1,0 +1,1221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eighteen Year Oloroso · Kestrel &amp; Oak</title>
+  <meta name="description" content="Kestrel &amp; Oak Eighteen Year Oloroso, St George edition — a 3D case that unboxes as you scroll. Concept by Enclave Labs." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Manrope:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+  <script type="importmap">
+    { "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+</head>
+<body>
+
+  <header class="nav">
+    <a class="brand" href="#top"><span class="mark">K&amp;O</span><span class="word">Kestrel &amp; Oak</span></a>
+    <nav class="links">
+      <a href="#case">The Case</a>
+      <a href="#cask">The Cask</a>
+      <a href="#spirit">The Spirit</a>
+    </nav>
+    <a class="cart" href="#buy" aria-label="Cart">Cart <span class="cart-count" id="cartCount">0</span></a>
+  </header>
+
+  <div class="layout">
+
+    <!-- ============ STICKY STAGE (2D now → three.js canvas later) ============ -->
+    <aside class="stage" id="stage" data-pose="closed" aria-label="Product view">
+      <div class="glow" aria-hidden="true"></div>
+
+      <svg class="art" viewBox="0 0 400 520" role="img" aria-labelledby="artTitle">
+        <title id="artTitle">Kestrel &amp; Oak Eighteen Year Oloroso in its St George case</title>
+        <defs>
+          <linearGradient id="oak" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#22357a"/><stop offset="1" stop-color="#14225a"/>
+          </linearGradient>
+          <linearGradient id="oakTop" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#2a3f8c"/><stop offset="1" stop-color="#31489a"/>
+          </linearGradient>
+          <linearGradient id="oakSide" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#101c4a"/><stop offset="1" stop-color="#0a1436"/>
+          </linearGradient>
+          <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#2a1608"/><stop offset=".22" stop-color="#5a2f10"/>
+            <stop offset=".55" stop-color="#7a3f14"/><stop offset="1" stop-color="#2a1608"/>
+          </linearGradient>
+          <linearGradient id="liquid" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#6a300a"/><stop offset=".3" stop-color="#b8661c"/>
+            <stop offset=".6" stop-color="#d28a35"/><stop offset="1" stop-color="#5c2808"/>
+          </linearGradient>
+          <linearGradient id="label" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f3ead6"/><stop offset="1" stop-color="#e2d4b6"/>
+          </linearGradient>
+          <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#e3c27e"/><stop offset=".5" stop-color="#b98d45"/><stop offset="1" stop-color="#e0bd76"/>
+          </linearGradient>
+          <radialGradient id="wax" cx=".38" cy=".35" r=".75">
+            <stop offset="0" stop-color="#2b3f8f"/><stop offset=".7" stop-color="#14215a"/><stop offset="1" stop-color="#0b1440"/>
+          </radialGradient>
+          <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+          <clipPath id="bottleClip">
+            <path d="M189 98H211V150C211 175 260 180 260 220V418Q260 430 248 430H152Q140 430 140 418V220C140 180 189 175 189 150Z"/>
+          </clipPath>
+        </defs>
+
+        <!-- floor shadow -->
+        <ellipse id="shadow" cx="200" cy="462" rx="150" ry="13" fill="#000" opacity=".55" filter="url(#soft)"/>
+
+        <!-- box interior (behind bottle) -->
+        <g class="pkg" id="boxBack">
+          <polygon points="110,250 140,232 320,232 290,250" fill="#05081a"/>
+          <polygon points="140,232 320,232 320,236 140,236" fill="#0a1030"/>
+        </g>
+
+        <!-- bottle -->
+        <g id="bottle">
+          <path d="M189 98H211V150C211 175 260 180 260 220V418Q260 430 248 430H152Q140 430 140 418V220C140 180 189 175 189 150Z" fill="url(#glass)"/>
+          <g clip-path="url(#bottleClip)">
+            <rect x="130" y="206" width="140" height="230" fill="url(#liquid)" opacity=".92"/>
+            <ellipse cx="200" cy="206" rx="62" ry="3" fill="#e9a456" opacity=".55"/>
+          </g>
+          <path d="M189 98H211V150C211 175 260 180 260 220V418Q260 430 248 430H152Q140 430 140 418V220C140 180 189 175 189 150Z" fill="none" stroke="#f4d9ad" stroke-opacity=".28" stroke-width="1.2"/>
+          <path d="M150 232V408" stroke="#fff" stroke-opacity=".22" stroke-width="5" stroke-linecap="round"/>
+          <path d="M194 104V146" stroke="#fff" stroke-opacity=".2" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- stopper -->
+          <rect x="184" y="56" width="32" height="42" rx="4" fill="#1d130e"/>
+          <rect x="184" y="56" width="32" height="8" rx="3" fill="#2c1e16"/>
+          <rect x="184" y="88" width="32" height="6" fill="url(#gold)"/>
+          <!-- neck collar -->
+          <rect x="189" y="128" width="22" height="16" fill="url(#gold)"/>
+          <text x="200" y="139.5" class="t-collar" text-anchor="middle">18</text>
+
+          <!-- front label -->
+          <g id="labelFront">
+            <rect x="152" y="268" width="96" height="124" rx="2" fill="url(#label)"/>
+            <rect x="156" y="272" width="88" height="116" rx="1" fill="none" stroke="#9c7a42" stroke-width=".7"/>
+            <path d="M193 284l7-5 7 5-7-2z" fill="#3a2414"/>
+            <text x="200" y="296" class="t-brand" text-anchor="middle">KESTREL &amp; OAK</text>
+            <text x="200" y="337" class="t-big" text-anchor="middle">18</text>
+            <text x="200" y="349" class="t-small" text-anchor="middle">YEARS OLD</text>
+            <line x1="176" y1="356" x2="224" y2="356" stroke="#9c7a42" stroke-width=".6"/>
+            <text x="200" y="367" class="t-small" text-anchor="middle">OLOROSO CASK</text>
+            <text x="200" y="378" class="t-tiny" text-anchor="middle">SPEYSIDE SINGLE MALT</text>
+          </g>
+          <!-- back label (cask pose) -->
+          <g id="labelBack">
+            <rect x="152" y="268" width="96" height="124" rx="2" fill="url(#label)"/>
+            <rect x="156" y="272" width="88" height="116" rx="1" fill="none" stroke="#9c7a42" stroke-width=".7"/>
+            <text x="200" y="290" class="t-small" text-anchor="middle">CASK No.</text>
+            <text x="200" y="318" class="t-mid" text-anchor="middle">0417</text>
+            <line x1="164" y1="326" x2="236" y2="326" stroke="#9c7a42" stroke-width=".6"/>
+            <text x="164" y="340" class="t-tiny">FILLED</text><text x="236" y="340" class="t-tiny" text-anchor="end">03 · 2008</text>
+            <text x="164" y="351" class="t-tiny">BOTTLED</text><text x="236" y="351" class="t-tiny" text-anchor="end">06 · 2026</text>
+            <text x="164" y="362" class="t-tiny">STRENGTH</text><text x="236" y="362" class="t-tiny" text-anchor="end">46.0%</text>
+            <text x="164" y="373" class="t-tiny">BOTTLE</text><text x="236" y="373" class="t-tiny" text-anchor="end">211 / 612</text>
+          </g>
+        </g>
+
+        <!-- tissue paper (open pose) -->
+        <g id="tissue">
+          <path d="M112 251Q114 220 146 222Q160 236 166 251Z" fill="#efe6d4" opacity=".92"/>
+          <path d="M126 251Q138 230 160 234" fill="none" stroke="#cfc2a8" stroke-width=".8"/>
+          <path d="M234 251Q244 218 286 224Q306 230 312 240L290 251Z" fill="#e8dec9" opacity=".92"/>
+          <path d="M252 251Q262 232 292 232" fill="none" stroke="#cfc2a8" stroke-width=".8"/>
+        </g>
+
+        <!-- box front + side -->
+        <g class="pkg" id="boxFront">
+          <polygon points="290,250 320,232 320,432 290,450" fill="url(#oakSide)"/>
+          <rect x="110" y="250" width="180" height="200" fill="url(#oak)"/>
+          <g stroke="#000" stroke-opacity=".14" stroke-width=".8" fill="none">
+            <path d="M112 268Q200 262 288 270"/><path d="M112 300Q190 306 288 296"/>
+            <path d="M112 338Q210 330 288 342"/><path d="M112 382Q180 388 288 376"/>
+            <path d="M112 420Q220 414 288 424"/>
+          </g>
+          <rect x="146" y="250" width="10" height="200" fill="#0e1a48"/>
+          <rect x="176" y="276" width="100" height="152" fill="none" stroke="url(#gold)" stroke-width=".9"/>
+          <text x="226" y="298" class="t-boxbrand" text-anchor="middle">KESTREL &amp; OAK</text>
+          <text x="226" y="372" class="t-boxbig" text-anchor="middle">18</text>
+          <text x="226" y="392" class="t-boxsmall" text-anchor="middle">YEARS OLD</text>
+          <text x="226" y="414" class="t-boxsmall" text-anchor="middle">OLOROSO CASK</text>
+        </g>
+
+        <!-- lid (outer = package transform, inner = open/close) -->
+        <g class="pkg">
+          <g id="lid">
+            <polygon points="100,225 130,207 330,207 300,225" fill="url(#oakTop)"/>
+            <polygon points="300,225 330,207 330,243 300,261" fill="url(#oakSide)"/>
+            <rect x="100" y="225" width="200" height="36" fill="url(#oak)"/>
+            <path d="M102 240Q200 236 298 242" stroke="#000" stroke-opacity=".14" stroke-width=".8" fill="none"/>
+            <polygon points="146,225 176,207 186,207 156,225" fill="#13205a"/>
+            <rect x="146" y="225" width="10" height="36" fill="#0e1a48"/>
+            <text id="lidEngrave" x="230" y="247.5" class="t-engrave" text-anchor="middle"></text>
+            <g id="seal">
+              <path d="M139 258q-3 9 2 12q4-4 3-10z" fill="#0b1440"/>
+              <circle cx="151" cy="252" r="13.5" fill="url(#wax)"/>
+              <circle cx="151" cy="252" r="9" fill="none" stroke="#4d0907" stroke-width="1.2" opacity=".7"/>
+              <text x="151" y="255.5" class="t-seal" text-anchor="middle">K</text>
+            </g>
+          </g>
+        </g>
+      </svg>
+
+      <ol class="dots" id="dots" aria-hidden="true"></ol>
+      <div class="stage-ui">
+        <div class="stage-caption"><span class="cap-num" id="capNum">00</span><span class="cap-name" id="capName">The Bottle</span></div>
+        <div class="stage-hint">2D preview</div>
+      </div>
+
+    </aside>
+
+    <!-- ============ SCROLLING CHAPTERS ============ -->
+    <main class="content" id="top">
+
+      <!-- phone only: the text column becomes a bottom sheet (25% → 75% of the screen) -->
+      <div class="sheet-bar">
+        <span class="sheet-grip" aria-hidden="true"></span>
+        <span class="sheet-title" id="sheetTitle">The Bottle</span>
+        <button type="button" class="sheet-toggle" id="sheetToggle" aria-expanded="false" aria-controls="top">
+          <span class="st-label">Expand</span>
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 10.5l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <nav class="tabs" aria-label="Chapters">
+        <a href="#case" data-for="case">Case</a>
+        <a href="#opening" data-for="opening">Opening</a>
+        <a href="#cask" data-for="cask">Cask</a>
+        <a href="#spirit" data-for="spirit">Spirit</a>
+        <a href="#buy" data-for="buy">Buy</a>
+      </nav>
+
+      <section class="ch ch-hero" id="hero" data-pose="closed" data-name="The Bottle">
+        <p class="eyebrow">Speyside Single Malt · Kestrel &amp; Oak</p>
+        <h1>Eighteen Year <em>Oloroso</em></h1>
+        <p class="sub">A single first-fill sherry butt, bottled at 46% and presented with a nosing glass in a St George foil case.</p>
+        <div class="price-row">
+          <span class="price">$140</span>
+          <span class="meta">700 ml · 46% ABV · Natural colour</span>
+        </div>
+        <div class="cta-row">
+          <button class="btn btn-primary" data-add="standard">Add to cart</button>
+          <a class="btn btn-ghost" href="#buy">Gift edition</a>
+        </div>
+        <a class="scroll-cue" href="#case"><span>Scroll to unbox</span><i aria-hidden="true"></i></a>
+      </section>
+
+      <section class="ch" id="case" data-pose="seal" data-name="The Case">
+        <p class="num">01</p>
+        <h2>Sealed by hand.</h2>
+        <p class="body">Each case is wrapped in midnight linen board and stamped in gold foil with St George and the dragon, framed by a gloss-embossed gothic window. A wax seal pressed at the distillery closes the lid. It's meant to be broken once, by whoever opens it.</p>
+        <dl class="specs">
+          <div><dt>Case</dt><dd>Linen board, velvet-lined</dd></div>
+          <div><dt>Artwork</dt><dd>St George, gold foil</dd></div>
+          <div><dt>Seal</dt><dd>Midnight wax, gold-leaf crest</dd></div>
+        </dl>
+      </section>
+
+      <section class="ch" id="opening" data-pose="open" data-name="The Opening">
+        <p class="num">02</p>
+        <h2>Lift the lid.</h2>
+        <p class="body">Inside, the bottle and a stemmed nosing glass sit side by side in a velvet cradle, the glass raised on its own plinth.</p>
+        <dl class="specs">
+          <div><dt>In the case</dt><dd>700 ml bottle</dd></div>
+          <div><dt></dt><dd>Nosing glass, gold crest</dd></div>
+          <div><dt></dt><dd>Tasting card</dd></div>
+        </dl>
+      </section>
+
+      <section class="ch" id="cask" data-pose="cask" data-name="The Cask">
+        <p class="num">03</p>
+        <h2>One cask. <em>612 bottles.</em></h2>
+        <p class="body">Distilled in 2008 and laid down in a single first-fill Oloroso butt from Jerez. Every bottle carries its cask and bottle number on the back label.</p>
+        <dl class="specs">
+          <div><dt>Cask No.</dt><dd>0417</dd></div>
+          <div><dt>Type</dt><dd>First-fill Oloroso butt</dd></div>
+          <div><dt>Filled</dt><dd>March 2008</dd></div>
+          <div><dt>Bottled</dt><dd>June 2026</dd></div>
+          <div><dt>Outturn</dt><dd>612 bottles</dd></div>
+        </dl>
+      </section>
+
+      <section class="ch" id="spirit" data-pose="label" data-name="The Spirit">
+        <p class="num">04</p>
+        <h2>Dried fig, dark honey, <em>a curl of smoke.</em></h2>
+        <div class="notes">
+          <div><h3>Nose</h3><p>Fig, sultana, orange peel, old leather.</p></div>
+          <div><h3>Palate</h3><p>Dark honey, clove, toasted walnut, cocoa.</p></div>
+          <div><h3>Finish</h3><p>Long. Sherry oak, then a soft wisp of peat.</p></div>
+        </div>
+        <dl class="specs">
+          <div><dt>Strength</dt><dd>46.0% ABV</dd></div>
+          <div><dt>Colour</dt><dd>Natural, no caramel</dd></div>
+          <div><dt>Filtration</dt><dd>Non-chill filtered</dd></div>
+        </dl>
+      </section>
+
+      <section class="ch ch-buy" id="buy" data-pose="buy" data-name="Make it Yours">
+        <p class="num">05</p>
+        <h2>Make it yours.</h2>
+        <fieldset class="options">
+          <legend class="sr">Edition</legend>
+          <label class="opt">
+            <input type="radio" name="edition" value="standard" checked />
+            <span class="opt-body"><span class="opt-name">Bottle + glass in case</span><span class="opt-desc">Wax-sealed, with tasting card</span></span>
+            <span class="opt-price">$140</span>
+          </label>
+          <label class="opt">
+            <input type="radio" name="edition" value="gift" />
+            <span class="opt-body"><span class="opt-name">Gift edition</span><span class="opt-desc">Engraved lid and handwritten note</span></span>
+            <span class="opt-price">$185</span>
+          </label>
+        </fieldset>
+        <label class="engrave" id="engraveField" hidden>
+          <span>Engraving <small>(shows on the lid)</small></span>
+          <input type="text" id="engraveInput" maxlength="16" placeholder="e.g. S.A. · 2026" autocomplete="off" />
+        </label>
+        <div class="buy-row">
+          <div class="qty" role="group" aria-label="Quantity">
+            <button type="button" data-q="-1" aria-label="Decrease">−</button>
+            <output id="qty">1</output>
+            <button type="button" data-q="1" aria-label="Increase">+</button>
+          </div>
+          <button class="btn btn-primary btn-wide" id="buyBtn" data-add="selected">Add to cart · <span id="total">$140</span></button>
+        </div>
+        <p class="fine">Ships in 3 business days. Adult signature (21+) required on delivery.</p>
+      </section>
+
+      <footer class="foot">
+        <p>Kestrel &amp; Oak is a fictional brand. Concept by Enclave Labs. Please enjoy responsibly.</p>
+      </footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="main.js"></script>
+  <script src="assets/st-george.js"></script>
+  <!-- 3D stage: inline so the page also works from a double-click (browsers block module files on file://) -->
+  <script type="module">
+/* Kestrel & Oak — 3D stage (St George edition)
+ * Replaces the 2D SVG once WebGL is up. Listens to #stage[data-pose] (set by main.js)
+ * and eases camera + models toward the matching keyframe in POSES_3D.
+ *
+ * Generated in code except the St George linework (embedded in assets/st-george.js):
+ *  - studio: navy paper sweep, softbox environment (PMREM), soft VSM shadows
+ *  - case:   navy linen board, gold-foil St George + type, gloss-embossed gothic frame,
+ *            midnight silk ribbon, wax seal with gold-leaf crest, velvet interior + glass plinth
+ *  - bottle: thick transmissive glass, whisky as a refracting/absorbing volume,
+ *            navy labels with gold foil, walnut stopper, gold collar
+ *  - glass:  stemmed nosing glass with an optional dram
+ */
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+
+const stage = document.getElementById('stage');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SNAP = new URLSearchParams(location.search).has('snap'); // test mode: jump straight to each pose
+
+/* ---------- palette (matches styles.css) ---------- */
+const BG = 0x0c1530;          // midnight
+const NAVY = 0x1c2c66;        // case board
+const NAVY_DEEP = 0x101b44;   // ribbon, label
+const GOLD = 0xd6ad62;        // foil
+
+/* ---------- renderer ---------- */
+const canvas = document.createElement('canvas');
+canvas.id = 'gl';
+canvas.setAttribute('aria-hidden', 'true');
+stage.insertBefore(canvas, stage.querySelector('.stage-ui'));
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(BG, 1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.VSMShadowMap;
+const ANISO = renderer.capabilities.getMaxAnisotropy();
+RectAreaLightUniformsLib.init();
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(BG, 18, 38);
+const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+
+/* ---------- studio environment: softboxes rendered into a PMREM ---------- */
+function studioEnvironment() {
+  const env = new THREE.Scene();
+  env.add(new THREE.Mesh(new THREE.BoxGeometry(40, 24, 40), new THREE.MeshBasicMaterial({ color: 0x0a1028, side: THREE.BackSide })));
+  const panel = (w, h, color, power, pos, look = [0, 2, 0]) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(power), side: THREE.DoubleSide }));
+    m.position.set(...pos); m.lookAt(...look); env.add(m);
+  };
+  panel(9, 5, 0xfff4e6, 5, [0, 10, 2]);            // overhead softbox
+  panel(1.6, 11, 0xfff0dc, 7, [-9, 3, 4]);          // left strip → long highlight on glass
+  panel(1.2, 11, 0xffd8a8, 4.5, [9, 3, 1]);         // right warm strip
+  panel(5, 6, 0x8fa6ff, 1.6, [3, 4, -11]);          // cool back rim
+  panel(12, 2.5, 0xfff0e0, 0.8, [0, 1.5, 13]);      // low front bounce
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const t = pmrem.fromScene(env, 0.02).texture;
+  pmrem.dispose();
+  return t;
+}
+scene.environment = studioEnvironment();
+
+/* ---------- fonts + artwork before canvas textures ---------- */
+const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+const [figureImg, frameImg] = await Promise.all([
+  loadImg(window.ST_GEORGE.figure), loadImg(window.ST_GEORGE.frame),
+  ...['500 200px Fraunces', 'italic 500 60px Fraunces', '600 40px Manrope', '400 30px "DM Mono"']
+    .map(f => document.fonts.load(f).catch(() => {})),
+]);
+
+/* ---------- procedural noise ---------- */
+function hash(x, y, s = 0) {
+  let h = (Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 2147483647)) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+function vnoise(x, y, s = 0) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  const a = hash(xi, yi, s), b = hash(xi + 1, yi, s), c = hash(xi, yi + 1, s), d = hash(xi + 1, yi + 1, s);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+function fbm(x, y, oct = 4, s = 0) {
+  let sum = 0, amp = 0.5, f = 1, norm = 0;
+  for (let i = 0; i < oct; i++) { sum += vnoise(x * f, y * f, s + i * 17) * amp; norm += amp; amp *= 0.5; f *= 2.03; }
+  return sum / norm;
+}
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+const smooth = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+
+function makeCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function tex(c, { srgb = true, repeat } = {}) {
+  const t = new THREE.CanvasTexture(c);
+  if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = ANISO;
+  if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(...repeat); }
+  return t;
+}
+function grayCanvas(S, fn) {
+  const c = makeCanvas(S, S), x = c.getContext('2d'), d = x.createImageData(S, S);
+  for (let y = 0; y < S; y++) for (let X = 0; X < S; X++) { const v = 255 * clamp01(fn(X, y)), i = (y * S + X) * 4; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+  x.putImageData(d, 0, 0); return c;
+}
+function spaced(ctx, text, x, y, spacing) { ctx.letterSpacing = spacing + 'px'; ctx.fillText(text, x + spacing / 2, y); ctx.letterSpacing = '0px'; }
+
+/* ---------- surfaces ---------- */
+// linen-wrapped board: fine weave + fibre noise
+const linen = grayCanvas(512, (x, y) => 0.5 + 0.16 * Math.sin(x * 1.9) * Math.sin(y * 0.35 + vnoise(x * 0.1, y * 0.1) * 3)
+  + 0.16 * Math.sin(y * 1.9) * Math.sin(x * 0.35 + vnoise(x * 0.1 + 9, y * 0.1) * 3) + (fbm(x / 6, y / 6, 3, 3) - 0.5) * 0.35);
+const linenTex = tex(linen, { srgb: false, repeat: [5, 5] });
+const boardMat = new THREE.MeshPhysicalMaterial({
+  color: NAVY, roughness: 0.78, bumpMap: linenTex, bumpScale: 0.7,
+  sheen: 0.45, sheenRoughness: 0.6, sheenColor: new THREE.Color(0x6f86d8), envMapIntensity: 0.55,
+});
+const boardEdge = boardMat.clone(); boardEdge.color.set(0x16245a);
+const velvetMat = new THREE.MeshPhysicalMaterial({
+  color: 0x070b1c, roughness: 1, sheen: 1, sheenRoughness: 0.75, sheenColor: new THREE.Color(0x3a4d9a), envMapIntensity: 0.3,
+});
+
+// walnut for the stopper
+const walnutMat = (() => {
+  const S = 512;
+  const col = grayCanvas(S, (x, y) => { const u = x / S, v = y / S; const r = v * 22 + fbm(u * 1.5, v * 2.5, 3, 7) * 4; const f = r - Math.floor(r); return 0.35 + smooth(0.55, 0.95, f) * 0.4 + (fbm(u * 5, v * 260, 2, 9) - 0.5) * 0.4; });
+  const x = col.getContext('2d'); x.globalCompositeOperation = 'multiply'; x.fillStyle = '#6a4024'; x.fillRect(0, 0, S, S);
+  return new THREE.MeshPhysicalMaterial({ map: tex(col), roughness: 0.42, clearcoat: 0.8, clearcoatRoughness: 0.18, envMapIntensity: 1 });
+})();
+
+// gold foil: alpha + bump from the same mask
+function foilMat(maskCanvas, extra = {}) {
+  const m = tex(maskCanvas, { srgb: false });
+  return new THREE.MeshPhysicalMaterial({
+    color: GOLD, metalness: 1, roughness: 0.22, alphaMap: m, bumpMap: m, bumpScale: 0.5,
+    transparent: true, depthWrite: false, envMapIntensity: 1.7, polygonOffset: true, polygonOffsetFactor: -2, ...extra,
+  });
+}
+// tonal gloss emboss: same navy, glossier, slightly raised
+function embossMat(maskCanvas) {
+  const m = tex(maskCanvas, { srgb: false });
+  return new THREE.MeshPhysicalMaterial({
+    color: 0x2a3d86, roughness: 0.3, clearcoat: 0.6, clearcoatRoughness: 0.2, alphaMap: m, bumpMap: m, bumpScale: 0.9,
+    transparent: true, depthWrite: false, envMapIntensity: 1.1, polygonOffset: true, polygonOffsetFactor: -1,
+  });
+}
+const goldMetal = new THREE.MeshPhysicalMaterial({ color: GOLD, metalness: 1, roughness: 0.22, envMapIntensity: 1.6 });
+
+/* ---------- dimensions ---------- */
+const BW = 2.7, BD = 1.5, BH = 3.1, T = 0.05;          // case body: width, depth, height, wall
+const LW = BW + 2 * T + 0.02, LD = BD + 2 * T + 0.02, LH = 0.5;   // lid fits over the body
+const LID_Y = BH - 0.42;
+const RIB_X = -1.02, RIB_W = 0.15;
+const PLINTH_H = 0.95;
+const BOT_SLOT = [-0.5, T + 0.004, 0.02];               // bottle well (case-local)
+const GLS_SLOT = [0.78, T + PLINTH_H, 0.02];            // glass on its plinth
+
+/* case front artwork: St George figure (foil) + type (foil), gothic frame (emboss) */
+const ART_W = 2048, ART_H = Math.round(2048 * BH / BW);
+const artRect = (() => { const h = ART_H * 0.66, w = h * figureImg.width / figureImg.height, cx = ART_W * 0.57; return { x: cx - w / 2, y: ART_H * 0.15, w, h, cx }; })();
+const frontFoilCanvas = (() => {
+  const c = makeCanvas(ART_W, ART_H), x = c.getContext('2d'), r = artRect;
+  x.fillStyle = '#000'; x.fillRect(0, 0, ART_W, ART_H);
+  x.drawImage(figureImg, r.x, r.y, r.w, r.h);
+  x.fillStyle = '#fff'; x.textAlign = 'center';
+  x.font = '600 64px Manrope'; spaced(x, 'KESTREL & OAK', r.cx, ART_H * 0.095, 24);
+  x.font = '400 84px Fraunces'; x.fillText('Eighteen', r.cx, ART_H * 0.885);
+  x.font = '600 40px Manrope'; spaced(x, 'OLOROSO CASK  ·  SPEYSIDE', r.cx, ART_H * 0.93, 14);
+  return c;
+})();
+const frontEmbossCanvas = (() => {
+  const c = makeCanvas(ART_W, ART_H), x = c.getContext('2d'), r = artRect;
+  x.fillStyle = '#000'; x.fillRect(0, 0, ART_W, ART_H);
+  x.drawImage(frameImg, r.x, r.y, r.w, r.h);
+  x.strokeStyle = '#fff'; x.lineWidth = 6; x.strokeRect(ART_W * 0.2, ART_H * 0.04, ART_W * 0.76, ART_H * 0.92);
+  return c;
+})();
+
+/* lid front engraving (redrawn live) */
+const lidFoilCanvas = makeCanvas(2048, Math.round(2048 * LH / LW));
+function drawLidFoil(text) {
+  const x = lidFoilCanvas.getContext('2d'), w = lidFoilCanvas.width, h = lidFoilCanvas.height;
+  x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
+  if (text) { x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = 'italic 500 190px Fraunces'; x.fillText(text, w * 0.58, h * 0.55); }
+}
+drawLidFoil('');
+
+/* lid top: monogram foil + cask number emboss */
+const lidTopFoil = (() => {
+  const c = makeCanvas(2048, Math.round(2048 * LD / LW)), x = c.getContext('2d'), w = c.width, h = c.height;
+  x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
+  x.strokeStyle = '#fff'; x.fillStyle = '#fff'; x.lineWidth = 8;
+  const cx = w * 0.6, cy = h * 0.5;
+  x.beginPath(); x.arc(cx, cy, 250, 0, Math.PI * 2); x.stroke();
+  x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, 228, 0, Math.PI * 2); x.stroke();
+  x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '400 190px Fraunces'; x.fillText('K&O', cx, cy + 8);
+  return c;
+})();
+const lidTopEmboss = (() => {
+  const c = makeCanvas(2048, Math.round(2048 * LD / LW)), x = c.getContext('2d'), w = c.width, h = c.height;
+  x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#fff'; x.textAlign = 'right'; x.font = '400 46px "DM Mono"'; spaced(x, 'CASK No. 0417', w * 0.95, h * 0.9, 10);
+  x.strokeStyle = '#fff'; x.lineWidth = 3;
+  for (let i = 0; i < 9; i++) { x.beginPath(); for (let X = 0; X <= w * 0.42; X += 20) x.lineTo(X, h * 0.12 + i * 26 + Math.sin(X * 0.004 + i * 0.5) * 30); x.stroke(); }
+  return c;
+})();
+
+/* ribbon (midnight satin) */
+const weave = (() => { const c = makeCanvas(64, 512), x = c.getContext('2d'); x.fillStyle = '#808080'; x.fillRect(0, 0, 64, 512); for (let i = 0; i < 512; i += 3) { x.fillStyle = i % 6 ? '#9a9a9a' : '#6a6a6a'; x.fillRect(0, i, 64, 1); } return c; })();
+const ribbonMat = new THREE.MeshPhysicalMaterial({
+  color: NAVY_DEEP, roughness: 0.4, sheen: 1, sheenRoughness: 0.32, sheenColor: new THREE.Color(0x9fb2ff),
+  bumpMap: tex(weave, { srgb: false, repeat: [1, 8] }), bumpScale: 0.3, envMapIntensity: 0.9,
+});
+
+/* wax seal: deep navy wax, gold-leaf crest */
+const waxMat = new THREE.MeshPhysicalMaterial({ color: 0x0f1a48, roughness: 0.3, clearcoat: 0.7, clearcoatRoughness: 0.2, envMapIntensity: 1.2 });
+const crestCanvas = (() => {
+  const c = makeCanvas(512, 512), x = c.getContext('2d');
+  x.fillStyle = '#000'; x.fillRect(0, 0, 512, 512);
+  x.strokeStyle = '#fff'; x.lineWidth = 14; x.beginPath(); x.arc(256, 256, 196, 0, Math.PI * 2); x.stroke();
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '600 250px Fraunces'; x.fillText('K', 256, 270);
+  for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2; x.beginPath(); x.arc(256 + Math.cos(a) * 226, 256 + Math.sin(a) * 226, 7, 0, 7); x.fill(); }
+  return c;
+})();
+const crestMat = foilMat(crestCanvas, { roughness: 0.3, bumpScale: 2.5, polygonOffsetFactor: -3 });
+
+/* ---------- glass + whisky ---------- */
+const backlight3 = { value: new THREE.Color() };
+const clarity3 = { value: 0.75 };   // kept for the Liquid panel: 1 = crystal clear, lower = hazier (blurs the view through)
+
+/* =====================================================================
+   LIQUID: two-surface refraction
+   Every frame the scene BEHIND the vessels is rendered to an offscreen image (bgRT, see tick()).
+   Each whisky pixel then traces its own light path:
+     1. enter at the front surface (bent by the cut-crystal facets),
+     2. cross the real vessel shape: cylinder for the bottle, sphere for the bowl,
+        stopping early at the sloshing surface or the floor,
+     3. leave through the far side (bent again, or totally internally reflected at grazing angles),
+     4. look up what lies in that direction in bgRT.
+   Colour = what's behind × e^(−σ·distance travelled): thin = pale gold, long paths = deep amber.
+   ===================================================================== */
+const LIQ = {
+  uBgTex: { value: null }, uProj: { value: new THREE.Matrix4() }, uBgDist: { value: 4.5 },
+  uSigma: { value: new THREE.Vector3(0.6, 1.9, 5.9) }, uBlur: { value: 0.8 }, uIor: { value: 1.36 },
+};
+
+// shared GLSL: vessel frame, diamond-cut normal offset, sloshing surface height
+const VESSEL_GLSL = `
+uniform float uFill; uniform vec2 uTilt; uniform float uRipple; uniform float uTime; uniform vec3 uOrigin;
+uniform float uYaw; uniform float uCut; uniform float uCutR; uniform vec2 uCutBand; uniform float uCutSize;
+float gCutBand = 0.0;
+float surfH( vec2 p ) {
+  vec2 d = p - uOrigin.xz;
+  return uOrigin.y + uFill + dot( uTilt, d )
+    + uRipple * ( sin( d.x * 14.0 + uTime * 5.1 ) * 0.6 + sin( d.y * 11.0 - uTime * 4.3 ) * 0.45 + sin( ( d.x - d.y ) * 23.0 + uTime * 7.7 ) * 0.25 );
+}
+vec3 toLocal( vec3 w ) { float c = cos( uYaw ), s = sin( uYaw ); return vec3( c * w.x - s * w.z, w.y, s * w.x + c * w.z ); }
+vec3 toWorld( vec3 l ) { float c = cos( uYaw ), s = sin( uYaw ); return vec3( c * l.x + s * l.z, l.y, -s * l.x + c * l.z ); }
+float hash1( float n ) { return fract( sin( n * 127.1 ) * 43758.5453 ); }
+// diamond lattice wrapped around the vessel axis; returns a world-space normal offset (pyramid facets)
+vec3 cutOffset( vec3 wp, out float edge ) {
+  edge = 0.0;
+  if ( uCut <= 0.0 ) return vec3( 0.0 );
+  vec3 l = toLocal( wp - uOrigin );
+  float band = smoothstep( uCutBand.x, uCutBand.x + 0.03, l.y ) * ( 1.0 - smoothstep( uCutBand.y - 0.03, uCutBand.y, l.y ) );
+  gCutBand = band;
+  if ( band <= 0.0 ) return vec3( 0.0 );
+  float phi = atan( l.x, l.z );
+  float a = ( phi * uCutR + l.y ) / uCutSize, b = ( phi * uCutR - l.y ) / uCutSize;
+  float fa = fract( a ) - 0.5, fb = fract( b ) - 0.5;
+  vec2 f = abs( fa ) > abs( fb ) ? vec2( sign( fa ), 0.0 ) : vec2( 0.0, sign( fb ) );
+  edge = band * ( 1.0 - smoothstep( 0.0, 0.035, abs( abs( fa ) - abs( fb ) ) ) );
+  vec3 T = vec3( cos( phi ), 0.0, - sin( phi ) ), U = ( T + vec3( 0.0, 1.0, 0.0 ) ) * 0.7071, W = ( T - vec3( 0.0, 1.0, 0.0 ) ) * 0.7071;
+  return toWorld( f.x * U + f.y * W ) * uCut * band;
+}
+`;
+
+const LIQUID_GLSL = `
+uniform sampler2D uBgTex; uniform mat4 uProj; uniform float uBgDist; uniform vec3 uSigma; uniform float uBlur; uniform float uIor;
+uniform float uShape; uniform vec4 uSph; uniform float uR; uniform float uBottom;
+uniform vec3 uBacklight; uniform float uGlow;
+vec3 liquidThrough( vec3 Nview, bool front, float cutEdge ) {
+  vec3 V = normalize( cameraPosition - vWP );
+  vec3 N1 = normalize( inverseTransformDirection( Nview, viewMatrix ) );
+  vec3 P1 = vWP;
+  if ( ! front ) {
+    // seen through the cut-away top: the light enters where the view ray meets the free surface
+    vec3 ro = cameraPosition - uOrigin, rd = -V;
+    float den = rd.y - dot( uTilt, rd.xz );
+    if ( abs( den ) > 1e-4 ) { float ts = ( uFill + dot( uTilt, ro.xz ) - ro.y ) / den; if ( ts > 0.0 ) P1 = uOrigin + ro + rd * ts; }
+  }
+  vec3 p = P1 - uOrigin;
+  vec3 r1 = refract( -V, N1, 1.0 / uIor );                       // bend #1: air → whisky
+  if ( dot( r1, r1 ) < 1e-6 ) r1 = -V;
+  float t = 3.0; vec3 N2 = -N1;
+  if ( uShape < 0.5 ) {                                           // bottle: cylinder through this height
+    float a = dot( r1.xz, r1.xz ), b = dot( p.xz, r1.xz ), c = dot( p.xz, p.xz );
+    float R2 = front ? c : uR * uR;
+    float disc = b * b - a * ( c - R2 );
+    if ( a > 1e-5 && disc >= 0.0 ) { t = ( - b + sqrt( disc ) ) / a; vec3 e = p + r1 * t; N2 = normalize( vec3( e.x, 0.0, e.z ) ); }
+  } else {                                                        // bowl: sphere
+    vec3 o = p - uSph.xyz; float b = dot( o, r1 ), c = dot( o, o ) - uSph.w * uSph.w;
+    float disc = b * b - c; if ( disc >= 0.0 ) { t = - b + sqrt( disc ); N2 = normalize( o + r1 * t ); }
+  }
+  // the sloshing surface and the floor can cut the path short
+  float den = r1.y - dot( uTilt, r1.xz );
+  if ( front && den > 1e-4 ) { float ts = ( uFill + dot( uTilt, p.xz ) - p.y ) / den; if ( ts > 0.0 && ts < t ) { t = ts; N2 = normalize( vec3( - uTilt.x, 1.0, - uTilt.y ) ); } }
+  if ( r1.y < -1e-4 ) { float tb = ( uBottom - p.y ) / r1.y; if ( tb > 0.0 && tb < t ) { t = tb; N2 = vec3( 0.0, -1.0, 0.0 ); } }
+  t = clamp( t, 0.0, 2.5 );
+  vec3 P2 = p + r1 * t;
+  vec3 r2 = refract( r1, - N2, uIor );                            // bend #2: whisky → air
+  float tir = 0.0;
+  if ( dot( r2, r2 ) < 1e-6 ) { r2 = reflect( r1, - N2 ); tir = 1.0; }   // total internal reflection: bright edges
+  vec4 clip = uProj * viewMatrix * vec4( uOrigin + P2 + r2 * uBgDist, 1.0 );
+  vec2 uv = clamp( clip.xy / max( clip.w, 1e-3 ) * 0.5 + 0.5, 0.002, 0.998 );
+  vec3 bg = textureLod( uBgTex, uv, uBlur ).rgb;
+  vec3 T = exp( - uSigma * t );                                   // Beer–Lambert over the real path length
+  float F = 0.02 + 0.98 * pow( 1.0 - clamp( dot( N1, V ), 0.0, 1.0 ), 5.0 );
+  vec3 col = bg * T * ( 1.0 - F ) * ( 1.0 + tir * 0.5 );
+  col += uBacklight * uGlow * 0.24 * exp( - uSigma * t * 0.95 );  // light scattered inside the spirit (keeps it amber against dark velvet)
+  col += uBacklight * uGlow * 0.4 * smoothstep( 0.4, 0.1, p.y ) * exp( - uSigma * 0.35 ) * float( front );   // light caught in the base
+  col += vec3( 1.0, 0.82, 0.55 ) * cutEdge * 0.12 * uGlow;        // facet ridges
+  return col;
+}
+`;
+
+function spiritShader(mat, strength, slosh) {
+  const k = { value: strength };
+  mat.side = THREE.DoubleSide;
+  mat.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, LIQ, slosh.u, { uBacklight: backlight3, uGlow: k });
+    sh.vertexShader = 'varying vec3 vWP;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n\tvWP = ( modelMatrix * vec4( transformed, 1.0 ) ).xyz;');
+    sh.fragmentShader = 'varying vec3 vWP;\n' + VESSEL_GLSL + sh.fragmentShader
+      .replace('void main() {', LIQUID_GLSL + `void main() {
+	float sH = surfH( vWP.xz );
+	if ( vWP.y > sH ) discard;
+	float cutEdge = 0.0;`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+	if ( ! gl_FrontFacing ) {
+		float e = 0.006;   // inside faces seen through the open top are shaded as the liquid surface
+		vec3 nS = normalize( vec3( - ( surfH( vWP.xz + vec2( e, 0.0 ) ) - sH ) / e, 1.0, - ( surfH( vWP.xz + vec2( 0.0, e ) ) - sH ) / e ) );
+		normal = normalize( ( viewMatrix * vec4( nS, 0.0 ) ).xyz );
+	} else {
+		vec3 off = cutOffset( vWP, cutEdge );
+		if ( dot( off, off ) > 0.0 ) normal = normalize( ( viewMatrix * vec4( normalize( inverseTransformDirection( normal, viewMatrix ) + off ), 0.0 ) ).xyz );
+	}`)
+      .replace('#include <clearcoat_normal_fragment_maps>', '#include <clearcoat_normal_fragment_maps>\n\tclearcoatNormal = normal;')
+      .replace('#include <opaque_fragment>', 'outgoingLight *= mix( 1.0, 0.4, gCutBand );   // facet reflections shouldn\'t drown the spirit\n\toutgoingLight += liquidThrough( normal, gl_FrontFacing, cutEdge );\n\t#include <opaque_fragment>');
+  };
+  mat.customProgramCacheKey = () => 'spirit2-' + strength;
+}
+
+// glass skins: reflections only (additive) + diamond cut + the whisky film and "tears" left after a slosh
+function cutGlassShader(mat, slosh, key) {
+  mat.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, slosh.u);
+    sh.vertexShader = 'varying vec3 vWP;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n\tvWP = ( modelMatrix * vec4( transformed, 1.0 ) ).xyz;');
+    sh.fragmentShader = 'varying vec3 vWP;\nuniform float uWet; uniform vec3 uFilm;\n' + VESSEL_GLSL + sh.fragmentShader
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+	float cutEdge = 0.0;
+	vec3 off = cutOffset( vWP, cutEdge );
+	if ( dot( off, off ) > 0.0 ) normal = normalize( ( viewMatrix * vec4( normalize( inverseTransformDirection( normal, viewMatrix ) + off * 1.3 ), 0.0 ) ).xyz );`)
+      .replace('#include <clearcoat_normal_fragment_maps>', '#include <clearcoat_normal_fragment_maps>\n\tclearcoatNormal = normal;')
+      .replace('#include <opaque_fragment>', `#include <opaque_fragment>
+	gl_FragColor.rgb *= mix( 1.0, 0.45, gCutBand );
+	gl_FragColor.rgb += vec3( 1.0, 0.92, 0.8 ) * cutEdge * 0.05;
+	// film + tears: where the slosh wetted the glass above the surface, a thin coat drains back in streaks
+	vec3 lw = toLocal( vWP - uOrigin );
+	float hl = lw.y - uFill;
+	if ( uWet > 0.004 && hl > 0.0 && hl < uWet * 1.05 ) {
+		float phi = atan( lw.x, lw.z );
+		float cols = floor( uCutR * 70.0 );
+		float u = ( phi + 3.14159 ) / 6.28318 * cols;
+		float ci = floor( u ), fx = fract( u ) - 0.5;
+		float len = uWet * ( 0.3 + 0.7 * hash1( ci ) );
+		float w = 0.12 + 0.22 * hash1( ci + 7.0 );
+		float tear = smoothstep( w, w * 0.35, abs( fx ) ) * smoothstep( len, len - 0.02, hl );
+		tear *= 0.55 + 0.6 * smoothstep( len - 0.05, len - 0.012, hl );          // a bead gathers at the tip
+		float sheet = smoothstep( uWet * 0.3, 0.0, hl );                          // even coat just above the surface
+		float film = max( tear, sheet * 0.6 ) * smoothstep( 0.004, 0.04, uWet );
+		gl_FragColor.rgb += uFilm * film * 0.32;
+	}`);
+  };
+  mat.customProgramCacheKey = () => 'cutglass2-' + key;
+}
+
+/* slosh + cut + shape state per vessel; the spring is driven by how the vessel accelerates relative to the camera */
+function makeSlosh(gain, cut, shape) {
+  return { gain, prev: null, vel: new THREE.Vector3(), tilt: new THREE.Vector2(), tiltV: new THREE.Vector2(), ripple: 0.003, yaw: null, wet: 0,
+    u: { uFill: { value: 0 }, uTilt: { value: new THREE.Vector2() }, uRipple: { value: 0.003 }, uTime: { value: 0 }, uOrigin: { value: new THREE.Vector3() },
+      uYaw: { value: 0 }, uBackDir: { value: new THREE.Vector3(0, 0, -1) },
+      uCut: { value: cut.depth }, uCutR: { value: cut.radius }, uCutBand: { value: new THREE.Vector2(...cut.band) }, uCutSize: { value: cut.size },
+      uShape: { value: shape.sphere ? 1 : 0 }, uSph: { value: new THREE.Vector4(...(shape.sphere || [0, 0, 0, 1])) }, uR: { value: shape.r }, uBottom: { value: shape.bottom },
+      uWet: { value: 0 }, uFilm: { value: new THREE.Color(0.5, 0.25, 0.06) } } };
+}
+// CUT_GLASS: set depth to 0 for smooth glass. band = local heights of the cut, size = facet pitch
+const bottleSlosh = makeSlosh(0.011, { depth: 0.75, radius: 0.52, band: [0.12, 1.36], size: 0.21 }, { r: 0.49, bottom: 0.1 });
+const dramSlosh = makeSlosh(0.014, { depth: 0.6, radius: 0.27, band: [0.5, 0.84], size: 0.11 }, { r: 0.27, bottom: -1, sphere: [0, 0.74, 0, 0.285] });
+
+// whisky surfaces: black base so only reflections come from lighting; everything seen *through* is added by liquidThrough()
+const whiskyMat = new THREE.MeshPhysicalMaterial({
+  color: 0x000000, metalness: 0, roughness: 0, ior: 1.36, clearcoat: 1, clearcoatRoughness: 0, specularIntensity: 1, envMapIntensity: 1.3,
+});
+const dramMat = whiskyMat.clone();
+spiritShader(whiskyMat, 1.0, bottleSlosh);
+spiritShader(dramMat, 0.85, dramSlosh);
+
+const nosingMat = new THREE.MeshPhysicalMaterial({
+  color: 0x000000, metalness: 0, roughness: 0.02, clearcoat: 1, clearcoatRoughness: 0, specularIntensity: 1,
+  envMapIntensity: 2.4, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+});
+const bottleGlassMat = new THREE.MeshPhysicalMaterial({
+  color: 0x000000, metalness: 0, roughness: 0.015, clearcoat: 1, clearcoatRoughness: 0, specularIntensity: 1,
+  envMapIntensity: 2.6, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+});
+cutGlassShader(nosingMat, dramSlosh, 'nosing');
+cutGlassShader(bottleGlassMat, bottleSlosh, 'bottle');
+// bright line where the spirit meets the glass
+const meniscusMat = new THREE.MeshPhysicalMaterial({ color: 0xffe2b0, roughness: 0, transparent: true, opacity: 0.55, envMapIntensity: 2.2, depthWrite: false });
+
+/* ---------- labels: navy paper, gold foil ---------- */
+const paperBump = tex(grayCanvas(256, (X, y) => fbm(X / 18, y / 18, 3, 4) * 0.6 + hash(X, y, 2) * 0.4), { srgb: false, repeat: [6, 5] });
+const IVORY = '#ece4d2', IVORY2 = '#b9b3a6';
+const LBL_W = 2048, LBL_HPX = 1792;
+function labelCanvas(draw) {
+  const c = makeCanvas(LBL_W, LBL_HPX), x = c.getContext('2d');
+  x.fillStyle = '#142152'; x.fillRect(0, 0, LBL_W, LBL_HPX);
+  const g = x.createLinearGradient(0, 0, 0, LBL_HPX); g.addColorStop(0, 'rgba(255,255,255,.05)'); g.addColorStop(1, 'rgba(0,0,0,.18)');
+  x.fillStyle = g; x.fillRect(0, 0, LBL_W, LBL_HPX);
+  x.textAlign = 'center'; draw && draw(x, LBL_W, LBL_HPX); return c;
+}
+const frontPrint = labelCanvas((x, w) => {
+  x.fillStyle = IVORY2; x.font = '400 50px "DM Mono"'; spaced(x, 'SPEYSIDE SINGLE MALT  ·  46% VOL  ·  70 cl', w / 2, 1615, 10);
+  x.fillStyle = IVORY; x.font = 'italic 400 70px Fraunces'; x.fillText('Matured in a single Oloroso butt', w / 2, 1490);
+});
+const frontFoil = (() => {
+  const c = makeCanvas(LBL_W, LBL_HPX), x = c.getContext('2d'), w = LBL_W, h = LBL_HPX;
+  x.fillStyle = '#000'; x.fillRect(0, 0, w, h); x.strokeStyle = '#fff'; x.fillStyle = '#fff'; x.textAlign = 'center';
+  x.lineWidth = 10; x.strokeRect(150, 70, w - 300, h - 140);
+  x.lineWidth = 4; x.strokeRect(178, 98, w - 356, h - 196);
+  x.beginPath(); x.moveTo(w / 2 - 90, 290); x.lineTo(w / 2, 225); x.lineTo(w / 2 + 90, 290); x.lineTo(w / 2, 266); x.fill();
+  x.font = '600 96px Manrope'; spaced(x, 'KESTREL & OAK', w / 2, 440, 30);
+  x.font = '500 560px Fraunces'; x.fillText('18', w / 2, 1000);
+  x.font = '600 76px Manrope'; spaced(x, 'YEARS OLD', w / 2, 1130, 26);
+  x.lineWidth = 6; x.beginPath(); x.moveTo(w / 2 - 340, 1230); x.lineTo(w / 2 + 340, 1230); x.stroke();
+  x.font = '600 76px Manrope'; spaced(x, 'OLOROSO CASK', w / 2, 1320, 26);
+  return c;
+})();
+const backPrint = labelCanvas((x, w) => {
+  x.fillStyle = IVORY2; x.font = '600 80px Manrope'; spaced(x, 'CASK No.', w / 2, 330, 28);
+  x.fillStyle = IVORY; x.font = '500 380px Fraunces'; x.fillText('0417', w / 2, 720);
+  const rows = [['FILLED', '03 · 2008'], ['BOTTLED', '06 · 2026'], ['STRENGTH', '46.0% VOL'], ['BOTTLE', '211 / 612']];
+  x.font = '400 66px "DM Mono"';
+  rows.forEach(([k, v], i) => { const y = 1000 + i * 140; x.fillStyle = IVORY2; x.textAlign = 'left'; spaced(x, k, 460, y, 8); x.fillStyle = IVORY; x.textAlign = 'right'; spaced(x, v, w - 460, y, 8); });
+});
+const backFoil = (() => {
+  const c = makeCanvas(LBL_W, LBL_HPX), x = c.getContext('2d'), w = LBL_W, h = LBL_HPX;
+  x.fillStyle = '#000'; x.fillRect(0, 0, w, h); x.strokeStyle = '#fff'; x.lineWidth = 8; x.strokeRect(150, 70, w - 300, h - 140);
+  x.lineWidth = 5; x.beginPath(); x.moveTo(440, 840); x.lineTo(w - 440, 840); x.stroke();
+  return c;
+})();
+const paperMat = c => new THREE.MeshPhysicalMaterial({ map: tex(c), roughness: 0.68, bumpMap: paperBump, bumpScale: 0.35, envMapIntensity: 0.6 });
+const paperBack = new THREE.MeshStandardMaterial({ color: 0x0e1638, roughness: 0.9, side: THREE.BackSide });
+
+/* =====================================================================
+   SCENE
+   ===================================================================== */
+const shadowy = m => { m.castShadow = true; m.receiveShadow = true; return m; };
+const add = (parent, mesh, x, y, z) => { mesh.position.set(x, y, z); parent.add(mesh); return mesh; };
+
+/* infinity cove: navy paper floor curving up into a back wall */
+function makeCove() {
+  const geo = new THREE.PlaneGeometry(70, 1, 1, 120), p = geo.attributes.position;
+  const FLOOR = 18, R = 6, ARC = Math.PI * R / 2, L = FLOOR + ARC + 26;
+  for (let i = 0; i < p.count; i++) {
+    const s = (p.getY(i) + 0.5) * L; let y, z;
+    if (s < FLOOR) { y = 0; z = 14 - s; }
+    else if (s < FLOOR + ARC) { const a = (s - FLOOR) / R; y = R - R * Math.cos(a); z = 14 - FLOOR - R * Math.sin(a); }
+    else { y = R + (s - FLOOR - ARC); z = 14 - FLOOR - R; }
+    p.setXYZ(i, p.getX(i), y, z);
+  }
+  geo.computeVertexNormals();
+  // velvet: deep blue pile with a soft sheen and a crushed, uneven nap
+  const nap = (() => {
+    const S = 512, c = makeCanvas(S, S), x = c.getContext('2d'), d = x.createImageData(S, S);
+    for (let y = 0; y < S; y++) for (let X = 0; X < S; X++) {
+      const v = 0.5 + (fbm(X / 70, y / 50, 3, 21) - 0.5) * 0.3 + (fbm(X / 7, y / 7, 2, 5) - 0.5) * 0.25 + (hash(X, y, 8) - 0.5) * 0.12, i = (y * S + X) * 4;
+      d.data[i] = d.data[i + 1] = d.data[i + 2] = 255 * v; d.data[i + 3] = 255;
+    }
+    x.putImageData(d, 0, 0); return tex(c, { srgb: false, repeat: [16, 12] });
+  })();
+  const m = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({ color: 0x14215a, roughness: 1, sheen: 1, sheenRoughness: 0.45,
+    sheenColor: new THREE.Color(0x5670d8), bumpMap: nap, bumpScale: 0.25, envMapIntensity: 0.3, side: THREE.DoubleSide }));
+  m.receiveShadow = true;
+  return m;
+}
+scene.add(makeCove());
+
+/* soft contact blob for grounding */
+const blobTex = (() => { const c = makeCanvas(256, 256), x = c.getContext('2d'); const g = x.createRadialGradient(128, 128, 0, 128, 128, 128); g.addColorStop(0, 'rgba(0,0,8,.8)'); g.addColorStop(0.55, 'rgba(0,0,8,.32)'); g.addColorStop(1, 'rgba(0,0,8,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 256); return tex(c); })();
+const blob = (sx, sz = sx) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(sx, sz), new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false })); m.rotation.x = -Math.PI / 2; m.position.y = 0.003; return m; };
+
+const root = new THREE.Group(); scene.add(root);
+
+/* ---------- case ---------- */
+const caseG = new THREE.Group(); root.add(caseG);
+const panelBox = (w, h, d, mat = boardMat) => shadowy(new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, 0.014), mat));
+
+add(caseG, panelBox(BW, BH, T), 0, BH / 2, BD / 2 - T / 2);                    // front
+add(caseG, panelBox(BW, BH, T), 0, BH / 2, -BD / 2 + T / 2);                   // back
+add(caseG, panelBox(T, BH, BD - 2 * T, boardEdge), -BW / 2 + T / 2, BH / 2, 0); // left
+add(caseG, panelBox(T, BH, BD - 2 * T, boardEdge), BW / 2 - T / 2, BH / 2, 0);  // right
+add(caseG, panelBox(BW - 2 * T, T, BD - 2 * T, velvetMat), 0, T / 2, 0);       // floor
+const liner = new THREE.Mesh(new THREE.BoxGeometry(BW - 2 * T - 0.002, BH - T, BD - 2 * T - 0.002), velvetMat.clone());
+liner.material.side = THREE.BackSide; liner.position.y = T + (BH - T) / 2; liner.receiveShadow = true; caseG.add(liner);
+add(caseG, shadowy(new THREE.Mesh(new RoundedBoxGeometry(0.86, PLINTH_H, BD - 2 * T - 0.01, 4, 0.03), velvetMat)), GLS_SLOT[0], T + PLINTH_H / 2, 0);
+
+add(caseG, new THREE.Mesh(new THREE.PlaneGeometry(BW, BH), embossMat(frontEmbossCanvas)), 0, BH / 2, BD / 2 + 0.0012);
+add(caseG, new THREE.Mesh(new THREE.PlaneGeometry(BW, BH), foilMat(frontFoilCanvas)), 0, BH / 2, BD / 2 + 0.0016);
+add(caseG, shadowy(new THREE.Mesh(new RoundedBoxGeometry(RIB_W, BH, 0.008, 2, 0.003), ribbonMat)), RIB_X, BH / 2, BD / 2 + 0.004);
+caseG.add(blob(BW + 1.4, BD + 1.4));
+
+/* lid, hinged along its back edge */
+const lidPivot = new THREE.Group(); lidPivot.position.set(0, LID_Y, -LD / 2); caseG.add(lidPivot);
+const lid = new THREE.Group(); lid.position.set(0, 0, LD / 2); lidPivot.add(lid);
+add(lid, panelBox(LW, T, LD), 0, LH - T / 2, 0);
+add(lid, panelBox(LW, LH - T, T), 0, (LH - T) / 2, LD / 2 - T / 2);
+add(lid, panelBox(LW, LH - T, T), 0, (LH - T) / 2, -LD / 2 + T / 2);
+add(lid, panelBox(T, LH - T, LD - 2 * T, boardEdge), -LW / 2 + T / 2, (LH - T) / 2, 0);
+add(lid, panelBox(T, LH - T, LD - 2 * T, boardEdge), LW / 2 - T / 2, (LH - T) / 2, 0);
+const ribGeo = (w, h, d) => new RoundedBoxGeometry(w, h, d, 2, 0.003);
+add(lid, shadowy(new THREE.Mesh(ribGeo(RIB_W, LH, 0.008), ribbonMat)), RIB_X, LH / 2, LD / 2 + 0.004);
+add(lid, shadowy(new THREE.Mesh(ribGeo(RIB_W, 0.008, LD + 0.008), ribbonMat)), RIB_X, LH + 0.004, 0);
+add(lid, shadowy(new THREE.Mesh(ribGeo(RIB_W, LH, 0.008), ribbonMat)), RIB_X, LH / 2, -LD / 2 - 0.004);
+const lidFoilMat = foilMat(lidFoilCanvas);
+add(lid, new THREE.Mesh(new THREE.PlaneGeometry(LW, LH), lidFoilMat), 0, LH / 2, LD / 2 + 0.0015);
+const topE = add(lid, new THREE.Mesh(new THREE.PlaneGeometry(LW, LD), embossMat(lidTopEmboss)), 0, LH + 0.0012, 0); topE.rotation.x = -Math.PI / 2;
+const topF = add(lid, new THREE.Mesh(new THREE.PlaneGeometry(LW, LD), foilMat(lidTopFoil)), 0, LH + 0.0016, 0); topF.rotation.x = -Math.PI / 2;
+
+/* wax seal: irregular blob + gold crest + drip */
+const seal = new THREE.Group();
+{
+  const prof = [[0, 0.04], [0.12, 0.039], [0.165, 0.035], [0.19, 0.026], [0.205, 0.012], [0.207, 0], [0.2, -0.008], [0, -0.008]].map(([r, y]) => new THREE.Vector2(r, y));
+  const g = new THREE.LatheGeometry(prof, 120), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), z = p.getZ(i), a = Math.atan2(z, x), r = Math.hypot(x, z);
+    const k = 1 + (fbm(Math.cos(a) * 2 + 3, Math.sin(a) * 2 + 3, 3, 11) - 0.5) * 0.28 * (r / 0.2);
+    p.setX(i, x * k); p.setZ(i, z * k); p.setY(i, p.getY(i) + (fbm(x * 30, z * 30, 2, 5) - 0.5) * 0.006);
+  }
+  g.computeVertexNormals();
+  seal.add(shadowy(new THREE.Mesh(g, waxMat)));
+  const crest = new THREE.Mesh(new THREE.CircleGeometry(0.15, 64), crestMat);
+  crest.rotation.x = -Math.PI / 2; crest.position.y = 0.0405; seal.add(crest);
+  const drip = shadowy(new THREE.Mesh(new THREE.SphereGeometry(0.045, 24, 16), waxMat));
+  drip.scale.set(0.8, 0.45, 1.9); drip.position.set(-0.1, -0.004, 0.2); seal.add(drip);
+}
+seal.rotation.x = Math.PI / 2;
+seal.position.set(RIB_X, 0.12, LD / 2 + 0.006);
+lid.add(seal);
+
+/* ---------- bottle ---------- */
+const bottle = new THREE.Group(); root.add(bottle);
+const V = (r, y) => new THREE.Vector2(r, y);
+const CTRL = [V(0.47, 0), V(0.535, 0.015), V(0.552, 0.07), V(0.552, 0.6), V(0.552, 1.5), V(0.54, 1.64), V(0.49, 1.8),
+  V(0.37, 1.94), V(0.24, 2.05), V(0.172, 2.14), V(0.158, 2.24), V(0.158, 2.44), V(0.176, 2.47), V(0.176, 2.53)];
+const OUT = new THREE.SplineCurve(CTRL).getSpacedPoints(220);
+const outerR = y => { for (let i = 1; i < OUT.length; i++) if (OUT[i].y >= y) { const a = OUT[i - 1], b = OUT[i], t = (y - a.y) / Math.max(1e-6, b.y - a.y); return a.x + (b.x - a.x) * t; } return OUT.at(-1).x; };
+const FILL = 1.8, WALL = 0.032, LIQ_TOP = 2.06;
+
+// whisky volume inside the glass wall; the visible level is set by the slosh shader (uFill), not the mesh top
+const whiskyProf = [V(0, 0.15), V(0.2, 0.14), V(0.42, 0.105), V(outerR(0.1) - WALL, 0.1),
+  ...OUT.filter(p => p.y > 0.1 && p.y < LIQ_TOP).map(p => V(p.x - WALL, p.y)), V(outerR(LIQ_TOP) - WALL, LIQ_TOP), V(0, LIQ_TOP)];
+// glass skin: base to lip
+const shellProf = [V(0, 0.002), ...OUT, V(0.14, 2.53)];
+bottleGlassMat.bumpMap = (() => {
+  // embossed lettering on the shoulder. Lathe UVs: u wraps around (u=0 faces front), v steps once per profile point
+  const n = shellProf.length, vOf = y => { let best = 0; shellProf.forEach((p, i) => { if (Math.abs(p.y - y) < Math.abs(shellProf[best].y - y)) best = i; }); return best / (n - 1); };
+  const W = 4096, Hc = 2048, c = makeCanvas(W, Hc), x = c.getContext('2d');
+  x.fillStyle = '#000'; x.fillRect(0, 0, W, Hc);
+  const pxX = W / (Math.PI * 2 * 0.552), y0 = 1.38, y1 = 1.74;
+  const rowOf = y => (1 - vOf(y)) * Hc, pxY = (rowOf(y0) - rowOf(y1)) / (y1 - y0);
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'alphabetic'; x.filter = 'blur(2px)';
+  const line = (text, y, size, track) => [0, W].forEach(cx => {
+    x.save(); x.translate(cx, rowOf(y)); x.scale(1, pxY / pxX); x.font = `600 ${size * pxX}px Fraunces`; spaced(x, text, 0, 0, track * pxX); x.restore();
+  });
+  line('KESTREL & OAK', 1.6, 0.085, 0.03);
+  line('SPEYSIDE  ·  SINGLE MALT', 1.45, 0.05, 0.02);
+  return tex(c, { srgb: false });
+})();
+bottleGlassMat.bumpScale = 1.6;
+bottleSlosh.u.uR.value = outerR(FILL) - WALL;
+const whisky = new THREE.Mesh(new THREE.LatheGeometry(whiskyProf, 128), whiskyMat); whisky.castShadow = true; bottle.add(whisky);
+const bottleGlass = new THREE.Mesh(new THREE.LatheGeometry(shellProf, 128), bottleGlassMat); bottleGlass.renderOrder = 2; bottle.add(bottleGlass);
+const bottleMeniscus = new THREE.Mesh(new THREE.TorusGeometry(outerR(FILL) - WALL - 0.003, 0.0035, 8, 128), meniscusMat);
+bottleMeniscus.position.y = FILL; bottleMeniscus.renderOrder = 1; bottle.add(bottleMeniscus);
+const stopProf = [[0, 2.4], [0.122, 2.4], [0.122, 2.62], [0.19, 2.625], [0.205, 2.64], [0.215, 2.66], [0.215, 2.86], [0.2, 2.895], [0.15, 2.91], [0, 2.912]].map(([r, y]) => V(r, y));
+bottle.add(shadowy(new THREE.Mesh(new THREE.LatheGeometry(stopProf, 96), walnutMat)));
+const ring = new THREE.Mesh(new THREE.TorusGeometry(0.214, 0.008, 12, 96), goldMetal); ring.rotation.x = Math.PI / 2; ring.position.y = 2.69; bottle.add(ring);
+bottle.add(new THREE.Mesh(new THREE.LatheGeometry([[0.159, 2.25], [0.163, 2.252], [0.163, 2.398], [0.159, 2.4]].map(([r, y]) => V(r, y)), 96), goldMetal));
+
+const LBL_R = 0.555, LBL_ARC = 1.9, LBL_H = 0.95, LBL_Y = 0.86;
+const arcGeo = (r, start) => new THREE.CylinderGeometry(r, r, LBL_H, 128, 1, true, start, LBL_ARC);
+function label(start, printCanvas, foilCanvas) {
+  const g = new THREE.Group(); g.position.y = LBL_Y;
+  g.add(new THREE.Mesh(arcGeo(LBL_R, start), paperMat(printCanvas)));
+  g.add(new THREE.Mesh(arcGeo(LBL_R, start), paperBack));
+  g.add(new THREE.Mesh(arcGeo(LBL_R + 0.0008, start), foilMat(foilCanvas, { bumpScale: 0.4 })));
+  bottle.add(g);
+}
+label(-LBL_ARC / 2, frontPrint, frontFoil);
+label(Math.PI - LBL_ARC / 2, backPrint, backFoil);
+
+/* ---------- nosing glass (stemmed tulip) ---------- */
+const nosing = new THREE.Group(); root.add(nosing);
+let nosingGlass;
+{
+  const bowlOut = new THREE.SplineCurve([V(0.05, 0.47), V(0.16, 0.51), V(0.26, 0.6), V(0.3, 0.73), V(0.285, 0.88), V(0.235, 1.02), V(0.2, 1.13), V(0.192, 1.2)]).getPoints(40);
+  const bowlIn = new THREE.SplineCurve([V(0.181, 1.2), V(0.188, 1.13), V(0.222, 1.02), V(0.272, 0.88), V(0.287, 0.73), V(0.248, 0.61), V(0.15, 0.53), V(0, 0.51)]).getPoints(40);
+  const prof = [V(0, 0), V(0.29, 0), V(0.305, 0.008), V(0.3, 0.02), V(0.2, 0.03), V(0.07, 0.05), V(0.036, 0.09), V(0.03, 0.2), V(0.03, 0.4), V(0.04, 0.45),
+    ...bowlOut, V(0.187, 1.212), ...bowlIn];
+  nosingGlass = new THREE.Mesh(new THREE.LatheGeometry(prof, 128), nosingMat); nosingGlass.renderOrder = 2; nosing.add(nosingGlass);
+}
+const DRAM_IN = new THREE.SplineCurve([V(0, 0.51), V(0.15, 0.53), V(0.248, 0.61), V(0.287, 0.73), V(0.272, 0.88)]).getPoints(40).filter(p => p.y <= 0.86);
+const dramR = y => { for (let i = 1; i < DRAM_IN.length; i++) if (DRAM_IN[i].y >= y) { const a = DRAM_IN[i - 1], b = DRAM_IN[i]; return a.x + (b.x - a.x) * (y - a.y) / Math.max(1e-6, b.y - a.y); } return DRAM_IN.at(-1).x; };
+const dram = new THREE.Mesh(new THREE.LatheGeometry([V(0, 0.514), ...DRAM_IN.slice(1).map(p => V(p.x - 0.004, p.y)), V(0, 0.86)], 96), dramMat);
+nosing.add(dram);
+const dramRing = new THREE.Mesh(new THREE.TorusGeometry(1, 0.0028 / 0.27, 8, 96), meniscusMat); dramRing.renderOrder = 1; nosing.add(dramRing);
+// gold crest on the bowl
+const bowlFoil = (() => {
+  const c = makeCanvas(1024, 512), x = c.getContext('2d'); x.fillStyle = '#000'; x.fillRect(0, 0, 1024, 512);
+  x.fillStyle = '#fff'; x.strokeStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = '400 200px Fraunces'; x.fillText('18', 512, 230); x.font = '600 52px Manrope'; spaced(x, 'KESTREL & OAK', 512, 400, 14);
+  return c;
+})();
+{
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(0.2915, 0.3015, 0.26, 96, 1, true, -0.55, 1.1), foilMat(bowlFoil, { bumpScale: 0.2 }));
+  m.position.y = 0.8; m.renderOrder = 3; nosing.add(m);
+}
+
+const bottleBlob = blob(1.7); scene.add(bottleBlob);
+const glassBlob = blob(1.0); scene.add(glassBlob);
+
+/* caustics: light focused through the spirit lands as an amber glow inside each shadow */
+const causticTex = (() => {
+  const c = makeCanvas(512, 256), x = c.getContext('2d');
+  const g = x.createRadialGradient(200, 128, 4, 230, 128, 230);
+  g.addColorStop(0, 'rgba(255,214,140,1)'); g.addColorStop(0.18, 'rgba(240,150,50,.75)'); g.addColorStop(0.55, 'rgba(160,70,10,.25)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 512, 256);
+  return tex(c);
+})();
+function caustic(len, wid) {
+  const holder = new THREE.Object3D();
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(len, wid), new THREE.MeshBasicMaterial({ map: causticTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }));
+  m.rotation.x = -Math.PI / 2; m.position.set(len / 2, 0.004, 0); holder.add(m); scene.add(holder);
+  return { holder, mat: m.material };
+}
+const bottleCaustic = caustic(1.5, 0.7), glassCaustic = caustic(0.7, 0.36);
+function aimCaustic(c, obj, offset, strength) {
+  obj.getWorldPosition(wp);
+  const dx = wp.x - key.position.x, dz = wp.z - key.position.z, d = Math.hypot(dx, dz) || 1;
+  c.holder.position.set(wp.x + dx / d * offset, 0, wp.z + dz / d * offset);
+  c.holder.rotation.y = Math.atan2(-dz, dx);
+  c.mat.opacity = strength;
+}
+
+/* ---------- lights ---------- */
+const key = new THREE.SpotLight(0xfff0dc, 360, 0, 0.5, 0.85, 2);
+key.position.set(-4, 9, 6); key.target.position.set(0, 1.4, 0);
+key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0002; key.shadow.radius = 10; key.shadow.blurSamples = 20;
+key.shadow.camera.near = 4; key.shadow.camera.far = 24;
+scene.add(key, key.target);
+const soft = new THREE.RectAreaLight(0xfff2e2, 3.2, 5, 4); soft.position.set(-4.5, 4.5, 5); soft.lookAt(0, 1.4, 0); scene.add(soft);
+const rim = new THREE.RectAreaLight(0x9fb4ff, 5, 2, 6); rim.position.set(4.5, 3.5, -4); rim.lookAt(0, 1.6, 0); scene.add(rim);
+const warm = new THREE.RectAreaLight(0xffc98a, 2.2, 2, 5); warm.position.set(5, 2.5, 4); warm.lookAt(0, 1.4, 0); scene.add(warm);
+
+
+/* ---------- bubbles: tiny beads rising inside the spirit (seen only through the liquid, via the background pass) ---------- */
+function makeBubbles(parent, n, spawn) {
+  const mesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 10, 8),
+    new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 0.06, envMapIntensity: 2.2 }), n);
+  mesh.visible = false; mesh.frustumCulled = false; parent.add(mesh);
+  const list = Array.from({ length: n }, () => ({ ...spawn(Math.random()), s: 0.005 + Math.random() * 0.011, v: 0.025 + Math.random() * 0.05, ph: Math.random() * 6.28 }));
+  return { mesh, list, spawn };
+}
+const _m4 = new THREE.Matrix4(), _bp = new THREE.Vector3(), _bs = new THREE.Vector3(), _bq = new THREE.Quaternion();
+function stepBubbles(B, dt, t, top, floor) {
+  B.list.forEach((b, i) => {
+    b.y += b.v * dt;
+    if (b.y > top - 0.015 || b.y < floor) Object.assign(b, B.spawn(0));
+    _bp.set(b.x + Math.sin(t * 1.7 + b.ph) * 0.006, b.y, b.z + Math.cos(t * 1.3 + b.ph) * 0.006);
+    _bs.setScalar(b.y > top - 0.015 ? 0.0001 : b.s);
+    B.mesh.setMatrixAt(i, _m4.compose(_bp, _bq, _bs));
+  });
+  B.mesh.instanceMatrix.needsUpdate = true;
+}
+const bottleBubbles = makeBubbles(bottle, 22, f => { const a = Math.random() * 6.28, r = Math.sqrt(Math.random()) * 0.4; return { x: Math.sin(a) * r, z: Math.cos(a) * r, y: 0.13 + (f ? Math.random() * 1.6 : 0) }; });
+const dramBubbles = makeBubbles(nosing, 7, f => { const a = Math.random() * 6.28, r = Math.sqrt(Math.random()) * 0.13; return { x: Math.sin(a) * r, z: Math.cos(a) * r, y: 0.53 + (f ? Math.random() * 0.12 : 0) }; });
+
+/* ---------- background pass: everything behind the vessels, rendered for the liquid to look through ---------- */
+const bgRT = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter, magFilter: THREE.LinearFilter });
+LIQ.uBgTex.value = bgRT.texture;
+const clipBehind = new THREE.Plane(), _cn = new THREE.Vector3(), _cc = new THREE.Vector3();
+let hideInBg = [];
+
+/* =====================================================================
+   POSES_3D — keyframes for the six chapters (same names as the 2D build)
+   cam/tgt   camera position + look-at
+   case*     case position, yaw, opacity; lid = hinge angle (negative opens back)
+   att       1 = bottle and glass sit in their wells (follow the case), 0 = free-standing at botP / glsP
+   botLift, glsLift: how far bottle / glass rise out of their wells while attached
+   dram      0–1 pour in the nosing glass
+   ===================================================================== */
+const TAU = Math.PI * 2;
+const POSES_3D = {
+  closed: { cam: [4.4, 3.7, 12.2],  tgt: [0, 1.7, 0],      caseP: [0, 0, 0],          caseR: -0.38, caseO: 1, lid: 0,     att: 1, botLift: 0,   glsLift: 0,   botP: [0, 0, 0],       botR: 0,          glsP: [0, 0, 0],       glsR: 0,   dram: 0 },
+  seal:   { cam: [1.6, 3.6, 7.4],   tgt: [-0.2, 2.25, 0.8],  caseP: [0, 0, 0],          caseR: -0.12, caseO: 1, lid: 0,     att: 1, botLift: 0,   glsLift: 0,   botP: [0, 0, 0],       botR: 0,          glsP: [0, 0, 0],       glsR: 0,   dram: 0 },
+  open:   { cam: [3.2, 6.6, 13.2],  tgt: [0, 2.7, 0],      caseP: [0, 0, 0],          caseR: -0.32, caseO: 1, lid: -1.95, att: 1, botLift: 1.2, glsLift: 1.0, botP: [0, 0, 0],       botR: 0,          glsP: [0, 0, 0],       glsR: 0,   dram: 0 },
+  cask:   { cam: [0.4, 1.85, 8.6],  tgt: [0.3, 1.35, 0],   caseP: [0, 0, -3.4],       caseR: -0.32, caseO: 0, lid: -1.95, att: 0, botLift: 0,   glsLift: 0,   botP: [-0.3, 0, 0],    botR: Math.PI,    glsP: [1.1, 0, 0.35],  glsR: 0.4, dram: 1 },
+  label:  { cam: [0.32, 1.02, 3.7], tgt: [0, 0.92, 0],     caseP: [0, 0, -3.4],       caseR: -0.32, caseO: 0, lid: -1.95, att: 0, botLift: 0,   glsLift: 0,   botP: [0, 0, 0],       botR: TAU,        glsP: [1.2, 0, 0.5],   glsR: 0.4, dram: 1 },
+  buy:    { cam: [0.4, 2.9, 12.4],  tgt: [0.05, 1.5, 0],   caseP: [1.15, 0, -1.2],    caseR: -0.5,  caseO: 1, lid: 0,     att: 0, botLift: 0,   glsLift: 0,   botP: [-1.05, 0, 0.5], botR: TAU + 0.3,  glsP: [0.35, 0, 1.1],  glsR: 0.2, dram: 1 },
+};
+
+/* live state that eases toward the active pose */
+const VEC = ['cam', 'tgt', 'caseP', 'botP', 'glsP'];
+const SCALAR = ['caseR', 'caseO', 'lid', 'att', 'botLift', 'glsLift', 'botR', 'glsR', 'dram'];
+const clone = p => { const o = { ...p }; VEC.forEach(k => o[k] = [...p[k]]); return o; };
+let target = POSES_3D[stage.dataset.pose] || POSES_3D.closed;
+const cur = clone(target);
+let framesLeft = 4; // SNAP mode renders a few frames per pose, then idles
+new MutationObserver(() => { target = POSES_3D[stage.dataset.pose] || target; framesLeft = 4; })
+  .observe(stage, { attributes: true, attributeFilter: ['data-pose'] });
+
+/* case fade (all materials under the case group) */
+const caseMats = new Set();
+caseG.traverse(o => { if (o.material) caseMats.add(o.material); });
+caseMats.forEach(m => { m.userData.baseOpacity = m.opacity; m.userData.baseTransparent = m.transparent; });
+let lastO = -1;
+function setCaseOpacity(o) {
+  if (Math.abs(o - lastO) < 0.002) return; lastO = o;
+  for (const m of caseMats) {
+    const t = m.userData.baseTransparent || o < 0.995;
+    if (m.transparent !== t) { m.transparent = t; m.needsUpdate = true; }
+    m.opacity = m.userData.baseOpacity * o;
+  }
+  caseG.visible = o > 0.01;
+}
+
+/* engraving from main.js */
+const lidFoilTex = lidFoilMat.alphaMap;
+addEventListener('engrave', e => { framesLeft = 4; drawLidFoil(e.detail || ''); lidFoilTex.needsUpdate = true; lidFoilMat.bumpMap.needsUpdate = true; });
+
+/* ---------- drag to rotate ---------- */
+let yaw = 0, dragging = false, lastX = 0;
+canvas.addEventListener('pointerdown', e => { dragging = true; lastX = e.clientX; canvas.setPointerCapture(e.pointerId); stage.classList.add('dragging'); });
+canvas.addEventListener('pointermove', e => {
+  if (!dragging || stage.classList.contains('v-scroll')) return;   // a vertical swipe scrolls the text, not the bottle
+  yaw = THREE.MathUtils.clamp(yaw + (e.clientX - lastX) * 0.01, -Math.PI, Math.PI); lastX = e.clientX;
+});
+const endDrag = () => { dragging = false; stage.classList.remove('dragging'); };
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+
+/* ---------- resize ---------- */
+let aspectFit = 1;
+function resize() {
+  const { clientWidth: w, clientHeight: h } = stage;
+  renderer.setSize(w, h, false);
+  const pr = renderer.getPixelRatio(); bgRT.setSize(Math.max(4, Math.round(w * pr * 0.5)), Math.max(4, Math.round(h * pr * 0.5)));
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  aspectFit = Math.max(1, 0.86 / camera.aspect);
+}
+new ResizeObserver(resize).observe(stage);
+resize();
+
+/* ---------- loop ---------- */
+const lerp = THREE.MathUtils.lerp;
+const lerpArr = (a, b, k) => { for (let i = 0; i < a.length; i++) a[i] = lerp(a[i], b[i], k); };
+const camPos = new THREE.Vector3(), tgtV = new THREE.Vector3(), slot = new THREE.Vector3(), free = new THREE.Vector3(), wp = new THREE.Vector3();
+const clock = new THREE.Clock();
+
+const _pv = new THREE.Vector3(), _vel = new THREE.Vector3(), _acc = new THREE.Vector3(), _q = new THREE.Quaternion(), _n = new THREE.Vector3(), Z_AXIS = new THREE.Vector3(0, 0, 1);
+const DRAM_BASE = 0.514, DRAM_FULL = 0.68;
+function stepSlosh(s, obj, fill, ring, ringR, dt, t) {
+  obj.getWorldPosition(wp);
+  s.u.uOrigin.value.copy(wp); s.u.uFill.value = fill; s.u.uTime.value = t;
+  _pv.copy(wp).applyMatrix4(camera.matrixWorldInverse);            // vessel position as the camera sees it
+  const yawNow = root.rotation.y + obj.rotation.y;
+  if (s.prev && dt > 1e-4 && !SNAP && !reduceMotion) {
+    _vel.copy(_pv).sub(s.prev).divideScalar(dt);
+    _acc.copy(_vel).sub(s.vel).divideScalar(dt).clampLength(0, 25);
+    s.vel.copy(_vel);
+    _acc.applyQuaternion(camera.quaternion);                        // camera axes → world axes
+    // the surface leans against the acceleration (gradient = -a/g), then springs back and settles
+    const tx = -_acc.x * s.gain, tz = -_acc.z * s.gain;
+    s.tiltV.x += ((tx - s.tilt.x) * 40 - s.tiltV.x * 3.0) * dt;
+    s.tiltV.y += ((tz - s.tilt.y) * 40 - s.tiltV.y * 3.0) * dt;
+    s.tilt.addScaledVector(s.tiltV, dt).clampLength(0, 0.3);
+    const spin = s.yaw === null ? 0 : Math.abs(yawNow - s.yaw) / dt;
+    const want = 0.0025 + Math.min(0.022, s.tiltV.length() * 0.012 + spin * 0.004 + Math.abs(_acc.y) * 0.0004);
+    s.ripple += (want - s.ripple) * Math.min(1, dt * (want > s.ripple ? 10 : 1.5));
+  } else if (SNAP || reduceMotion) {
+    const pin = new URLSearchParams(location.search).get('tilt');   // test hook: ?snap&tilt=0.2,0.1 freezes a lean
+    if (pin) { const [a, b] = pin.split(',').map(Number); s.tilt.set(a || 0, b || 0); s.ripple = 0.012; }
+    else { s.tilt.set(0, 0); s.ripple = 0.002; }
+    s.tiltV.set(0, 0);
+  }
+  s.prev = (s.prev || new THREE.Vector3()).copy(_pv); s.yaw = yawNow;
+  s.u.uTilt.value.copy(s.tilt); s.u.uRipple.value = s.ripple;
+  // how high the slosh wetted the glass; the film drains back down slowly
+  const rimH = s.tilt.length() * s.u.uCutR.value + s.ripple * 1.5;
+  s.wet = (SNAP || reduceMotion) ? rimH : Math.max(s.wet - dt * 0.025, rimH);
+  s.u.uWet.value = s.wet;
+  s.u.uYaw.value = yawNow;
+  s.u.uBackDir.value.set(wp.x, wp.y + 0.9, wp.z).sub(camera.position).normalize();
+  // meniscus ring follows the tilted surface (in the vessel's own frame)
+  obj.getWorldQuaternion(_q).invert();
+  _n.set(-s.tilt.x, 1, -s.tilt.y).normalize().applyQuaternion(_q);
+  ring.quaternion.setFromUnitVectors(Z_AXIS, _n);
+  ring.position.y = fill; if (ringR) ring.scale.setScalar(ringR);
+}
+
+function place(obj, slotArr, lift, freeArr, freeR) {
+  slot.set(slotArr[0], slotArr[1] + lift, slotArr[2]).applyMatrix4(caseG.matrix);
+  free.fromArray(freeArr);
+  obj.position.lerpVectors(free, slot, cur.att);
+  obj.rotation.y = lerp(freeR, cur.caseR, cur.att);
+}
+
+function tick() {
+  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+  const k = reduceMotion || SNAP ? 1 : 1 - Math.exp(-dt * 3.2);
+
+  VEC.forEach(p => lerpArr(cur[p], target[p], k));
+  SCALAR.forEach(p => cur[p] = lerp(cur[p], target[p], k));
+
+  if (!dragging) yaw = lerp(yaw, 0, 1 - Math.exp(-dt * 1.6));
+  root.rotation.y = yaw + (reduceMotion || SNAP ? 0 : Math.sin(t * 0.35) * 0.05);
+
+  caseG.position.fromArray(cur.caseP); caseG.rotation.y = cur.caseR; caseG.updateMatrix();
+  lidPivot.rotation.x = cur.lid;
+  setCaseOpacity(cur.caseO);
+
+  place(bottle, BOT_SLOT, cur.botLift, cur.botP, cur.botR);
+  place(nosing, GLS_SLOT, cur.glsLift, cur.glsP, cur.glsR);
+  dram.visible = dramRing.visible = cur.dram > 0.02;
+
+  const freeAmt = clamp01(1 - cur.att * 1.4);
+  const lit = Math.max(freeAmt, cur.att * clamp01(cur.botLift / 1.2) * 0.75);
+  backlight3.value.setRGB(1.0, 0.9, 0.72).multiplyScalar(1.15 * Math.max(lit, 0.35));
+  aimCaustic(bottleCaustic, bottle, 1.05, 0.55 * freeAmt);
+  aimCaustic(glassCaustic, nosing, 0.42, 0.5 * freeAmt * cur.dram);
+  bottle.getWorldPosition(wp); bottleBlob.position.set(wp.x, 0.003, wp.z); bottleBlob.material.opacity = freeAmt;
+  nosing.getWorldPosition(wp); glassBlob.position.set(wp.x, 0.003, wp.z); glassBlob.material.opacity = freeAmt * 0.8;
+
+  tgtV.fromArray(cur.tgt);
+  camPos.fromArray(cur.cam).sub(tgtV).multiplyScalar(aspectFit).add(tgtV);
+  camera.position.copy(camPos); camera.lookAt(tgtV); camera.updateMatrixWorld();
+
+  const dramLevel = DRAM_BASE + (DRAM_FULL - DRAM_BASE) * cur.dram;
+  stepSlosh(bottleSlosh, bottle, FILL, bottleMeniscus, 0, dt, t);
+  stepSlosh(dramSlosh, nosing, dramLevel, dramRing, dramR(dramLevel) - 0.006, dt, t);
+
+  stepBubbles(bottleBubbles, dt, t, FILL, 0.11);
+  stepBubbles(dramBubbles, dt, t, dramLevel, 0.52);
+
+  if (!SNAP || framesLeft-- > 0) {
+    if (!hideInBg.length) hideInBg = [whisky, dram, bottleGlass, nosingGlass, bottleMeniscus, dramRing];
+    LIQ.uProj.value.copy(camera.projectionMatrix);
+    // background pass: hide the liquids and glass skins, show the bubbles, keep only what's behind the bottle's centre
+    const vis = hideInBg.map(o => o.visible);
+    hideInBg.forEach(o => { o.visible = false; });
+    bottleBubbles.mesh.visible = true; dramBubbles.mesh.visible = cur.dram > 0.3;
+    bottle.getWorldPosition(_cc); _cc.y += 0.9;
+    _cn.copy(_cc).sub(camera.position).normalize();
+    clipBehind.setFromNormalAndCoplanarPoint(_cn, _cc.addScaledVector(_cn, -0.15));
+    renderer.clippingPlanes = [clipBehind];
+    renderer.shadowMap.autoUpdate = false;
+    renderer.setRenderTarget(bgRT); renderer.render(scene, camera); renderer.setRenderTarget(null);
+    renderer.shadowMap.autoUpdate = true;
+    renderer.clippingPlanes = [];
+    hideInBg.forEach((o, i) => { o.visible = vis[i]; });
+    bottleBubbles.mesh.visible = dramBubbles.mesh.visible = false;
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(tick);
+}
+
+/* ---------- liquid look: Oloroso at density 58 ----------
+   density 0–100 sets how fast colour builds with depth and how soft the view through it is;
+   colour is the tint light takes on after passing through the spirit */
+const LIQUID = { density: 58, color: '#b8601c' };
+{
+  const d = LIQUID.density / 100;
+  const dist = 2.6 * Math.pow(0.15 / 2.6, d);           // 2.6 (clear) → 0.15 (dense)
+  const lc = new THREE.Color(LIQUID.color);             // linear tint after one 'dist' of spirit
+  LIQ.uSigma.value.set(-Math.log(Math.max(lc.r, 1e-3)) / dist, -Math.log(Math.max(lc.g, 1e-3)) / dist, -Math.log(Math.max(lc.b, 1e-3)) / dist);
+  clarity3.value = 0.95 - 0.6 * d;
+  LIQ.uBlur.value = (0.95 - clarity3.value) * 4.5;      // denser spirit = softer view through it
+  bottleSlosh.u.uFilm.value.copy(lc).multiplyScalar(0.7); dramSlosh.u.uFilm.value.copy(lc).multiplyScalar(0.7);
+  const tint = lc.clone().lerp(new THREE.Color(0xffffff), 0.35);
+  bottleCaustic.mat.color.copy(tint); glassCaustic.mat.color.copy(tint);
+}
+
+stage.classList.add('is-3d');
+const hint = stage.querySelector('.stage-hint'); if (hint) hint.textContent = 'Drag to rotate';
+requestAnimationFrame(tick);
+
+/* expose for tuning in devtools: window.__stage.POSES_3D.open.cam = [...] */
+window.__stage = { POSES_3D, camera, scene, renderer };
+  </script>
+</body>
+</html>

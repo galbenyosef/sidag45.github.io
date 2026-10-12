@@ -19,7 +19,7 @@
         ['ASSIGNMENT', "Master's programme, Univ. of Maryland"],
         ['FOCUS', 'HCI research: wearables and physical interfaces'],
         ['COVER', 'Founder, Enclave Labs studio'],
-        ['RECENT OPS', 'Pagelift · Pegasus-1 · The Lanterns · Glance Desktop · Gesture Kombat'],
+        ['RECENT OPS', 'Kestrel & Oak · The Lanterns · Pegasus-1 · Glance Desktop · Gesture Kombat'],
       ],
     },
     hk: {
@@ -510,21 +510,50 @@
           'Fictional by design: the development and developer are invented, and the booking form sends nothing.' ] },
       ],
       link:{href:'https://sidag45.github.io/XR%20Projects/the-lanterns/', label:'Take the tour'} },
-    { id:'DESKTOP', code:'OP-04', name:'Gesture Desktop', status:'In progress', clr:'Public',
+    { id:'KESTREL', code:'OP-04', name:'Kestrel & Oak', status:'Concept build', clr:'Public',
+      op:'A 3D unboxing and product page for a fictional 18-year single malt, with the bottle pinned on stage as the story scrolls.',
+      role:'Concept sprint, interaction design and three.js build.',
+      body:'Kestrel & Oak is an invented Speyside distillery, and the page sells one bottle: an Eighteen Year Oloroso in a St George gold-foil case. The 3D stage stays pinned on the left while the chapters scroll on the right, and every chapter re-poses the case, bottle and nosing glass to show what the text is describing: the wax seal, the lid lifting, the back label with its cask and bottle number, the front label up close, then both objects together beside the buy panel. Visitors can drag the model at any point; the spirit sloshes inside the faceted bottle and glass and leaves tears on the glass as it settles. Chapter tabs track the scroll and jump between chapters, and the price and Add to cart sit above the fold from the first screen.',
+      secret:'Chosen from a sprint of ten low-fidelity unboxing concepts, then built twice: a 2D version first, so the structure could be judged before any 3D existed, and the 3D pass second, from a pose spec the 2D build handed over.',
+      tags:['three.js','Custom GLSL shaders','Scroll storytelling','E-commerce UX','Wireframing','Responsive bottom sheet'],
+      sections:[
+        { h:'PROCESS', ordered:true, list:[
+          'Concept sprint: ten wireframes, each a different way to interact with the box (scrub to unbox, sticky product stage, pull the ribbon, exploded craft, grain to glass, collector\'s cabinet, the first pour, build the gift, cellar by candlelight, hands-on unbox), tagged by input type, effort and purpose.',
+          'Pick: the Sticky Product Stage, the lowest-effort concept built for e-commerce first, and the one that shares a scaffold with the gold-necklace page.',
+          '2D build: the full page, copy and buy panel in HTML, CSS and SVG, with each chapter declaring a pose. A pose table (camera, case, bottle) was written as the hand-off spec for 3D.',
+          '3D pass: each pose became a camera and model keyframe in three.js, with materials and lighting built to read as a studio product shot.',
+          'Phone layout: the stage stays on top and the chapters move into a bottom sheet that opens from a quarter to three quarters of the screen.' ] },
+        { h:'THE CHAPTERS', ordered:true, list:[
+          'The Bottle: the sealed case, price, Add to cart and Gift edition above the fold.',
+          'The Case: a push-in on the wax seal and the St George foil.',
+          'The Opening: the lid lifts and the bottle rises beside its nosing glass.',
+          'The Cask: the bottle turns to its back label (cask 0417, bottle 211 of 612) while a spec table lists fill and bottling dates.',
+          'The Spirit: a close-up of the front label beside the tasting notes.',
+          'Make it Yours: both objects together beside the buy panel, with two editions, quantity and an engraving field for the gift edition.' ] },
+        { h:'BUILD NOTES', list:[
+          'Materials: linen-wrapped board with fibre noise, gold foil and a tonal gloss emboss from one mask, a wax seal with a gold-leaf crest, crushed velvet and a walnut stopper.',
+          'Glass and spirit: a custom shader refracts light through a diamond-cut vessel, tints by the distance travelled through the whisky (Beer–Lambert), and draws total internal reflection at the edges.',
+          'Liquid physics: the surface leans against the drag\'s acceleration and springs back; where the slosh wets the glass, a film drains back down in tears.',
+          'Lighting: an overhead softbox, two strip lights for long highlights on the glass, and a low front bounce. The scene renders a few frames per pose, then idles.',
+          'Touch: on phones a vertical swipe anywhere scrolls the chapters and a horizontal drag turns the model, with momentum after a flick.',
+          'Fictional by design: the brand, cask and prices are invented, and the cart does not take orders.' ] },
+      ],
+      link:{href:'https://sidag45.github.io/XR%20Projects/whiskey-unboxing/', label:'Unbox the bottle'} },
+    { id:'DESKTOP', code:'OP-05', name:'Gesture Desktop', status:'In progress', clr:'Public',
       op:'A MacBook-style desktop in the browser, operated by hand in front of a webcam.',
       role:'Interaction design and engineering.',
       body:'Files and folders can be picked up, dragged and dropped with fingers. A two-finger tap opens the context menu, and the usual trackpad controls still work. With the camera on, hand tracking drives a red pointer, mapped from finger movement to screen distance.',
       secret:'Built as a study in how far direct-manipulation habits transfer to mid-air input.',
       tags:['Hand tracking','Computer vision','Gesture UX','JavaScript'],
       link:{href:'https://sidag45.github.io/XR%20Projects/virtual-desktop/', label:'Try the desktop'} },
-    { id:'GLANCE', code:'OP-05', name:'Glance Desktop', status:'Prototype', clr:'Public',
+    { id:'GLANCE', code:'OP-06', name:'Glance Desktop', status:'Prototype', clr:'Public',
       op:'A MacBook-style desktop in the browser, operated with the eyes through a webcam.',
       role:'Interaction design and engineering.',
       body:'A red pointer follows the visitor\'s gaze and settles on the nearest button or file. One deliberate blink clicks, two blinks open, a long blink picks something up and the next blink drops it, and a wink right-clicks. Looking at the top or bottom edge of a window scrolls it, and the top-right corner opens Mission Control. A short calibration learns each person\'s eyes and blink, and the video never leaves the device.',
       secret:'The hands-free sequel to Gesture Desktop: can a desktop be run when the eyes have to both read the screen and act on it?',
       tags:['Eye tracking','Face landmarks (MediaPipe)','Gaze interaction','Accessibility','JavaScript'],
       link:{href:'https://sidag45.github.io/XR%20Projects/eye-desktop/', label:'Try it with your eyes'} },
-    { id:'KOMBAT', code:'OP-06', name:'Gesture Kombat', status:'Prototype', clr:'Public',
+    { id:'KOMBAT', code:'OP-07', name:'Gesture Kombat', status:'Prototype', clr:'Public',
       op:'A browser fighting-game prototype played with full-body webcam gestures or the keyboard.',
       role:'Design and engineering: game, gesture recognition and match server.',
       body:'Gesture Kombat turns a player\'s body movements into fighting-game actions in an original 2D side-view arena, with two original fighters, Ember and Glacier. Gestures select animated moves rather than mapping the body directly onto the character, so the fight keeps the rules of a classic 2D fighter: health bars, a 60-second round timer, hit effects, blocking and combos. It runs in the browser with solo training against an AI opponent, local two-player, a full keyboard fallback and an optional webcam mode using full-body pose tracking. A WebSocket server prototype adds room-code online matches.',
@@ -555,38 +584,38 @@
           'For two players on one machine choose Local Duel. Online rooms need the match server running.' ] },
       ],
       link:{href:'https://sidag45.github.io/gesture-kombat/', label:'Play the prototype'} },
-    { id:'PAPERTOSS', code:'OP-07', name:'Paper Toss', status:'Playable', clr:'Public',
+    { id:'PAPERTOSS', code:'OP-08', name:'Paper Toss', status:'Playable', clr:'Public',
       op:'Office basketball played hands-free: crumple a sheet and throw it in the bin, using only your hand in front of a webcam.',
       role:'Game design, gesture design and build.',
       body:'Pinch thumb and index finger to pick up the sheet from the desk, make a fist three times to crumple it into a ball, then swing toward the bin and open your hand to let go. A power meter shows the strength of the throw, and every basket moves the bin farther away. The game tracks baskets, tosses, streak and best streak. Hand tracking runs in the browser and the video never leaves the device; mouse and touch work too.',
       secret:'Every gesture maps to something a real hand does with real paper. Nobody needs a tutorial to throw.',
       tags:['Hand tracking','Gesture input','Game design','JavaScript'],
       link:{href:'https://sidag45.github.io/XR%20Projects/paper-toss/paper-toss.html', label:'Play Paper Toss'} },
-    { id:'SRK', code:'OP-08', name:'SRK Haute Horlogerie', status:'Delivered', clr:'Confidential',
+    { id:'SRK', code:'OP-09', name:'SRK Haute Horlogerie', status:'Delivered', clr:'Confidential',
       op:'A private viewing room for a luxury watch boutique.',
       role:'Web design and Webflow development, via Enclave Labs.',
       body:'Designed and improved the boutique\'s Webflow site to feel like an appointment, not a checkout. Built the CMS structure, SEO-friendly imports, collection filtering, dynamic content and custom JavaScript interactions, plus automations for publishing new pieces.',
       secret:'The brief: nobody should feel they are shopping. They should feel invited.',
       tags:['Webflow','CMS architecture','Custom JS','Automation'] },
-    { id:'MOVEMENT', code:'OP-09', name:'Movement Lab', status:'Active', clr:'Confidential',
+    { id:'MOVEMENT', code:'OP-10', name:'Movement Lab', status:'Active', clr:'Confidential',
       op:'A coaching app for a Hong Kong gym, built to grow into a global subscription.',
       role:'Product and engineering lead, via Enclave Labs.',
       body:'Stage one equips Movement Fitness\'s personal trainers to coach their in-gym clients through the app. Stage two opens the same codebase to self-serve subscribers worldwide, covering training programmes and nutrition.',
       secret:'Two products, one codebase. Planned that way from day one.',
       tags:['Next.js','Mobile','Product strategy','Scalability'] },
-    { id:'PARALLEL', code:'OP-10', name:'ParallelChain Lab', status:'Concluded', clr:'Confidential',
+    { id:'PARALLEL', code:'OP-11', name:'ParallelChain Lab', status:'Concluded', clr:'Confidential',
       op:'Front-end lead on a Layer 1 blockchain platform.',
       role:'Lead Front-end Engineer. Unit of 5+.',
       body:'Led the front-end team and set its architecture. Shipped the block explorer and a native wallet, built developer tools and documentation, and helped tighten engineering processes across the lab.',
       secret:'Leadership of the unit included process reform, not only code.',
       tags:['React','TypeScript','Team lead','Developer tools'] },
-    { id:'ROJU', code:'OP-11', name:'ROJU', status:'Concluded', clr:'Confidential',
+    { id:'ROJU', code:'OP-12', name:'ROJU', status:'Concluded', clr:'Confidential',
       op:'Mobile app and CMS for an online jump rope learning platform.',
       role:'Mobile and full-stack engineer.',
       body:'Built ROJU\'s React Native app and published it to the App Store and Google Play. Contributed backend features in Java Spring Boot and built a React content management system for the coaching content.',
       secret:'Shipped on both stores, which is its own kind of fieldcraft.',
       tags:['React Native','Spring Boot','React CMS'] },
-    { id:'FAATEH', code:'OP-12', name:'Faateh Real Estate', status:'Handed over', clr:'Confidential',
+    { id:'FAATEH', code:'OP-13', name:'Faateh Real Estate', status:'Handed over', clr:'Confidential',
       op:'A Webflow site for a real estate firm, plus a full handover kit.',
       role:'Design, build and client training, via Enclave Labs.',
       body:'Built the site in Webflow, then prepared the client to own it: a handover document and a tutorial video script covering sign-up, site transfer and day-to-day editing.',
@@ -668,6 +697,18 @@
       ],
       figs: ['ln-journey', 'ln-panel', 'ln-reveal', 'ln-carry'],
       study: 'A between-subjects study with prospective buyers or renters: the 3D tour versus a conventional listing (photo gallery and PDF plan) for the same flat. Measures: accuracy sketching the layout from memory and estimating room sizes, time to a booking decision, confidence in the choice, and SUS. Logging which stops people skip would show where the tour runs long.',
+    },
+    KESTREL: {
+      rq: 'Does a pinned 3D product stage that re-poses with each chapter of the story help shoppers understand and trust a premium product (its craft, provenance and contents) better than a static image gallery, without slowing the path to purchase?',
+      principles: [
+        ['Spatial contiguity', 'People learn more when words sit beside the thing they describe (Mayer). Each chapter turns the object to show exactly what its text is about: the seal while the seal is described, the back label while the cask number is read out.'],
+        ['The visitor drives the motion', 'Nothing animates on its own. Scrolling moves between poses and dragging turns the model at any time, so the visitor sets the pace, and chapter tabs both report the position and jump to any chapter.'],
+        ['Keep the goal in reach', 'Storytelling pages often bury the buy button. Here the price and Add to cart are above the fold, and the buy panel is one scroll from anywhere, so the story can be skipped without penalty.'],
+        ['Visceral design', 'Norman\'s visceral level is the gut response to how something looks and feels. Refraction through cut glass, a spirit that sloshes and leaves tears, and foil that catches the light carry the sense of quality that a premium price asks for.'],
+        ['One gesture, one meaning', 'On a phone, scroll and rotate compete for the same finger. The page splits them by direction: vertical swipes anywhere scroll the chapters, horizontal drags turn the model.'],
+      ],
+      figs: ['ko-concepts', 'ko-poses', 'ko-phone', 'ko-slosh'],
+      study: 'A between-subjects study with whisky buyers: the 3D product stage versus the same copy with a static photo gallery. Measures: recall of product details (contents, cask number, edition differences), perceived quality and trust, purchase intent, time to add to cart, and SUS, with interaction logs showing how often people rotate the model and which chapters they skip.',
     },
   };
 
@@ -1139,10 +1180,95 @@
         return k.svg(this.label);
       },
     },
+    'ko-concepts': {
+      caption: 'The concept sprint mapped. Ten ways to unbox, placed by how the visitor acts on the box and how much work each would take; the sticky product stage won as the cheapest one built for buying.',
+      label: 'Wireframe chart: ten numbered concept cards placed in columns by input type (scroll, drag, click or configure, cursor, camera or AR) and rows by effort (low to high); concept 02, sticky product stage, is circled.',
+      draw(){
+        const k = sketcher(17, 660, 300);
+        const cols = ['scroll', 'drag', 'click', 'cursor', 'camera'];
+        cols.forEach((c, i) => k.text(140 + i * 112, 30, c, {size: 14, anchor: 'middle'}));
+        k.arrow(30, 270, 30, 50).text(40, 64, 'effort', {size: 13});
+        k.text(40, 262, 'low', {size: 11}).text(40, 82, 'high', {size: 11});
+        const C = [['01', 'scrub', 0, 160], ['02', 'stage', 0, 236], ['05', 'grain→glass', 0, 84], ['07', 'pour', 0, 120], ['03', 'ribbon', 1, 160], ['04', 'exploded', 1, 196], ['06', 'cabinet', 2, 196], ['08', 'build gift', 2, 150], ['09', 'candle', 3, 170], ['10', 'hands + AR', 4, 90]];
+        C.forEach(([n, t, c, y], i) => { const x = 140 + c * 112 + (i === 3 ? 34 : i === 0 ? -20 : 0); k.rect(x - 42, y - 16, 84, 32, n === '02' ? 'pr' : 'pc', n === '02' ? 2 : 1.1).text(x - 36, y - 2, n, {size: 11}).text(x, y + 10, t, {size: 12, anchor: 'middle'}); });
+        k.ellipse(140, 236, 62, 30, 'pr', 1.6);
+        k.text(220, 286, 'built for buying, cheapest to make', {cls: 'ptr', size: 19, rot: -2});
+        k.curve(216, 278, 196, 262, 196, 254, 'pr');
+        return k.svg(this.label);
+      },
+    },
+    'ko-poses': {
+      caption: 'The hand-off from 2D to 3D. Each chapter declares a pose; the 2D build used it for CSS motion and the 3D pass turned the same table into camera and model keyframes.',
+      label: 'Wireframe: six chapter tabs (bottle, case, opening, cask, spirit, buy) above three rows for camera, case and bottle, with small thumbnails per chapter showing the case closed, the seal close-up, the lid lifting, the bottle turned to its back label, a label macro, and both objects together.',
+      draw(){
+        const k = sketcher(29, 660, 300);
+        const ch = ['bottle', 'case', 'opening', 'cask', 'spirit', 'buy'];
+        k.text(12, 92, 'camera', {size: 12}).text(12, 172, 'case', {size: 12}).text(12, 252, 'bottle', {size: 12});
+        ch.forEach((c, i) => {
+          const x = 90 + i * 94;
+          k.rect(x, 22, 82, 22, i === 3 ? 'pr' : 'pc', i === 3 ? 1.8 : 1).text(x + 41, 38, c, {size: 12, anchor: 'middle'});
+          k.rect(x, 58, 82, 60);
+          const cx = x + 41;
+          if (i === 0) k.rect(cx - 14, 72, 28, 34);
+          if (i === 1) k.ellipse(cx, 88, 16, 16, 'pc', 1.6).dot(cx, 88, 4);
+          if (i === 2) k.rect(cx - 16, 92, 32, 20).rect(cx - 18, 66, 36, 8).line(cx - 4, 90, cx - 4, 78).line(cx + 4, 90, cx + 4, 78);
+          if (i === 3) k.rect(cx - 12, 70, 24, 40).rect(cx - 9, 80, 18, 16, 'pr', 1.2).text(cx, 92, '0417', {size: 8, anchor: 'middle'});
+          if (i === 4) k.rect(cx - 30, 64, 60, 48).text(cx, 96, '18', {size: 22, anchor: 'middle'});
+          if (i === 5) k.rect(cx + 2, 72, 26, 36).rect(cx - 24, 80, 12, 28).ellipse(cx - 4, 104, 5, 3, 'pc', 1);
+        });
+        const caseRow = ['closed', 'turns', 'lid lifts', 'drops out', 'hidden', 'back right'];
+        const btlRow = ['inside', 'hidden', 'rises', 'turns 180°', 'macro', 'front left'];
+        caseRow.forEach((t, i) => k.text(131 + i * 94, 176, t, {size: 12, anchor: 'middle'}));
+        btlRow.forEach((t, i) => k.text(131 + i * 94, 256, t, {size: 12, anchor: 'middle'}));
+        k.dash(84, 140, 650, 140).dash(84, 220, 650, 220);
+        k.text(330, 296, 'one table: CSS poses in 2D, keyframes in 3D', {cls: 'ptr', size: 19, anchor: 'middle', rot: -1});
+        return k.svg(this.label);
+      },
+    },
+    'ko-phone': {
+      caption: 'The phone layout. The stage keeps the top of the screen and the chapters live in a bottom sheet; vertical swipes anywhere scroll the story and horizontal drags turn the bottle, so one finger never has two meanings.',
+      label: 'Wireframe of two phones: on the left the 3D stage fills the top with a bottom sheet at a quarter height; on the right the sheet is expanded to three quarters. Arrows show vertical swipe scrolls the sheet and horizontal drag rotates the model.',
+      draw(){
+        const k = sketcher(41, 660, 320);
+        const phone = (x, sheetY, label) => {
+          k.rect(x, 16, 150, 286).line(x + 55, 26, x + 95, 26, 'pc', 2);
+          k.rect(x + 46, 54, 58, 70).rect(x + 52, 40, 12, 18);
+          k.rect(x + 8, sheetY, 134, 294 - sheetY).line(x + 60, sheetY + 8, x + 90, sheetY + 8, 'pc', 2.4);
+          k.text(x + 18, sheetY + 28, label, {size: 12});
+          k.scrib(x + 18, sheetY + 42, 100).scrib(x + 18, sheetY + 54, 80);
+        };
+        phone(60, 226, 'The Cask');
+        phone(300, 84, 'The Cask');
+        k.scrib(318, 140, 100).scrib(318, 152, 110).scrib(318, 164, 90).line(318, 184, 430, 184, 'pc', 1).line(318, 204, 430, 204, 'pc', 1).rect(318, 240, 112, 22);
+        k.text(135, 314, '25% sheet', {size: 13, anchor: 'middle'}).text(375, 314, 'expanded: 75%', {size: 13, anchor: 'middle'});
+        k.arrow(255, 130, 255, 80, 'pr', 1.8).arrow(255, 140, 255, 190, 'pr', 1.8).text(255, 222, 'swipe ↕', {cls: 'ptr', size: 16, anchor: 'middle'}).text(255, 242, '= scroll', {cls: 'ptr', size: 17, anchor: 'middle'});
+        k.arrow(80, 140, 40, 140, 'pr', 1.6).arrow(110, 140, 150, 140, 'pr', 1.6).text(96, 172, 'drag ↔ = turn', {cls: 'ptr', size: 17, anchor: 'middle'});
+        k.text(500, 70, 'tap the bar', {cls: 'ptr', size: 19}).text(500, 94, 'to expand', {cls: 'ptr', size: 19}).curve(498, 80, 470, 82, 392, 92, 'pr');
+        return k.svg(this.label);
+      },
+    },
+    'ko-slosh': {
+      caption: 'Why the liquid moves. Dragging the bottle accelerates it; the spirit\'s surface leans against that acceleration, springs back and settles, and where it wetted the glass a thin film drains down in tears. It is a small physical cue that the bottle is full and real.',
+      label: 'Wireframe: a glass shown three times, at rest with a flat surface, while being dragged with the surface tilted against the arrow of acceleration, and settling with streaks of film running down the inside of the glass.',
+      draw(){
+        const k = sketcher(53, 660, 270);
+        const glass = (cx) => { k.curve(cx - 50, 40, cx - 58, 150, cx - 8, 176, 'pc', false).curve(cx + 50, 40, cx + 58, 150, cx + 8, 176, 'pc', false).line(cx - 8, 176, cx - 4, 216).line(cx + 8, 176, cx + 4, 216).ellipse(cx, 220, 34, 6); };
+        glass(110); glass(330); glass(550);
+        k.line(64, 120, 156, 120, 'pr', 1.8).hatch(66, 124, 88, 34, 6);
+        k.line(282, 98, 380, 138, 'pr', 1.8).hatch(288, 122, 86, 34, 6);
+        k.arrow(300, 26, 380, 26, 'pc', 1.4).text(340, 18, 'drag', {size: 12, anchor: 'middle'});
+        k.text(400, 120, 'leans against', {size: 12}).text(400, 136, 'the acceleration', {size: 12});
+        k.line(504, 120, 596, 120, 'pr', 1.8).hatch(506, 124, 88, 34, 6);
+        [516, 532, 566, 584].forEach((x, i) => k.line(x, 68 + i * 4, x + 1, 112, 'pc', 1).dot(x + 1, 114, 2));
+        k.text(110, 250, 'at rest', {size: 14, anchor: 'middle'}).text(330, 250, 'dragged', {size: 14, anchor: 'middle'}).text(550, 250, 'settles, tears run', {size: 14, anchor: 'middle'});
+        k.text(620, 54, 'film', {cls: 'ptr', size: 18, anchor: 'end'});
+        return k.svg(this.label);
+      },
+    },
   };
 
 
-  const CAT = { PAGELIFT: 'Research', PEGASUS: 'XR', LANTERNS: 'XR', DESKTOP: 'XR', GLANCE: 'XR', KOMBAT: 'XR', PAPERTOSS: 'XR', SRK: 'Client', MOVEMENT: 'Client', PARALLEL: 'Engineering', ROJU: 'Engineering', FAATEH: 'Client' };
+  const CAT = { PAGELIFT: 'Research', PEGASUS: 'XR', LANTERNS: 'XR', KESTREL: 'XR', DESKTOP: 'XR', GLANCE: 'XR', KOMBAT: 'XR', PAPERTOSS: 'XR', SRK: 'Client', MOVEMENT: 'Client', PARALLEL: 'Engineering', ROJU: 'Engineering', FAATEH: 'Client' };
   const CAT_LABEL = { Research: 'TOOLS', XR: 'XR & GESTURE', Client: 'CLIENT', Engineering: 'ENGINEERING' };
   const pad2 = (n) => String(n).padStart(2, '0');
 
@@ -1169,6 +1295,20 @@
         { type: 'image', src: 'intel/pegasus-exploded.webp', caption: 'Step 05: fully exploded, every part labelled in place.' },
       ],
       links: [{ label: 'View the watch', href: 'https://sidag45.github.io/XR%20Projects/3d-watch-animate/' }],
+    },
+    KESTREL: {
+      media: [
+        { type: 'video', src: 'intel/kestrel-tour.mp4', webm: 'intel/kestrel-tour.webm', poster: 'intel/kestrel-tour-poster.webp', caption: 'The full scroll: sealed case, the seal, the opening, the cask label, the spirit up close, and the buy panel.' },
+        { type: 'image', src: 'intel/kestrel-hero.webp', caption: 'The Bottle: the sealed St George case with price, Add to cart and Gift edition above the fold.' },
+        { type: 'image', src: 'intel/kestrel-cask.webp', caption: 'The Cask: the bottle turns to its back label while the spec table lists cask, fill and bottling dates.' },
+        { type: 'image', src: 'intel/kestrel-front-label.webp', caption: 'The Spirit: a close-up of the front label through the diamond-cut glass.' },
+        { type: 'image', src: 'intel/kestrel-back-label.webp', caption: 'Cask 0417, bottle 211 of 612, read off the back label.' },
+        { type: 'image', src: 'intel/kestrel-buy.webp', caption: 'Make it Yours: both objects together beside the edition picker and cart.' },
+        { type: 'image', src: 'intel/kestrel-wf-sprint.webp', caption: 'Concept sprint: ten low-fidelity wireframes for unboxing the bottle, filterable by input type.' },
+        { type: 'image', src: 'intel/kestrel-wf-chosen.webp', caption: 'Wireframe 02, Sticky Product Stage: the concept that was built.' },
+        { type: 'image', src: 'intel/kestrel-wf-pick.webp', caption: 'The sprint\'s recommendation: combine the stage, the ribbon pull and the pour, with hands-on unboxing as an optional XR mode.' },
+      ],
+      links: [{ label: 'Unbox the bottle', href: 'https://sidag45.github.io/XR%20Projects/whiskey-unboxing/' }],
     },
     DESKTOP: {
       media: [

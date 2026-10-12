@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Open Ledger</title>
+<meta name="description" content="A hands-on beginner's guide to blockchain: where it came from, how it works, and what's new — with toys you can poke at.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EBF1E4;
+  --paper-2:#F6F9F1;
+  --rule:#C3D3E2;
+  --ink:#1E2A47;
+  --ink-soft:#4A5672;
+  --margin:#C8463D;
+  --ok:#2E7A52;
+  --ok-bg:#DCEEDF;
+  --bad-bg:#F6DCD7;
+  --hi:#F4DA6A;
+  --line:#A9BBCF;
+  --shadow:0 1px 0 #B8C7B0, 0 3px 0 -1px #D7E1CF;
+  --serif:"Young Serif", Georgia, serif;
+  --sans:"Public Sans", system-ui, sans-serif;
+  --type:"Courier Prime", "Courier New", monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#161D2B; --paper-2:#1E2738; --rule:#25324A; --ink:#E4E9F2; --ink-soft:#A6B1C6;
+    --margin:#E2685E; --ok:#62C08B; --ok-bg:#1D3A2C; --bad-bg:#43211F; --hi:#8A7420; --line:#3A4A66;
+    --shadow:0 1px 0 #0D121B, 0 3px 0 -1px #10161F; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#161D2B; --paper-2:#1E2738; --rule:#25324A; --ink:#E4E9F2; --ink-soft:#A6B1C6;
+  --margin:#E2685E; --ok:#62C08B; --ok-bg:#1D3A2C; --bad-bg:#43211F; --hi:#8A7420; --line:#3A4A66;
+  --shadow:0 1px 0 #0D121B, 0 3px 0 -1px #10161F; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto} *{animation:none!important;transition:none!important}}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font:400 17px/1.6 var(--sans);
+  background-image:repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
+  overflow-x:hidden;
+}
+body::before{ /* red double margin line */
+  content:""; position:fixed; top:0; bottom:0; left:64px; width:5px; z-index:0; pointer-events:none;
+  border-left:1px solid var(--margin); border-right:1px solid var(--margin); opacity:.55;
+}
+@media (max-width:720px){ body::before{left:14px; width:3px} }
+
+a{color:inherit}
+:focus-visible{outline:3px solid var(--hi); outline-offset:2px}
+.wrap{position:relative; z-index:1; max-width:1060px; margin:0 auto; padding:0 24px 0 104px}
+@media (max-width:720px){ .wrap{padding:0 16px 0 32px} }
+
+/* chapter rail */
+.rail{position:fixed; left:0; top:50%; transform:translateY(-50%); z-index:5; width:64px; display:flex; flex-direction:column; align-items:center; gap:6px}
+.rail a{display:block; width:34px; text-align:center; font:700 13px/26px var(--type); color:var(--ink-soft); text-decoration:none; border-radius:4px}
+.rail a:hover{color:var(--ink); background:var(--paper-2)}
+.rail a.on{color:var(--paper); background:var(--ink)}
+@media (max-width:1000px){ .rail{display:none} }
+
+header.hero{min-height:92vh; display:grid; align-content:center; padding:64px 0 48px}
+.hero h1{font:400 clamp(44px,7.2vw,92px)/1.02 var(--serif); margin:0 0 24px; letter-spacing:-.01em; max-width:12ch}
+.hero p.lede{font-size:20px; max-width:56ch; color:var(--ink-soft); margin:0 0 40px}
+.entry{background:var(--paper-2); border:1px solid var(--line); border-radius:6px; padding:20px 22px; max-width:760px; box-shadow:var(--shadow)}
+.entry label{display:block; font-weight:600; margin-bottom:8px}
+.entry input{width:100%; font:400 22px/1.3 var(--serif); color:var(--ink); background:transparent; border:0; border-bottom:2px solid var(--ink); padding:6px 0; outline:none}
+.entry input:focus{border-bottom-color:var(--margin)}
+.fp{margin-top:16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap}
+.fp canvas{width:64px; height:64px; border-radius:4px; image-rendering:pixelated; border:1px solid var(--line)}
+.hash{font:400 15px/1.45 var(--type); word-break:break-all; color:var(--ink)}
+.hint{color:var(--ink-soft); font-size:15px}
+.scroll-cue{margin-top:40px; color:var(--ink-soft); font-size:15px}
+
+section.ch{padding:72px 0 40px; scroll-margin-top:12px}
+.ch-head{display:grid; grid-template-columns:auto 1fr; column-gap:18px; align-items:baseline; margin-bottom:12px}
+.ch-no{font:700 15px var(--type); color:var(--margin); position:relative}
+@media (min-width:721px){ .ch-no{position:absolute; left:-84px; width:56px; text-align:right; margin-top:14px} .ch-head{grid-template-columns:1fr} }
+.ch h2{font:400 clamp(30px,4.2vw,46px)/1.12 var(--serif); margin:0; max-width:22ch}
+.ch .intro{max-width:66ch; font-size:18px; margin:12px 0 28px}
+.ch .intro p{margin:0 0 12px}
+.takeaway{max-width:66ch; border-left:4px solid var(--hi); padding:6px 0 6px 16px; margin:24px 0 0; font-size:16px}
+
+.panel{background:var(--paper-2); border:1px solid var(--line); border-radius:8px; padding:22px; box-shadow:var(--shadow)}
+.row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+button,.btn{font:600 15px/1 var(--sans); color:var(--paper-2); background:var(--ink); border:0; border-radius:6px; padding:11px 16px; cursor:pointer}
+button:hover{filter:brightness(1.15)}
+button.ghost{background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--ink)}
+button.warn{background:var(--margin); color:#fff}
+button:disabled{opacity:.4; cursor:not-allowed}
+input[type=range]{accent-color:var(--margin); width:180px}
+textarea, input.txt{font:400 16px/1.4 var(--sans); color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:4px; padding:8px 10px; width:100%; resize:vertical}
+textarea:focus, input.txt:focus{outline:2px solid var(--hi); border-color:var(--ink)}
+.small{font-size:14px; color:var(--ink-soft)}
+.stamp{display:inline-block; font:700 13px/1 var(--type); padding:6px 9px; border:2px solid currentColor; border-radius:4px; transform:rotate(-4deg)}
+.stamp.ok{color:var(--ok)} .stamp.bad{color:var(--margin)}
+
+/* timeline */
+.tl{position:relative}
+.tl-track{display:flex; gap:0; overflow-x:auto; padding:8px 2px 18px; scroll-snap-type:x mandatory}
+.tl-dot{flex:0 0 auto; scroll-snap-align:start; background:none; color:var(--ink); padding:0 14px 0 0; text-align:left; border-radius:0}
+.tl-dot span.y{display:block; font:700 15px var(--type); padding:8px 10px; border:1.5px solid var(--ink); border-radius:4px; background:var(--paper-2)}
+.tl-dot[aria-selected=true] span.y{background:var(--ink); color:var(--paper-2)}
+.tl-dot:hover{filter:none} .tl-dot:hover span.y{border-color:var(--margin)}
+.tl-card{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:28px; align-items:start}
+@media (max-width:760px){.tl-card{grid-template-columns:1fr}}
+.tl-card h3{font:400 28px/1.2 var(--serif); margin:0 0 6px}
+.tl-card .who{color:var(--margin); font-weight:600; margin:0 0 12px}
+.tl-card .why{background:var(--paper); border-radius:6px; padding:14px 16px; border:1px dashed var(--line); font-size:15px}
+.tl-nav{display:flex; justify-content:space-between; margin-top:16px}
+.tl-fig{display:flex; justify-content:center; align-items:center; min-height:150px}
+
+/* hashing */
+.split{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+@media (max-width:760px){.split{grid-template-columns:1fr}}
+.bits{display:grid; grid-template-columns:repeat(32,1fr); gap:2px; margin-top:12px}
+.bits i{display:block; aspect-ratio:1; background:var(--line); border-radius:1px}
+.bits i.on{background:var(--ink)}
+.bits i.diff{background:var(--margin)}
+.meter{height:10px; background:var(--paper); border-radius:5px; overflow:hidden; border:1px solid var(--line)}
+.meter b{display:block; height:100%; background:var(--margin); width:0; transition:width .3s}
+
+/* blocks */
+.block{background:var(--paper-2); border:2px solid var(--ok); border-radius:8px; padding:16px; position:relative; transition:border-color .2s, background .2s}
+.block.bad{border-color:var(--margin); background:var(--bad-bg)}
+.block h4{margin:0 0 10px; font:400 20px var(--serif); display:flex; justify-content:space-between; align-items:center}
+.field{margin:0 0 10px}
+.field > span{display:block; font-size:13px; font-weight:600; color:var(--ink-soft); margin-bottom:3px}
+.field .hash{font-size:13px}
+.zeros{color:var(--ok); font-weight:700}
+.block.bad .zeros{color:var(--margin)}
+.chain{display:flex; gap:0; overflow-x:auto; padding:6px 2px 16px; align-items:stretch; scroll-snap-type:x proximity}
+.chain .block{flex:0 0 268px; scroll-snap-align:start}
+.link{flex:0 0 36px; display:flex; align-items:center; justify-content:center}
+.link svg{width:34px; height:20px}
+.link.broken path{stroke:var(--margin); stroke-dasharray:3 4}
+.counter{font:700 15px var(--type)}
+
+/* peers */
+.peers{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px}
+@media (max-width:860px){.peers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.peer{background:var(--paper-2); border:2px solid var(--line); border-radius:8px; padding:12px; font-size:14px}
+.peer.odd{border-color:var(--margin); background:var(--bad-bg)}
+.peer.agree{border-color:var(--ok)}
+.peer h5{margin:0 0 8px; font:400 17px var(--serif)}
+.peer ol{list-style:none; padding:0; margin:0 0 10px}
+.peer li{font:400 12.5px/1.5 var(--type); padding:3px 6px; background:var(--paper); border-radius:3px; margin-bottom:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.peer li.changed{background:var(--margin); color:#fff}
+.peer button{padding:7px 10px; font-size:13px; width:100%}
+.verdict{margin-top:16px; min-height:28px; font-weight:600}
+
+/* sig */
+.keys{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+@media (max-width:760px){.keys{grid-template-columns:1fr}}
+.key{border-radius:6px; padding:12px 14px; background:var(--paper); border:1px solid var(--line)}
+.key b{display:block; margin-bottom:4px}
+.key.priv{border-style:dashed; border-color:var(--margin)}
+.blur{filter:blur(4px); user-select:none; transition:filter .2s}
+.blur:hover{filter:none}
+.steps{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:16px}
+@media (max-width:860px){.steps{grid-template-columns:1fr}}
+.step{background:var(--paper); border-radius:6px; padding:14px; border:1px solid var(--line)}
+.step h5{margin:0 0 8px; font:400 18px var(--serif)}
+select{font:400 15px var(--sans); color:var(--ink); background:var(--paper-2); border:1px solid var(--line); border-radius:4px; padding:8px}
+
+/* merkle */
+.mk svg{width:100%; height:auto; display:block}
+.mk .node rect{fill:var(--paper); stroke:var(--line); stroke-width:1.5}
+.mk .node text{font:400 12px var(--type); fill:var(--ink)}
+.mk .node.root rect{stroke:var(--ink); stroke-width:2}
+.mk .node.chg rect{fill:var(--bad-bg); stroke:var(--margin)}
+.mk .node.proof rect{fill:var(--hi); stroke:var(--ink)}
+.mk .node.target rect{stroke:var(--ok); stroke-width:3}
+.mk .edge{stroke:var(--line); stroke-width:1.5; fill:none}
+.mk .edge.chg{stroke:var(--margin); stroke-width:2.5}
+.txs{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-top:14px}
+@media (max-width:760px){.txs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.txs .tx{display:flex; flex-direction:column; gap:6px}
+.txs button{padding:7px 8px; font-size:13px}
+
+/* consensus */
+.tabs{display:inline-flex; border:1.5px solid var(--ink); border-radius:6px; overflow:hidden; margin-bottom:18px}
+.tabs button{border-radius:0; background:transparent; color:var(--ink)}
+.tabs button[aria-selected=true]{background:var(--ink); color:var(--paper-2)}
+.players{display:grid; gap:12px}
+.player{display:grid; grid-template-columns:110px 190px 1fr 56px; gap:14px; align-items:center}
+@media (max-width:760px){.player{grid-template-columns:90px 1fr; row-gap:4px} .player .bar{grid-column:1/-1}}
+.player .nm{font-weight:600}
+.bar{height:22px; background:var(--paper); border:1px solid var(--line); border-radius:4px; overflow:hidden; position:relative}
+.bar b{display:block; height:100%; width:0; transition:width .25s}
+.bar em{position:absolute; inset:0 6px; font:400 12px/22px var(--type); font-style:normal}
+.pct{font:700 14px var(--type); text-align:right}
+.flag{margin-top:14px; padding:10px 14px; border-radius:6px; background:var(--bad-bg); border:1px solid var(--margin); display:none}
+.flag.show{display:block}
+.energy{display:flex; gap:24px; flex-wrap:wrap; margin-top:16px}
+.energy div{min-width:180px}
+.energy strong{display:block; font:400 30px var(--serif)}
+
+/* contract */
+.contract{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:18px}
+@media (max-width:860px){.contract{grid-template-columns:1fr}}
+pre.code{margin:0; background:var(--ink); color:#DDE6F5; border-radius:8px; padding:16px 0; font:400 13.5px/1.6 var(--type); overflow:auto}
+pre.code span{display:block; padding:0 16px; transition:background .2s}
+pre.code span.run{background:rgba(244,218,106,.28)}
+pre.code span.fail{background:rgba(200,70,61,.5)}
+pre.code .c{color:#8FA2C3}
+.wallets{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px}
+.wallet{background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:10px; text-align:center}
+.wallet strong{display:block; font:400 24px var(--serif)}
+.state-line{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 14px}
+.state-line span{font-size:13px; padding:5px 9px; border-radius:20px; border:1px solid var(--line); color:var(--ink-soft)}
+.state-line span.now{background:var(--ink); color:var(--paper-2); border-color:var(--ink)}
+.log{font:400 13px/1.5 var(--type); background:var(--paper); border-radius:6px; border:1px solid var(--line); padding:10px; height:130px; overflow:auto; margin-top:12px}
+.log div.err{color:var(--margin)} .log div.ok{color:var(--ok)}
+.actions{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+
+/* rollup */
+.bus{display:flex; flex-wrap:wrap; gap:3px; min-height:72px; align-content:flex-start; padding:10px; border:2px dashed var(--line); border-radius:8px; background:var(--paper)}
+.bus i{width:9px; height:9px; border-radius:50%; background:var(--ink); display:block}
+.fees{display:grid; gap:10px; margin-top:16px}
+.fee{display:grid; grid-template-columns:150px 1fr 90px; gap:12px; align-items:center}
+@media (max-width:620px){.fee{grid-template-columns:1fr 80px} .fee .bar{grid-column:1/-1; grid-row:2}}
+.fee .bar{height:26px}
+.news-filter{display:flex; gap:8px; flex-wrap:wrap; margin:28px 0 16px}
+.news-filter button{background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--line); padding:8px 13px; font-weight:500}
+.news-filter button[aria-pressed=true]{background:var(--ink); color:var(--paper-2); box-shadow:none}
+.news{list-style:none; padding:0; margin:0; border-top:1px solid var(--line)}
+.news li{display:grid; grid-template-columns:120px 1fr; gap:18px; padding:16px 0; border-bottom:1px solid var(--line)}
+@media (max-width:620px){.news li{grid-template-columns:1fr; gap:4px}}
+.news .d{font:700 14px var(--type); color:var(--margin)}
+.news h4{margin:0 0 4px; font:400 20px var(--serif)}
+.news p{margin:0; max-width:64ch; font-size:16px}
+.news .tag{font-size:12.5px; color:var(--ink-soft); margin-left:6px}
+.news li.upcoming .d::after{content:" (expected)"; font-weight:400; color:var(--ink-soft)}
+
+footer{padding:64px 0 80px; color:var(--ink-soft); font-size:14px; max-width:70ch}
+footer h3{font:400 22px var(--serif); color:var(--ink); margin:0 0 10px}
+footer ul{padding-left:18px}
+.theme-toggle{position:fixed; top:14px; right:14px; z-index:6; padding:8px 12px; font-size:13px; background:var(--paper-2); color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--line)}
+@media (max-width:720px){ .theme-toggle{position:absolute} }
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeBtn" aria-label="Switch colour theme">Dark paper</button>
+
+<nav class="rail" aria-label="Chapters" id="rail"></nav>
+
+<div class="wrap">
+<header class="hero" id="top">
+  <h1>A ledger nobody can quietly rewrite.</h1>
+  <p class="lede">Blockchain is a shared record book, copied across thousands of computers and sealed with maths, so nobody has to trust a bank, a company or each other to agree on what happened. This guide explains it from scratch. Every idea comes with something you can poke at.</p>
+  <div class="entry">
+    <label for="heroIn">Write anything in the ledger</label>
+    <input id="heroIn" value="Siddharth pays Maya 5 coins" autocomplete="off" spellcheck="false">
+    <div class="fp">
+      <canvas id="heroFp" width="8" height="8" aria-hidden="true"></canvas>
+      <div style="flex:1;min-width:220px">
+        <div class="hash" id="heroHash"></div>
+        <div class="hint">This is its <strong>hash</strong>, a fingerprint of exactly what you typed. Change a single letter and the whole fingerprint changes. Most of blockchain is built on this one trick.</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue">Ten short chapters below. Take about 20 minutes, or jump around with the numbers on the left.</div>
+</header>
+
+<!-- 1 ORIGINS -->
+<section class="ch" id="c1" data-title="Origins">
+  <div class="ch-head"><span class="ch-no">1</span><h2>It took thirty years of failed attempts</h2></div>
+  <div class="intro"><p>Bitcoin didn't appear out of nowhere. Cryptographers had been trying to make digital money and tamper-proof records since the early 80s. Each attempt solved one piece of the puzzle. Step through the timeline to see how the pieces came together.</p></div>
+  <div class="panel tl">
+    <div class="tl-track" role="tablist" aria-label="Timeline" id="tlTrack"></div>
+    <div class="tl-card" id="tlCard" role="tabpanel" aria-live="polite"></div>
+    <div class="tl-nav"><button class="ghost" id="tlPrev">Earlier</button><button class="ghost" id="tlNext">Later</button></div>
+  </div>
+  <p class="takeaway">The big problem was <strong>double-spending</strong>. A digital file can be copied, so how do you stop someone spending the same coin twice without a bank keeping the books? Bitcoin's answer was to make everyone keep the books together.</p>
+</section>
+
+<!-- 2 HASHING -->
+<section class="ch" id="c2" data-title="Hashing">
+  <div class="ch-head"><span class="ch-no">2</span><h2>Hashes: a fingerprint for any piece of data</h2></div>
+  <div class="intro">
+    <p>A hash function takes any input, from one word to a whole film, and squeezes it into a fixed-size fingerprint. Bitcoin uses one called <strong>SHA-256</strong>, which always gives 64 characters.</p>
+    <p>It has three properties that matter: the same input always gives the same hash, a tiny change gives a completely different hash, and you can't work backwards from a hash to the input.</p>
+  </div>
+  <div class="panel">
+    <div class="split">
+      <div>
+        <label class="field"><span>Message A</span><input class="txt" id="hA" value="Pay Maya 5 coins"></label>
+        <div class="hash" id="hAo"></div>
+        <div class="bits" id="bitsA" aria-hidden="true"></div>
+      </div>
+      <div>
+        <label class="field"><span>Message B (try changing one character)</span><input class="txt" id="hB" value="Pay Maya 6 coins"></label>
+        <div class="hash" id="hBo"></div>
+        <div class="bits" id="bitsB" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div style="margin-top:18px">
+      <div class="row" style="justify-content:space-between"><strong>How many of the 256 bits are different</strong><span class="counter" id="diffN"></span></div>
+      <div class="meter"><b id="diffBar"></b></div>
+      <p class="small" id="diffMsg" style="margin:8px 0 0"></p>
+    </div>
+  </div>
+  <p class="takeaway">Each square above is one bit of the fingerprint. Red squares are bits that flipped. Change one character and about half of them flip. That's called the <strong>avalanche effect</strong>, and it's why nobody can tweak data without the fingerprint giving it away.</p>
+</section>
+
+<!-- 3 MINING -->
+<section class="ch" id="c3" data-title="Blocks &amp; mining">
+  <div class="ch-head"><span class="ch-no">3</span><h2>A block is a page of the ledger, and sealing it takes work</h2></div>
+  <div class="intro">
+    <p>Transactions are grouped into <strong>blocks</strong>, like pages in a ledger. To add a page, the network sets a puzzle: find a number (the <strong>nonce</strong>) that makes the block's hash start with a certain number of zeros.</p>
+    <p>There's no clever shortcut. You just keep guessing. That guessing is <strong>mining</strong>, and the difficulty slider controls how many zeros are needed. Each extra zero makes the puzzle about 16 times harder.</p>
+  </div>
+  <div class="panel">
+    <div class="split">
+      <div class="block" id="mBlock">
+        <h4>Block #1 <span class="stamp bad" id="mStamp">Not sealed</span></h4>
+        <label class="field"><span>Data</span><textarea id="mData" rows="3">Maya pays Leo 2 coins
+Leo pays Ana 1 coin</textarea></label>
+        <label class="field"><span>Nonce</span><input class="txt" id="mNonce" type="number" value="0" min="0"></label>
+        <div class="field"><span>Hash</span><div class="hash" id="mHash"></div></div>
+      </div>
+      <div>
+        <label class="field"><span>Difficulty: <strong id="dLbl">3</strong> leading zeros</span>
+          <input type="range" id="mDiff" min="1" max="5" value="3" aria-describedby="dOdds"></label>
+        <p class="small" id="dOdds"></p>
+        <div class="row" style="margin:16px 0">
+          <button id="mineBtn">Mine this block</button>
+          <button class="ghost" id="guessBtn">Guess once</button>
+        </div>
+        <div class="counter" id="mStats">Guesses: 0</div>
+        <p class="small" style="margin-top:14px">Try mining, then edit a single letter of the data. The seal breaks straight away because the hash has changed. Real Bitcoin needs about 19 leading zeros, and the whole network makes roughly 10<sup>21</sup> guesses every second.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 CHAIN -->
+<section class="ch" id="c4" data-title="The chain">
+  <div class="ch-head"><span class="ch-no">4</span><h2>Each page holds the fingerprint of the page before it</h2></div>
+  <div class="intro">
+    <p>This is what makes it a <em>chain</em>. Every block includes the previous block's hash. If you change an old block, its hash changes, so the next block's "previous hash" no longer matches, and the break ripples all the way to the end.</p>
+    <p>Edit the data in block 2 and watch what happens. To cover your tracks you'd have to re-mine that block and every block after it.</p>
+  </div>
+  <div class="panel">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <span class="small">Difficulty here is 3 zeros so re-mining stays quick. Scroll sideways to see all five blocks.</span>
+      <button class="ghost" id="chainReset">Reset chain</button>
+    </div>
+    <div class="chain" id="chain"></div>
+  </div>
+  <p class="takeaway">Rewriting one block means redoing the work for all the blocks after it, while the rest of the network keeps adding new ones. On Bitcoin, rewriting even an hour of history would take more computing power than everyone else combined.</p>
+</section>
+
+<!-- 5 PEERS -->
+<section class="ch" id="c5" data-title="Many copies">
+  <div class="ch-head"><span class="ch-no">5</span><h2>Thousands of people keep their own copy</h2></div>
+  <div class="intro">
+    <p>There's no master copy on a central server. Every participant, called a <strong>node</strong>, keeps the full ledger and checks every new block for themselves. If someone tampers with their copy, it simply stops matching everyone else's.</p>
+    <p>Tamper with a node below, even re-mining it so it looks valid on its own, then ask the network to compare.</p>
+  </div>
+  <div class="panel">
+    <div class="peers" id="peers"></div>
+    <div class="row" style="margin-top:18px">
+      <button id="voteBtn">Compare copies</button>
+      <button class="ghost" id="peerReset">Reset</button>
+    </div>
+    <div class="verdict" id="verdict" aria-live="polite"></div>
+  </div>
+  <p class="takeaway">To fake the record, an attacker would have to change more than half of all copies at the same moment. Bitcoin has more than 15,000 publicly reachable nodes, spread around the world.</p>
+</section>
+
+<!-- 6 SIGNATURES -->
+<section class="ch" id="c6" data-title="Keys &amp; signatures">
+  <div class="ch-head"><span class="ch-no">6</span><h2>Your key is your identity, and your signature proves it</h2></div>
+  <div class="intro">
+    <p>There are no usernames or passwords. You have a <strong>key pair</strong>: a private key you never share, and a public key that works like your account number. Signing a transaction with your private key proves it came from you, and anyone can check that with your public key.</p>
+    <p>These are real cryptographic keys generated in your browser right now, using the same family of maths (elliptic curves) that Bitcoin and Ethereum use.</p>
+  </div>
+  <div class="panel">
+    <div class="keys">
+      <div class="key"><b>Maya's public key (safe to share)</b><div class="hash" id="pubK">Generating…</div></div>
+      <div class="key priv"><b>Maya's private key (never share; hover to peek)</b><div class="hash blur" id="privK">Generating…</div></div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <h5>1. Maya writes and signs</h5>
+        <textarea id="sigMsg" rows="2">Maya pays Leo 2 coins</textarea>
+        <button id="signBtn" style="margin-top:8px">Sign with Maya's key</button>
+        <div class="field" style="margin-top:10px"><span>Signature</span><div class="hash small" id="sigOut">Not signed yet</div></div>
+      </div>
+      <div class="step">
+        <h5>2. Someone meddles in transit</h5>
+        <label class="field"><span>Message the network receives</span><textarea id="sigRecv" rows="2"></textarea></label>
+        <button class="ghost" id="tamperSig">Change 2 coins to 200</button>
+      </div>
+      <div class="step">
+        <h5>3. Every node checks it</h5>
+        <label class="field"><span>Check against whose public key?</span>
+          <select id="sigWho"><option value="maya">Maya's</option><option value="mal">Mallory's (an impostor)</option></select></label>
+        <button id="verifyBtn">Verify</button>
+        <div style="margin-top:12px" id="verifyOut" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+  <p class="takeaway">Whoever holds the private key controls the coins. That's why people say "not your keys, not your coins". Lose the key and nobody can reset it for you.</p>
+</section>
+
+<!-- 7 MERKLE -->
+<section class="ch" id="c7" data-title="Merkle trees">
+  <div class="ch-head"><span class="ch-no">7</span><h2>Thousands of transactions, one fingerprint</h2></div>
+  <div class="intro">
+    <p>A block can hold thousands of transactions. Instead of hashing them all in one lump, they're hashed in pairs, then those hashes are paired and hashed again, until one hash is left: the <strong>Merkle root</strong>. It goes in the block header.</p>
+    <p>This means a phone wallet can prove one transaction is in a block using just a few hashes, without downloading the whole thing. Edit a transaction to see which hashes change, or click "Prove" to see the minimum proof.</p>
+  </div>
+  <div class="panel mk">
+    <svg id="mkSvg" viewBox="0 0 800 300" role="img" aria-label="Merkle tree diagram"></svg>
+    <div class="txs" id="mkTx"></div>
+    <p class="small" id="mkMsg" style="margin:14px 0 0" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- 8 CONSENSUS -->
+<section class="ch" id="c8" data-title="Consensus">
+  <div class="ch-head"><span class="ch-no">8</span><h2>Who gets to write the next page?</h2></div>
+  <div class="intro">
+    <p>Someone has to pick which block comes next. The rule for choosing is the <strong>consensus mechanism</strong>. The two big ones are:</p>
+    <p><strong>Proof of Work</strong> (Bitcoin): miners race to solve the hashing puzzle. More computing power means more wins, and burns more electricity. <strong>Proof of Stake</strong> (Ethereum since 2022): validators lock up coins as a deposit. The protocol picks the next block-writer at random, weighted by stake, and cheaters lose their deposit.</p>
+  </div>
+  <div class="panel">
+    <div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-mode="pow">Proof of Work</button><button role="tab" aria-selected="false" data-mode="pos">Proof of Stake</button></div>
+    <p class="small" id="csHelp" style="margin-top:0"></p>
+    <div class="players" id="players"></div>
+    <div class="flag" id="flag51" role="alert"></div>
+    <div class="row" style="margin-top:18px">
+      <button id="run100">Run 100 blocks</button>
+      <button class="ghost" id="csReset">Clear results</button>
+      <span class="counter" id="csCount">Blocks: 0</span>
+    </div>
+    <div class="energy">
+      <div><span class="small">Guesses made (wasted work)</span><strong id="enGuess">0</strong></div>
+      <div><span class="small">Rough energy, illustrative</span><strong id="enKwh">0</strong></div>
+    </div>
+  </div>
+  <p class="takeaway">Both systems face the same weak spot: anyone with more than half the power or stake could rewrite recent history. That's the <strong>51% attack</strong>. Drag one slider past half to see it. When Ethereum switched to Proof of Stake in 2022, its energy use fell by about 99.95%.</p>
+</section>
+
+<!-- 9 CONTRACTS -->
+<section class="ch" id="c9" data-title="Smart contracts">
+  <div class="ch-head"><span class="ch-no">9</span><h2>Programs that hold money and can't be argued with</h2></div>
+  <div class="intro">
+    <p>Ethereum added a big idea in 2015: put small programs on the chain, called <strong>smart contracts</strong>. They hold money and follow their code exactly. No company runs them, and nobody can change the rules once they're deployed.</p>
+    <p>Here's an <strong>escrow</strong> contract for buying a second-hand camera from a stranger. The money waits in the contract until the buyer confirms delivery. Try the buttons in different orders, including the wrong ones.</p>
+  </div>
+  <div class="panel contract">
+    <pre class="code" id="code" aria-label="Escrow contract code"></pre>
+    <div>
+      <div class="wallets">
+        <div class="wallet"><span class="small">Buyer</span><strong id="wBuyer">10</strong></div>
+        <div class="wallet"><span class="small">Contract</span><strong id="wEsc">0</strong></div>
+        <div class="wallet"><span class="small">Seller</span><strong id="wSeller">0</strong></div>
+      </div>
+      <div class="state-line" id="stateLine"></div>
+      <div class="actions">
+        <button data-act="deposit">Buyer deposits 4 ETH</button>
+        <button data-act="ship" class="ghost">Seller marks shipped</button>
+        <button data-act="confirm">Buyer confirms delivery</button>
+        <button data-act="wait" class="ghost">Fast-forward 14 days</button>
+        <button data-act="refund" class="ghost">Buyer claims refund</button>
+        <button data-act="steal" class="warn">Seller grabs the money early</button>
+      </div>
+      <div class="log" id="log" aria-live="polite"></div>
+      <button class="ghost" id="ctReset" style="margin-top:10px">Start over</button>
+    </div>
+  </div>
+  <p class="takeaway">Smart contracts power <strong>DeFi</strong> (lending and trading without banks), <strong>NFTs</strong> (proof of who owns a digital item) and <strong>stablecoins</strong>. The catch is that a bug in the code is also final, and hacks of buggy contracts have cost billions.</p>
+</section>
+
+<!-- 10 NEW -->
+<section class="ch" id="c10" data-title="What's new">
+  <div class="ch-head"><span class="ch-no">10</span><h2>Where blockchain is heading now</h2></div>
+  <div class="intro">
+    <p>The biggest problem of the last decade was <strong>scaling</strong>. Ethereum's main chain handles only about 15–20 transactions a second, and fees spiked when it got busy. The main fix is <strong>layer 2 rollups</strong>: networks that bundle hundreds of transactions off-chain and post one compressed batch to the main chain, so everyone shares the cost.</p>
+    <p>Drag the slider to fill the batch and watch the cost per person fall.</p>
+  </div>
+  <div class="panel">
+    <label class="field"><span>Transactions in one rollup batch: <strong id="bLbl">50</strong></span>
+      <input type="range" id="bSize" min="1" max="2000" value="50" style="width:100%;max-width:520px"></label>
+    <div class="bus" id="bus" aria-hidden="true"></div>
+    <div class="fees">
+      <div class="fee"><span>Directly on main chain</span><div class="bar"><b id="fL1" style="background:var(--margin)"></b></div><span class="pct" id="fL1v"></span></div>
+      <div class="fee"><span>Through a rollup</span><div class="bar"><b id="fL2" style="background:var(--ok)"></b></div><span class="pct" id="fL2v"></span></div>
+    </div>
+    <p class="small" style="margin-bottom:0">Illustrative costs in arbitrary units: a fixed cost for posting the batch, plus a small amount of compressed data per transaction. Since 2024, Ethereum's "blob" space has made that per-transaction data far cheaper again.</p>
+  </div>
+
+  <div class="news-filter" role="group" aria-label="Filter milestones" id="newsFilter"></div>
+  <ul class="news" id="news"></ul>
+  <p class="small" style="margin-top:16px">Milestones are as of October 2026. Dates marked "expected" were planned but not confirmed at the time of writing.</p>
+</section>
+
+<footer>
+  <h3>Keep going</h3>
+  <p>You've just played with the core of every blockchain: hashes, chained blocks, copies that check each other, signatures, Merkle trees, consensus and contracts. Everything else, from DeFi to NFTs to rollups, is built from those parts.</p>
+  <p>This is an educational explainer, not financial advice. The hashing and signatures on this page are real; the networks, energy and fee numbers are simplified simulations.</p>
+  <h3 style="margin-top:28px">Sources</h3>
+  <ul>
+    <li><a href="https://bitcoin.org/bitcoin.pdf">Satoshi Nakamoto, "Bitcoin: A Peer-to-Peer Electronic Cash System" (2008)</a></li>
+    <li><a href="https://ethereum.org/en/roadmap/merge/">ethereum.org: The Merge</a></li>
+    <li><a href="https://ethereum.org/en/roadmap/danksharding/">ethereum.org: Danksharding and blobs</a></li>
+    <li><a href="https://blog.quicknode.com/ethereum-fusaka-upgrade-what-you-need-to-know">QuickNode: Ethereum Fusaka upgrade</a></li>
+    <li><a href="https://cointelegraph.com/magazine/the-biggest-blockchain-upgrades-still-to-come-in-2026">Cointelegraph: The biggest blockchain upgrades still to come in 2026</a></li>
+  </ul>
+</footer>
+</div>
+
+<script>
+/* ============ SHA-256 (sync, fast enough for mining demos) ============ */
+const sha256 = (() => {
+  const K = [], H0 = [];
+  let n = 2, found = 0;
+  const isPrime = x => { for (let i = 2; i * i <= x; i++) if (x % i === 0) return false; return true; };
+  while (found < 64) {
+    if (isPrime(n)) {
+      if (found < 8) H0[found] = (Math.pow(n, 1/2) * 4294967296) | 0;
+      K[found] = (Math.pow(n, 1/3) * 4294967296) | 0;
+      found++;
+    }
+    n++;
+  }
+  const enc = new TextEncoder();
+  const W = new Int32Array(64);
+  const hex = x => (x >>> 0).toString(16).padStart(8, '0');
+  return str => {
+    const m = enc.encode(str), l = m.length;
+    const nb = ((l + 8) >> 6) + 1;
+    const w = new Int32Array(nb * 16);
+    for (let i = 0; i < l; i++) w[i >> 2] |= m[i] << (24 - (i & 3) * 8);
+    w[l >> 2] |= 0x80 << (24 - (l & 3) * 8);
+    w[nb * 16 - 1] = l * 8;
+    w[nb * 16 - 2] = Math.floor(l / 536870912);
+    let [h0, h1, h2, h3, h4, h5, h6, h7] = H0;
+    for (let b = 0; b < nb; b++) {
+      for (let t = 0; t < 16; t++) W[t] = w[b * 16 + t];
+      for (let t = 16; t < 64; t++) {
+        const x = W[t - 15], y = W[t - 2];
+        const s0 = ((x >>> 7) | (x << 25)) ^ ((x >>> 18) | (x << 14)) ^ (x >>> 3);
+        const s1 = ((y >>> 17) | (y << 15)) ^ ((y >>> 19) | (y << 13)) ^ (y >>> 10);
+        W[t] = (W[t - 16] + s0 + W[t - 7] + s1) | 0;
+      }
+      let a = h0, b2 = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+      for (let t = 0; t < 64; t++) {
+        const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
+        const ch = (e & f) ^ (~e & g);
+        const t1 = (h + S1 + ch + K[t] + W[t]) | 0;
+        const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
+        const maj = (a & b2) ^ (a & c) ^ (b2 & c);
+        const t2 = (S0 + maj) | 0;
+        h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b2; b2 = a; a = (t1 + t2) | 0;
+      }
+      h0 = (h0 + a) | 0; h1 = (h1 + b2) | 0; h2 = (h2 + c) | 0; h3 = (h3 + d) | 0;
+      h4 = (h4 + e) | 0; h5 = (h5 + f) | 0; h6 = (h6 + g) | 0; h7 = (h7 + h) | 0;
+    }
+    return hex(h0) + hex(h1) + hex(h2) + hex(h3) + hex(h4) + hex(h5) + hex(h6) + hex(h7);
+  };
+})();
+if (typeof module !== 'undefined') module.exports = sha256;
+
+const $ = s => document.querySelector(s);
+const el = (tag, attrs = {}, html = '') => { const e = document.createElement(tag); Object.assign(e, attrs); if (html) e.innerHTML = html; return e; };
+const zeroFmt = (h, z) => `<span class="zeros">${h.slice(0, z)}</span>${h.slice(z)}`;
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ============ theme ============ */
+(() => {
+  const btn = $('#themeBtn'), root = document.documentElement;
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const label = () => btn.textContent = isDark() ? 'Light paper' : 'Dark paper';
+  try { const s = localStorage.getItem('ledger-theme'); if (s) root.dataset.theme = s; } catch (e) {}
+  label();
+  btn.onclick = () => { root.dataset.theme = isDark() ? 'light' : 'dark'; try { localStorage.setItem('ledger-theme', root.dataset.theme); } catch (e) {} label(); drawFp(); drawMerkle(); };
+})();
+
+/* ============ hero ============ */
+function drawFp() {
+  const h = sha256($('#heroIn').value), c = $('#heroFp').getContext('2d');
+  const hue = parseInt(h.slice(0, 2), 16) / 255 * 360;
+  for (let i = 0; i < 32; i++) { // mirrored 8x8 identicon from hash
+    const v = parseInt(h[i], 16), x = i % 4, y = Math.floor(i / 4);
+    c.fillStyle = v > 7 ? `hsl(${hue},45%,${30 + v * 2}%)` : css('--paper');
+    c.fillRect(x, y, 1, 1); c.fillRect(7 - x, y, 1, 1);
+  }
+  $('#heroHash').textContent = h;
+}
+$('#heroIn').addEventListener('input', drawFp); drawFp();
+
+/* ============ rail ============ */
+const chapters = [...document.querySelectorAll('section.ch')];
+chapters.forEach((s, i) => { const a = el('a', { href: '#' + s.id, textContent: i + 1, title: s.dataset.title }); a.setAttribute('aria-label', `Chapter ${i + 1}: ${s.dataset.title.replace('&amp;', 'and')}`); $('#rail').append(a); });
+const railLinks = [...document.querySelectorAll('#rail a')];
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) railLinks.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-45% 0px -50% 0px' });
+chapters.forEach(s => io.observe(s));
+
+/* ============ 1. timeline ============ */
+const TL = [
+  { y: '1982', t: 'A vault run by strangers', who: 'David Chaum', d: 'In his dissertation, cryptographer David Chaum describes a computer system that groups who don\'t trust each other can maintain together. A year later he designs eCash, anonymous digital money, which later runs through his company DigiCash.', why: 'The dream begins: digital money and records that no single party controls. DigiCash still depended on a central company, and it went bankrupt in 1998.', fig: 'vault' },
+  { y: '1991', t: 'Time-stamping with a chain of hashes', who: 'Stuart Haber & W. Scott Stornetta', d: 'Two researchers want to prove when a digital document was created, without anyone being able to backdate it. Their trick: link each record to the hash of the one before. They even published the hashes in the New York Times classifieds every week.', why: 'This is the first blockchain in all but name. The Bitcoin whitepaper cites their work three times.', fig: 'chain' },
+  { y: '1992', t: 'Merkle trees join the design', who: 'Bayer, Haber & Stornetta', d: 'They add Merkle trees (invented by Ralph Merkle in 1979) so many documents can be bundled into one block and fingerprinted together.', why: 'Blocks of many records sealed with a single hash: the exact structure you\'ll play with in chapter 7.', fig: 'tree' },
+  { y: '1997', t: 'Proof of work against spam', who: 'Adam Back', d: 'Hashcash makes email senders burn a little computing power to send each message. It costs nothing for one email and a fortune for a million spam emails.', why: 'Bitcoin borrows this idea to make writing to the ledger costly, and so rewriting it practically impossible.', fig: 'work' },
+  { y: '1998', t: 'b-money and bit gold', who: 'Wei Dai & Nick Szabo', d: 'Two proposals describe money created by solving computing puzzles and tracked by a network rather than a bank. Neither is ever built, and both are stuck on how the network should agree.', why: 'All the ingredients are now on the table. What\'s missing is a way for strangers to agree on one history.', fig: 'coin' },
+  { y: '2008', t: 'The Bitcoin whitepaper', who: 'Satoshi Nakamoto (identity still unknown)', d: 'Weeks after the financial crash, a nine-page paper appears on a cryptography mailing list. It combines hash chains, Merkle trees, proof of work and digital signatures, and adds one rule: everyone follows the chain with the most work behind it.', why: 'That rule solves double-spending without a bank. The puzzle that had defeated people for 25 years is solved.', fig: 'paper' },
+  { y: '2009', t: 'The genesis block', who: 'Satoshi Nakamoto', d: 'On 3 January the first Bitcoin block is mined. Hidden inside it is a newspaper headline: "Chancellor on brink of second bailout for banks."', why: 'Part timestamp, part protest. The first network of strangers keeping one shared ledger goes live.', fig: 'block' },
+  { y: '2010', t: '10,000 bitcoin for two pizzas', who: 'Laszlo Hanyecz', d: 'A programmer in Florida pays 10,000 BTC to someone who orders him two Papa John\'s pizzas. It\'s the first known purchase of a real-world item with bitcoin.', why: 'Proof that people would treat it as money. Fans celebrate 22 May as Bitcoin Pizza Day.', fig: 'coin' },
+  { y: '2015', t: 'Ethereum: a world computer', who: 'Vitalik Buterin and co-founders', d: 'A 19-year-old proposed a blockchain that can run any program, not just track coins. Ethereum launches on 30 July 2015.', why: 'Smart contracts make blockchains programmable, opening the door to DeFi, NFTs, DAOs and stablecoins.', fig: 'code' },
+  { y: '2017', t: 'The ICO boom', who: 'Thousands of start-ups', d: 'Projects raise billions by selling their own tokens on Ethereum, many with little more than a whitepaper. Bitcoin nears $20,000 in December.', why: 'Huge hype, many scams and a hard crash in 2018. Regulators start paying close attention.', fig: 'wave' },
+  { y: '2020', t: 'DeFi summer', who: 'Uniswap, Compound, Aave and others', d: 'Lending, borrowing and trading apps that run entirely as smart contracts take off. Money locked in them grows from about $1 billion to over $15 billion in one year.', why: 'The first large-scale proof that financial services can run with no company in the middle.', fig: 'swap' },
+  { y: '2021', t: 'The NFT year', who: 'Artists, collectors, brands', d: 'Non-fungible tokens, certificates of ownership for digital items, go mainstream. In March an artwork by Beeple sells at Christie\'s for $69 million.', why: 'Shows blockchains can track ownership of unique things, not just currency. Most of the market later collapses.', fig: 'frame' },
+  { y: '2022', t: 'The Merge', who: 'Ethereum community', d: 'On 15 September Ethereum switches from proof of work to proof of stake while the network keeps running. Engineers compared it to changing a plane\'s engine mid-flight.', why: 'Ethereum\'s energy use drops by around 99.95%, answering one of the biggest criticisms of blockchain.', fig: 'leaf' },
+];
+const FIG = {
+  vault: '<rect x="30" y="20" width="100" height="100" rx="8"/><circle cx="80" cy="70" r="26"/><path d="M80 44v52M54 70h52"/>',
+  chain: '<rect x="8" y="50" width="40" height="40" rx="4"/><rect x="60" y="50" width="40" height="40" rx="4"/><rect x="112" y="50" width="40" height="40" rx="4"/><path d="M48 70h12M100 70h12"/>',
+  tree: '<rect x="62" y="10" width="36" height="22" rx="3"/><rect x="22" y="58" width="36" height="22" rx="3"/><rect x="102" y="58" width="36" height="22" rx="3"/><path d="M80 32 40 58M80 32l40 26M40 80l-18 30M40 80l18 30M120 80l-18 30M120 80l18 30"/>',
+  work: '<circle cx="80" cy="70" r="44"/><path d="M80 70V36M80 70l24 14"/>',
+  coin: '<circle cx="80" cy="70" r="46"/><circle cx="80" cy="70" r="34"/><path d="M80 48v44M68 58h20a8 8 0 0 1 0 12H70a8 8 0 0 0 0 12h22"/>',
+  paper: '<path d="M44 14h56l24 24v92H44z"/><path d="M100 14v24h24M58 60h52M58 78h52M58 96h36"/>',
+  block: '<path d="M80 20 130 46v52L80 124 30 98V46z"/><path d="M30 46l50 26 50-26M80 72v52"/>',
+  code: '<path d="M58 40 26 70l32 30M102 40l32 30-32 30M90 30 70 110"/>',
+  wave: '<path d="M10 100c30 0 30-80 60-80s30 100 80 40"/><path d="M10 120h140"/>',
+  swap: '<path d="M30 50h90l-20-20M130 90H40l20 20"/>',
+  frame: '<rect x="24" y="16" width="112" height="108" rx="4"/><rect x="40" y="32" width="80" height="76"/><path d="M40 92l24-24 18 18 14-14 24 24"/>',
+  leaf: '<path d="M30 120C30 50 80 20 134 20c0 60-40 100-104 100z"/><path d="M30 120 100 50"/>',
+};
+let tlI = 0;
+TL.forEach((e, i) => {
+  const b = el('button', { className: 'tl-dot', type: 'button', id: 'tl' + i }, `<span class="y">${e.y}</span>`);
+  b.setAttribute('role', 'tab'); b.onclick = () => showTL(i); $('#tlTrack').append(b);
+});
+function showTL(i) {
+  tlI = Math.max(0, Math.min(TL.length - 1, i));
+  const e = TL[tlI];
+  document.querySelectorAll('.tl-dot').forEach((b, j) => b.setAttribute('aria-selected', j === tlI));
+  $('#tl' + tlI).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  $('#tlCard').innerHTML = `<div><h3>${e.t}</h3><p class="who">${e.who}</p><p>${e.d}</p><div class="why"><strong>Why it mattered:</strong> ${e.why}</div></div>
+    <div class="tl-fig"><svg viewBox="0 0 160 140" width="200" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${FIG[e.fig]}</svg></div>`;
+  $('#tlPrev').disabled = tlI === 0; $('#tlNext').disabled = tlI === TL.length - 1;
+}
+$('#tlPrev').onclick = () => showTL(tlI - 1); $('#tlNext').onclick = () => showTL(tlI + 1);
+$('#tlTrack').addEventListener('keydown', ev => { if (ev.key === 'ArrowRight') { showTL(tlI + 1); $('#tl' + tlI).focus(); } if (ev.key === 'ArrowLeft') { showTL(tlI - 1); $('#tl' + tlI).focus(); } });
+// first render without scrolling the page
+(() => { const s = Element.prototype.scrollIntoView; Element.prototype.scrollIntoView = function () {}; showTL(0); Element.prototype.scrollIntoView = s; })();
+
+/* ============ 2. hashing ============ */
+const toBits = h => h.split('').flatMap(c => parseInt(c, 16).toString(2).padStart(4, '0').split('').map(Number));
+['bitsA', 'bitsB'].forEach(id => { for (let i = 0; i < 256; i++) $('#' + id).append(el('i')); });
+function updHash() {
+  const a = sha256($('#hA').value), b = sha256($('#hB').value);
+  $('#hAo').textContent = a; $('#hBo').textContent = b;
+  const ba = toBits(a), bb = toBits(b); let d = 0;
+  const ia = $('#bitsA').children, ib = $('#bitsB').children;
+  for (let i = 0; i < 256; i++) {
+    const df = ba[i] !== bb[i]; if (df) d++;
+    ia[i].className = ba[i] ? 'on' : ''; ib[i].className = df ? 'diff' : (bb[i] ? 'on' : '');
+  }
+  $('#diffN').textContent = `${d} / 256`; $('#diffBar').style.width = (d / 256 * 100) + '%';
+  $('#diffMsg').textContent = d === 0 ? 'Identical inputs give identical hashes, every time, on every computer in the world.'
+    : `The messages differ by ${levenshteinish($('#hA').value, $('#hB').value)}, yet ${Math.round(d / 2.56)}% of the fingerprint changed.`;
+}
+function levenshteinish(a, b) { let n = Math.abs(a.length - b.length); for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) n++; return n === 1 ? 'just 1 character' : n + ' characters'; }
+$('#hA').oninput = $('#hB').oninput = updHash; updHash();
+
+/* ============ 3. mining ============ */
+let mining = false, guesses = 0;
+const mDiff = () => +$('#mDiff').value;
+const blockStr = (idx, prev, data, nonce) => idx + '|' + prev + '|' + data + '|' + nonce;
+function updMine() {
+  const z = mDiff(), h = sha256(blockStr(1, '0'.repeat(64), $('#mData').value, $('#mNonce').value));
+  const ok = h.startsWith('0'.repeat(z));
+  $('#mHash').innerHTML = zeroFmt(h, ok ? z : 0);
+  $('#mBlock').classList.toggle('bad', !ok);
+  $('#mStamp').className = 'stamp ' + (ok ? 'ok' : 'bad'); $('#mStamp').textContent = ok ? 'Sealed' : 'Not sealed';
+  $('#dLbl').textContent = z;
+  $('#dOdds').textContent = `Each guess has a 1 in ${(16 ** z).toLocaleString()} chance. Expect around ${(16 ** z).toLocaleString()} guesses.`;
+  return ok;
+}
+function mine() {
+  if (mining) { mining = false; return; }
+  mining = true; guesses = 0; $('#mineBtn').textContent = 'Stop';
+  const data = $('#mData').value, z = '0'.repeat(mDiff()), pre = blockStr(1, '0'.repeat(64), data, '');
+  let n = 0; const t0 = performance.now();
+  (function step() {
+    if (!mining) { $('#mineBtn').textContent = 'Mine this block'; return; }
+    const end = performance.now() + 14;
+    while (performance.now() < end) {
+      for (let k = 0; k < 400; k++) {
+        if (sha256(pre + n).startsWith(z)) { mining = false; break; }
+        n++; guesses++;
+      }
+      if (!mining) break;
+    }
+    $('#mNonce').value = n;
+    const secs = ((performance.now() - t0) / 1000).toFixed(1);
+    $('#mStats').textContent = `Guesses: ${guesses.toLocaleString()} in ${secs}s`;
+    updMine();
+    if (mining) requestAnimationFrame(step); else { $('#mineBtn').textContent = 'Mine this block'; $('#mStats').textContent += '. Found it!'; }
+  })();
+}
+$('#mineBtn').onclick = mine;
+$('#guessBtn').onclick = () => { $('#mNonce').value = +$('#mNonce').value + 1; guesses++; $('#mStats').textContent = `Guesses: ${guesses.toLocaleString()}`; updMine(); };
+$('#mData').oninput = $('#mNonce').oninput = $('#mDiff').oninput = updMine; updMine();
+
+/* ============ 4. chain ============ */
+const CZ = 3;
+const CHAIN_DATA = ['Genesis: 50 coins to Maya', 'Maya pays Leo 10\nLeo pays Ana 3', 'Ana pays Raj 1', 'Raj pays Maya 0.5\nLeo pays Sam 2', 'Sam pays Ana 1'];
+let chain = [];
+function findNonce(i, prev, data, z = CZ) { const zs = '0'.repeat(z), pre = blockStr(i, prev, data, ''); let n = 0; while (!sha256(pre + n).startsWith(zs)) n++; return n; }
+function buildChain() {
+  chain = []; let prev = '0'.repeat(64);
+  CHAIN_DATA.forEach((d, i) => { const n = findNonce(i, prev, d); const h = sha256(blockStr(i, prev, d, n)); chain.push({ data: d, nonce: n }); prev = h; });
+}
+function renderChain() {
+  const box = $('#chain'); box.innerHTML = '';
+  chain.forEach((b, i) => {
+    if (i) box.append(el('div', { className: 'link', id: 'lk' + i }, '<svg viewBox="0 0 34 20" aria-hidden="true"><path d="M2 10h30" stroke="currentColor" stroke-width="3" fill="none"/></svg>'));
+    const d = el('div', { className: 'block', id: 'cb' + i });
+    d.innerHTML = `<h4>Block ${i + 1} <span class="stamp ok"></span></h4>
+      <label class="field"><span>Data</span><textarea rows="2">${b.data}</textarea></label>
+      <div class="field"><span>Nonce</span><div class="hash nonce"></div></div>
+      <div class="field"><span>Previous hash</span><div class="hash prev"></div></div>
+      <div class="field"><span>Hash</span><div class="hash me"></div></div>
+      <button class="ghost remine" style="width:100%">Re-mine block ${i + 1}</button>`;
+    d.querySelector('textarea').oninput = ev => { chain[i].data = ev.target.value; updChain(); };
+    d.querySelector('.remine').onclick = () => { const prev = i ? hashOf(i - 1) : '0'.repeat(64); chain[i].nonce = findNonce(i, prev, chain[i].data); updChain(); };
+    box.append(d);
+  });
+  updChain();
+}
+const hashOf = i => { let prev = '0'.repeat(64), h; for (let j = 0; j <= i; j++) { h = sha256(blockStr(j, prev, chain[j].data, chain[j].nonce)); prev = h; } return h; };
+function updChain() {
+  let prev = '0'.repeat(64), broken = false;
+  chain.forEach((b, i) => {
+    const h = sha256(blockStr(i, prev, b.data, b.nonce));
+    const ok = !broken && h.startsWith('0'.repeat(CZ));
+    if (!ok) broken = true;
+    const d = $('#cb' + i);
+    d.classList.toggle('bad', !ok);
+    d.querySelector('.stamp').className = 'stamp ' + (ok ? 'ok' : 'bad');
+    d.querySelector('.stamp').textContent = ok ? 'Valid' : 'Broken';
+    d.querySelector('.nonce').textContent = b.nonce;
+    d.querySelector('.prev').textContent = prev.slice(0, 24) + '…';
+    d.querySelector('.me').innerHTML = zeroFmt(h.slice(0, 24), h.startsWith('0'.repeat(CZ)) ? CZ : 0) + '…';
+    if (i) $('#lk' + i).classList.toggle('broken', !ok);
+    prev = h;
+  });
+}
+$('#chainReset').onclick = () => { buildChain(); renderChain(); };
+buildChain(); renderChain();
+
+/* ============ 5. peers ============ */
+const PEER_NAMES = ['Lagos', 'Seoul', 'Lima', 'Oslo', 'Pune'];
+const BASE_TX = ['Maya → Leo 10', 'Leo → Ana 3', 'Ana → Raj 1', 'Raj → Sam 2'];
+let peers;
+function resetPeers() { peers = PEER_NAMES.map(n => ({ n, tx: [...BASE_TX], changed: -1 })); renderPeers(); $('#verdict').textContent = ''; }
+const peerHash = p => sha256(p.tx.join(';'));
+function renderPeers() {
+  const box = $('#peers'); box.innerHTML = '';
+  peers.forEach((p, i) => {
+    const d = el('div', { className: 'peer', id: 'pr' + i });
+    d.innerHTML = `<h5>Node in ${p.n}</h5><ol>${p.tx.map((t, j) => `<li class="${j === p.changed ? 'changed' : ''}" title="${t}">${t}</li>`).join('')}</ol>
+      <div class="hash small" style="margin-bottom:8px">Tip: ${peerHash(p).slice(0, 10)}…</div>
+      <button class="ghost">Tamper with this copy</button>`;
+    d.querySelector('button').onclick = () => { const j = Math.floor(Math.random() * 4); p.tx[j] = p.tx[j].replace(/\d+$/, m => +m * 100); p.changed = j; renderPeers(); $('#verdict').textContent = `${p.n}'s copy now says "${p.tx[j]}". On its own it looks perfectly fine.`; };
+    box.append(d);
+  });
+}
+$('#voteBtn').onclick = () => {
+  const counts = {}; peers.forEach(p => { const h = peerHash(p); counts[h] = (counts[h] || 0) + 1; });
+  const [win, votes] = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  const odd = peers.filter(p => peerHash(p) !== win);
+  peers.forEach((p, i) => { $('#pr' + i).classList.toggle('odd', peerHash(p) !== win); $('#pr' + i).classList.toggle('agree', peerHash(p) === win); });
+  if (votes <= peers.length / 2) { $('#verdict').textContent = `No majority: the largest group is only ${votes} of 5. With this much tampering the network can't agree, which is why an attacker would need over half of all nodes.`; return; }
+  if (!odd.length) { $('#verdict').textContent = 'All 5 copies match. The ledger is agreed.'; return; }
+  $('#verdict').textContent = `${votes} of 5 copies agree. ${odd.map(p => p.n).join(' and ')} ${odd.length > 1 ? 'are' : 'is'} rejected and will re-sync from the others in a moment.`;
+  setTimeout(() => { peers.forEach(p => { if (peerHash(p) !== win) { const good = peers.find(q => peerHash(q) === win); p.tx = [...good.tx]; p.changed = -1; } }); renderPeers(); peers.forEach((p, i) => $('#pr' + i).classList.add('agree')); $('#verdict').textContent += ' Repaired.'; }, 1600);
+};
+$('#peerReset').onclick = resetPeers; resetPeers();
+
+/* ============ 6. signatures ============ */
+const bufHex = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+let maya, mal, lastSig = null;
+(async () => {
+  if (!(window.crypto && crypto.subtle)) { $('#pubK').textContent = 'Your browser blocked the crypto API here. Open the page over https to try signing.'; $('#privK').textContent = '—'; return; }
+  const alg = { name: 'ECDSA', namedCurve: 'P-256' };
+  [maya, mal] = await Promise.all([crypto.subtle.generateKey(alg, true, ['sign', 'verify']), crypto.subtle.generateKey(alg, true, ['sign', 'verify'])]);
+  $('#pubK').textContent = bufHex(await crypto.subtle.exportKey('raw', maya.publicKey)).slice(0, 90) + '…';
+  const jwk = await crypto.subtle.exportKey('jwk', maya.privateKey);
+  $('#privK').textContent = bufHex(Uint8Array.from(atob(jwk.d.replace(/-/g, '+').replace(/_/g, '/') + '='), c => c.charCodeAt(0)));
+})();
+$('#signBtn').onclick = async () => {
+  if (!maya) return;
+  const msg = $('#sigMsg').value;
+  lastSig = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, maya.privateKey, new TextEncoder().encode(msg));
+  $('#sigOut').textContent = bufHex(lastSig);
+  $('#sigRecv').value = msg; $('#verifyOut').innerHTML = '';
+};
+$('#tamperSig').onclick = () => { const v = $('#sigRecv').value || $('#sigMsg').value; $('#sigRecv').value = v.replace(/\b2\b/, '200'); };
+$('#verifyBtn').onclick = async () => {
+  if (!lastSig) { $('#verifyOut').innerHTML = '<span class="small">Sign a message in step 1 first.</span>'; return; }
+  const key = $('#sigWho').value === 'maya' ? maya.publicKey : mal.publicKey;
+  const ok = await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, key, lastSig, new TextEncoder().encode($('#sigRecv').value));
+  const reason = ok ? 'The signature matches this exact message and Maya\'s public key. The transaction is accepted.'
+    : ($('#sigWho').value === 'mal' ? 'This signature wasn\'t made by Mallory\'s private key. Nobody can pass off Maya\'s signature as their own, or the reverse.' : 'The message changed after it was signed, so the signature no longer matches. Every node rejects it.');
+  $('#verifyOut').innerHTML = `<span class="stamp ${ok ? 'ok' : 'bad'}">${ok ? 'Valid' : 'Rejected'}</span><p class="small" style="margin:10px 0 0">${reason}</p>`;
+};
+
+/* ============ 7. merkle ============ */
+const MK0 = ['Maya → Leo 10', 'Leo → Ana 3', 'Ana → Raj 1', 'Raj → Sam 2'];
+let mkTx = [...MK0], mkOrig, mkProof = -1;
+const mkBuild = tx => { const L = tx.map(t => sha256(t)); const M = [sha256(L[0] + L[1]), sha256(L[2] + L[3])]; return { L, M, R: sha256(M[0] + M[1]) }; };
+mkOrig = mkBuild(MK0);
+MK0.forEach((t, i) => {
+  const d = el('div', { className: 'tx' });
+  d.innerHTML = `<input class="txt" value="${t}" aria-label="Transaction ${String.fromCharCode(65 + i)}"><button class="ghost">Prove ${String.fromCharCode(65 + i)} is in the block</button>`;
+  d.querySelector('input').oninput = e => { mkTx[i] = e.target.value; mkProof = -1; drawMerkle(); };
+  d.querySelector('button').onclick = () => { mkProof = mkProof === i ? -1 : i; drawMerkle(); };
+  $('#mkTx').append(d);
+});
+function drawMerkle() {
+  const t = mkBuild(mkTx), s = $('#mkSvg');
+  const pos = { R: [400, 30], M0: [200, 120], M1: [600, 120], L0: [100, 210], L1: [300, 210], L2: [500, 210], L3: [700, 210] };
+  const val = { R: t.R, M0: t.M[0], M1: t.M[1], L0: t.L[0], L1: t.L[1], L2: t.L[2], L3: t.L[3] };
+  const orig = { R: mkOrig.R, M0: mkOrig.M[0], M1: mkOrig.M[1], L0: mkOrig.L[0], L1: mkOrig.L[1], L2: mkOrig.L[2], L3: mkOrig.L[3] };
+  const lbl = { R: 'Merkle root', M0: 'Hash A+B', M1: 'Hash C+D', L0: 'Hash A', L1: 'Hash B', L2: 'Hash C', L3: 'Hash D' };
+  const proof = mkProof < 0 ? [] : ['L' + (mkProof ^ 1), 'M' + (1 - (mkProof >> 1))];
+  const edges = [['R', 'M0'], ['R', 'M1'], ['M0', 'L0'], ['M0', 'L1'], ['M1', 'L2'], ['M1', 'L3']];
+  let out = edges.map(([a, b]) => `<path class="edge ${val[b] !== orig[b] ? 'chg' : ''}" d="M${pos[a][0]} ${pos[a][1] + 22}L${pos[b][0]} ${pos[b][1] - 22}"/>`).join('');
+  for (let i = 0; i < 4; i++) out += `<path class="edge" d="M${pos['L' + i][0]} 232V262"/><text x="${pos['L' + i][0]}" y="284" text-anchor="middle" style="font:600 13px var(--sans);fill:var(--ink)">Tx ${String.fromCharCode(65 + i)}</text>`;
+  for (const k in pos) {
+    const cls = ['node', k === 'R' ? 'root' : '', val[k] !== orig[k] ? 'chg' : '', proof.includes(k) ? 'proof' : '', mkProof >= 0 && k === 'L' + mkProof ? 'target' : ''].join(' ');
+    out += `<g class="${cls}"><rect x="${pos[k][0] - 82}" y="${pos[k][1] - 22}" width="164" height="44" rx="5"/>
+      <text x="${pos[k][0]}" y="${pos[k][1] - 4}" text-anchor="middle" style="font:600 12px var(--sans)">${lbl[k]}</text>
+      <text x="${pos[k][0]}" y="${pos[k][1] + 13}" text-anchor="middle">${val[k].slice(0, 16)}…</text></g>`;
+  }
+  s.innerHTML = out;
+  const changed = Object.keys(val).filter(k => val[k] !== orig[k]).length;
+  $('#mkMsg').innerHTML = mkProof >= 0
+    ? `To prove <strong>Tx ${String.fromCharCode(65 + mkProof)}</strong> is in the block, you only need the 2 yellow hashes. Combine them with its own hash and you get the root. With a million transactions you'd need just 20 hashes.`
+    : changed ? `${changed} of 7 hashes changed (shown in red), all the way up to the root. One edit anywhere changes the root, so the block's seal breaks.`
+    : 'Every hash is original. Edit any transaction, or click a "Prove" button.';
+}
+drawMerkle();
+
+/* ============ 8. consensus ============ */
+const PL = [
+  { n: 'Ana', c: '#3D6FB6', pow: 30, pos: 25 },
+  { n: 'Raj', c: '#2E7A52', pow: 25, pos: 35 },
+  { n: 'Leo', c: '#B07A1A', pow: 25, pos: 20 },
+  { n: 'Sam', c: '#8A4FA8', pow: 20, pos: 20 },
+];
+let csMode = 'pow', wins = [0, 0, 0, 0], csBlocks = 0, csGuess = 0;
+function renderPlayers() {
+  const box = $('#players'); box.innerHTML = '';
+  PL.forEach((p, i) => {
+    const d = el('div', { className: 'player' });
+    d.innerHTML = `<span class="nm" style="color:${p.c}">${p.n}</span>
+      <label><span class="sr">${p.n}'s ${csMode === 'pow' ? 'computing power' : 'stake'}</span><input type="range" min="1" max="100" value="${p[csMode]}"></label>
+      <div class="bar"><b style="background:${p.c};opacity:.85"></b><em></em></div><span class="pct"></span>`;
+    d.querySelector('input').oninput = e => { p[csMode] = +e.target.value; updPlayers(); };
+    box.append(d);
+  });
+  $('#csHelp').textContent = csMode === 'pow'
+    ? 'Sliders set each miner\'s computing power. Bars show who actually won blocks. Watch the wasted guesses pile up.'
+    : 'Sliders set how many coins each validator has locked up as stake. The protocol picks a block proposer at random, weighted by stake. No puzzle, no race.';
+  updPlayers();
+}
+function updPlayers() {
+  const tot = PL.reduce((s, p) => s + p[csMode], 0);
+  [...$('#players').children].forEach((d, i) => {
+    const share = PL[i][csMode] / tot;
+    d.querySelector('.pct').textContent = Math.round(share * 100) + '%';
+    const w = csBlocks ? wins[i] / csBlocks : 0;
+    d.querySelector('.bar b').style.width = (w * 100) + '%';
+    d.querySelector('.bar em').textContent = csBlocks ? `${wins[i]} blocks won` : '';
+  });
+  const big = PL.findIndex(p => p[csMode] / tot > 0.5);
+  $('#flag51').classList.toggle('show', big >= 0);
+  if (big >= 0) $('#flag51').innerHTML = `<strong>51% attack possible.</strong> ${PL[big].n} controls ${Math.round(PL[big][csMode] / tot * 100)}% of the ${csMode === 'pow' ? 'computing power' : 'stake'}, so they could out-build everyone else, rewrite recent blocks and block other people's transactions.${csMode === 'pos' ? ' Under proof of stake, getting caught cheating means losing the deposit (called slashing).' : ''}`;
+  $('#csCount').textContent = `Blocks: ${csBlocks}`;
+  $('#enGuess').textContent = csMode === 'pow' ? csGuess.toLocaleString() : '0';
+  $('#enKwh').textContent = csMode === 'pow' ? (csBlocks * 0.9).toFixed(0) + ' houses/day' : (csBlocks * 0.0005).toFixed(2) + ' houses/day';
+}
+$('#run100').onclick = () => {
+  const tot = PL.reduce((s, p) => s + p[csMode], 0); let k = 0;
+  $('#run100').disabled = true;
+  const iv = setInterval(() => {
+    for (let r = 0; r < 4; r++) {
+      let x = Math.random() * tot, i = 0; while ((x -= PL[i][csMode]) > 0) i++;
+      wins[i]++; csBlocks++; k++;
+      if (csMode === 'pow') csGuess += Math.round(4096 * (0.3 + Math.random() * 1.4));
+    }
+    updPlayers();
+    if (k >= 100) { clearInterval(iv); $('#run100').disabled = false; }
+  }, 30);
+};
+$('#csReset').onclick = () => { wins = [0, 0, 0, 0]; csBlocks = 0; csGuess = 0; updPlayers(); };
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  csMode = b.dataset.mode; document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+  wins = [0, 0, 0, 0]; csBlocks = 0; csGuess = 0; renderPlayers();
+});
+renderPlayers();
+
+/* ============ 9. smart contract ============ */
+const CODE = [
+  ['c', '// Escrow for one camera sale'],
+  ['', 'contract CameraEscrow {'],
+  ['', '  state = AWAITING_PAYMENT;'],
+  ['', '  price = 4 ETH;'],
+  ['', ''],
+  ['deposit', '  function deposit() {'],
+  ['deposit-r', '    require(state == AWAITING_PAYMENT);'],
+  ['deposit', '    take price from buyer; state = PAID;'],
+  ['deposit', '    deadline = now + 10 days;'],
+  ['', '  }'],
+  ['ship', '  function markShipped() {'],
+  ['ship-r', '    require(caller == seller && state == PAID);'],
+  ['ship', '    state = SHIPPED;'],
+  ['', '  }'],
+  ['confirm', '  function confirmDelivery() {'],
+  ['confirm-r', '    require(caller == buyer && state == SHIPPED);'],
+  ['confirm', '    send price to seller; state = COMPLETE;'],
+  ['', '  }'],
+  ['refund', '  function refund() {'],
+  ['refund-r', '    require(state == PAID && now > deadline);'],
+  ['refund', '    send price to buyer; state = REFUNDED;'],
+  ['', '  }'],
+  ['steal', '  // there is no function that lets the'],
+  ['steal', '  // seller withdraw before confirmation'],
+  ['', '}'],
+];
+const STATES = ['AWAITING_PAYMENT', 'PAID', 'SHIPPED', 'COMPLETE', 'REFUNDED'];
+let ct;
+function ctReset() { ct = { st: 'AWAITING_PAYMENT', buyer: 10, esc: 0, seller: 0, day: 0, paidDay: null, deadline: null }; $('#log').innerHTML = ''; ctLog('Contract deployed. Nobody, including its author, can change these rules now.', ''); ctRender(); }
+function ctRender(hl, fail) {
+  $('#code').innerHTML = CODE.map(([k, l]) => `<span class="${hl && (k === hl || k === hl + '-r') ? (fail && k === hl + '-r' ? 'fail' : 'run') : ''}${k === 'c' ? ' c' : ''}">${l.replace(/</g, '&lt;') || ' '}</span>`).join('');
+  $('#wBuyer').textContent = ct.buyer; $('#wEsc').textContent = ct.esc; $('#wSeller').textContent = ct.seller;
+  $('#stateLine').innerHTML = STATES.map(s => `<span class="${s === ct.st ? 'now' : ''}">${s.replace('_', ' ').toLowerCase()}</span>`).join('') + `<span>day ${ct.day}</span>`;
+}
+function ctLog(m, cls) { const d = el('div', { className: cls, textContent: m }); $('#log').append(d); $('#log').scrollTop = 1e6; }
+const ACTS = {
+  deposit: () => ct.st !== 'AWAITING_PAYMENT' ? 'Already paid. The contract only accepts one payment.' : (ct.buyer -= 4, ct.esc = 4, ct.st = 'PAID', ct.paidDay = ct.day, ct.deadline = ct.day + 10, null),
+  ship: () => ct.st !== 'PAID' ? (ct.st === 'AWAITING_PAYMENT' ? 'Nothing to ship yet: the buyer hasn\'t paid.' : 'Already marked as shipped or finished.') : (ct.st = 'SHIPPED', null),
+  confirm: () => ct.st !== 'SHIPPED' ? 'Can only confirm after the seller has shipped.' : (ct.seller += ct.esc, ct.esc = 0, ct.st = 'COMPLETE', null),
+  refund: () => ct.st !== 'PAID' ? (ct.st === 'SHIPPED' ? 'The item has shipped, so the buyer must confirm or wait for it to arrive.' : 'No money is waiting for a refund.') : ct.day <= ct.deadline ? `Too early. Refunds open after day ${ct.deadline} if the seller never ships.` : (ct.buyer += ct.esc, ct.esc = 0, ct.st = 'REFUNDED', null),
+  steal: () => 'There is no code path that sends money to the seller without the buyer\'s confirmation. The request does nothing.',
+  wait: () => (ct.day += 14, null),
+};
+const OKMSG = { deposit: 'Buyer sent 4 ETH. It\'s now locked in the contract, not with the seller.', ship: 'Seller marked the camera as shipped.', confirm: 'Buyer confirmed. The contract released 4 ETH to the seller automatically.', refund: 'Seller never shipped, so the contract returned 4 ETH to the buyer.', wait: '14 days pass.' };
+document.querySelectorAll('[data-act]').forEach(b => b.onclick = () => {
+  const a = b.dataset.act, err = ACTS[a]();
+  if (a === 'wait') { ctLog(OKMSG.wait, ''); ctRender(); return; }
+  ctRender(a, !!err);
+  ctLog(err ? '✗ ' + err : '✓ ' + OKMSG[a], err ? 'err' : 'ok');
+});
+$('#ctReset').onclick = ctReset; ctReset();
+
+/* ============ 10. rollups + news ============ */
+function updRollup() {
+  const n = +$('#bSize').value; $('#bLbl').textContent = n.toLocaleString();
+  const bus = $('#bus'); const shown = Math.min(n, 400);
+  bus.innerHTML = '<i></i>'.repeat(shown) + (n > shown ? `<span class="small" style="margin-left:6px">+${(n - shown).toLocaleString()} more</span>` : '');
+  const L1 = 100, L2 = 60 / n + 0.6; // fixed batch overhead shared + tiny per-tx data
+  $('#fL1').style.width = '100%'; $('#fL2').style.width = Math.max(0.6, L2 / L1 * 100) + '%';
+  $('#fL1v').textContent = L1.toFixed(0); $('#fL2v').textContent = L2 < 10 ? L2.toFixed(2) : L2.toFixed(1);
+}
+$('#bSize').oninput = updRollup; updRollup();
+
+const NEWS = [
+  { d: 'Jan 2024', cat: 'Institutions', t: 'Spot bitcoin ETFs approved in the US', p: 'The SEC approves exchange-traded funds that hold real bitcoin, so ordinary brokerage accounts and pension funds can buy exposure without handling keys. They pull in tens of billions of dollars within a year.' },
+  { d: 'Mar 2024', cat: 'Scaling', t: 'Dencun brings "blobs" to Ethereum', p: 'A new, cheaper data lane built for rollups (EIP-4844). Fees on layer 2 networks fall by 90% or more almost overnight.' },
+  { d: 'Apr 2024', cat: 'Money', t: 'The fourth Bitcoin halving', p: 'The reward for mining a block halves from 6.25 to 3.125 BTC, as it does roughly every four years. No more than 21 million bitcoin will ever exist.' },
+  { d: 'May 2025', cat: 'Usability', t: 'Pectra upgrade on Ethereum', p: 'Ordinary wallets can temporarily act like smart contracts (EIP-7702). That allows batched actions, paying fees in other tokens and friendlier recovery options, all part of the push called account abstraction.' },
+  { d: 'Jul 2025', cat: 'Money', t: 'The GENIUS Act becomes US law', p: 'The first US federal law for stablecoins, digital dollars on a blockchain. It requires full 1:1 reserves in cash or short-term Treasuries, plus regular audits. Banks and payment companies move to issue their own.' },
+  { d: 'Dec 2025', cat: 'Scaling', t: 'Fusaka and PeerDAS', p: 'Ethereum nodes no longer download every blob. They sample small pieces and check the data is available, a technique called data availability sampling. Blob capacity can then rise step by step, making rollups cheaper still.' },
+  { d: '2025–26', cat: 'Institutions', t: 'Real-world assets go on-chain', p: 'Tokenized Treasury funds, money-market funds and private credit grow quickly, led by large asset managers. Shares and bonds become tokens that settle in minutes rather than days.' },
+  { d: '2025–26', cat: 'Security', t: 'Zero-knowledge proofs mature', p: 'ZK proofs let you prove something is true without revealing the data, like proving you\'re over 18 without showing your birthday. They now secure rollups, and real-time proving of Ethereum blocks is close to practical.' },
+  { d: 'H2 2026', cat: 'Scaling', t: 'Glamsterdam', up: true, p: 'Ethereum\'s next major upgrade moves block building into the protocol itself (enshrined proposer-builder separation) and aims to raise layer 1 throughput.' },
+  { d: '2026', cat: 'Scaling', t: 'Solana Alpenglow', up: true, p: 'A new consensus design for Solana that targets finality in well under a second, replacing its older voting system.' },
+  { d: 'Ongoing', cat: 'Security', t: 'Preparing for quantum computers', p: 'A future quantum computer could break today\'s signature schemes. Proposals such as Bitcoin\'s BIP-360 describe a move to quantum-resistant signatures, a migration expected to take years.' },
+];
+const CATS = ['All', ...new Set(NEWS.map(n => n.cat))];
+let newsCat = 'All';
+CATS.forEach(c => { const b = el('button', { type: 'button', textContent: c }); b.setAttribute('aria-pressed', c === 'All'); b.onclick = () => { newsCat = c; document.querySelectorAll('#newsFilter button').forEach(x => x.setAttribute('aria-pressed', x === b)); renderNews(); }; $('#newsFilter').append(b); });
+function renderNews() {
+  $('#news').innerHTML = NEWS.filter(n => newsCat === 'All' || n.cat === newsCat).map(n => `<li class="${n.up ? 'upcoming' : ''}"><span class="d">${n.d}</span><div><h4>${n.t}<span class="tag">${n.cat}</span></h4><p>${n.p}</p></div></li>`).join('');
+}
+renderNews();
+</script>
+</body>
+</html>

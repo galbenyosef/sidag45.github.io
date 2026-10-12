@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whiskey Unboxing Wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4efe6; --card:#fbf8f2; --ink:#1f1a14; --ink-2:#5b5248; --muted:#8a8074;
+  --line:#3a332b; --ph:#e6dfd2; --txt:#b9afa0; --canvas:#ebe3d4; --amber:#b8661c; --amber-soft:#f0dcc4;
+  --dark:#17130f; --dark-ink:#d9cdb8; --border:#ddd3c3;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14110e; --card:#1c1814; --ink:#eee5d6; --ink-2:#bdb2a2; --muted:#8c8273;
+    --line:#cfc3b0; --ph:#2a241e; --txt:#5a5046; --canvas:#221d18; --amber:#e08a3c; --amber-soft:#3a2a1a;
+    --dark:#0b0907; --dark-ink:#d9cdb8; --border:#2e2822;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14110e; --card:#1c1814; --ink:#eee5d6; --ink-2:#bdb2a2; --muted:#8c8273;
+  --line:#cfc3b0; --ph:#2a241e; --txt:#5a5046; --canvas:#221d18; --amber:#e08a3c; --amber-soft:#3a2a1a;
+  --dark:#0b0907; --dark-ink:#d9cdb8; --border:#2e2822;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:48px 24px 80px}
+header .eyebrow{font:600 12px/1 "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--amber);text-transform:uppercase}
+h1{font:600 clamp(34px,5vw,56px)/1.05 Fraunces,serif;margin:14px 0 12px;letter-spacing:-.01em}
+.lede{max-width:720px;color:var(--ink-2);font-size:17px;margin:0}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 32px}
+.chip{font:500 13px/1 Inter,sans-serif;border:1px solid var(--border);background:var(--card);color:var(--ink-2);padding:9px 14px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+@media (max-width:860px){.grid{grid-template-columns:1fr}.wrap{padding:32px 16px 64px}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.card[hidden]{display:none}
+.card-head{display:flex;align-items:baseline;gap:12px}
+.num{font:600 13px "JetBrains Mono",monospace;color:var(--amber)}
+.card h2{font:600 24px/1.15 Fraunces,serif;margin:0}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font:500 11px/1 "JetBrains Mono",monospace;letter-spacing:.04em;text-transform:uppercase;padding:5px 8px;border-radius:6px;background:var(--ph);color:var(--ink-2)}
+.tag.e{background:var(--amber-soft);color:var(--amber)}
+svg.wf{width:100%;height:auto;display:block}
+.idea{margin:0;color:var(--ink-2)}
+.beats{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none;counter-reset:b}
+.beats li{counter-increment:b;font-size:13px;border:1px solid var(--border);border-radius:8px;padding:5px 9px;color:var(--ink)}
+.beats li::before{content:counter(b);font:600 11px "JetBrains Mono",monospace;color:var(--amber);margin-right:6px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:13.5px}
+@media (max-width:520px){.cols{grid-template-columns:1fr}}
+.cols h3{font:600 11px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.cols p,.cols ol{margin:0;color:var(--ink-2)}
+.cols ol{padding-left:18px}
+.pick{margin-top:40px;background:var(--card);border:1px solid var(--border);border-left:4px solid var(--amber);border-radius:12px;padding:22px 24px}
+.pick h2{font:600 24px Fraunces,serif;margin:0 0 8px}
+.pick p{margin:0;color:var(--ink-2);max-width:820px}
+
+/* wireframe primitives */
+.fr{fill:var(--card);stroke:var(--line);stroke-width:1}
+.ln{fill:none;stroke:var(--line);stroke-width:.8}
+.ds{fill:none;stroke:var(--line);stroke-width:.8;stroke-dasharray:3 2}
+.ph{fill:var(--ph);stroke:var(--line);stroke-width:.8}
+.cv{fill:var(--canvas)}
+.lt{fill:var(--txt)}
+.ac{fill:var(--amber)}
+.acs{fill:none;stroke:var(--amber);stroke-width:1.2}
+.acd{fill:none;stroke:var(--amber);stroke-width:1;stroke-dasharray:3 2}
+.dk{fill:var(--dark)}
+.lbl{font:600 5.5px "JetBrains Mono",monospace;fill:var(--ink);letter-spacing:.06em}
+.sm{font:500 4.5px "JetBrains Mono",monospace;fill:var(--muted);letter-spacing:.06em}
+.hd{font:600 9px Fraunces,serif;fill:var(--ink)}
+.wt{font:600 5px "JetBrains Mono",monospace;fill:#fff;letter-spacing:.06em}
+.lite{font:600 5.5px "JetBrains Mono",monospace;fill:var(--dark-ink);letter-spacing:.08em}
+.pin circle{fill:var(--ink)}
+.pin text{font:700 5.5px Inter,sans-serif;fill:var(--bg);text-anchor:middle}
+.mid{text-anchor:middle}.end{text-anchor:end}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="spot">
+      <stop offset="0" stop-color="#e9a456" stop-opacity=".55"/>
+      <stop offset=".6" stop-color="#e9a456" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#e9a456" stop-opacity="0"/>
+    </radialGradient>
+    <symbol id="chrome" viewBox="0 0 320 200">
+      <rect class="fr" x=".5" y=".5" width="319" height="199" rx="6"/>
+      <line class="ln" x1=".5" y1="12" x2="319.5" y2="12"/>
+      <circle class="ph" cx="8" cy="6.2" r="1.6"/><circle class="ph" cx="13.5" cy="6.2" r="1.6"/><circle class="ph" cx="19" cy="6.2" r="1.6"/>
+      <rect class="cv" x="110" y="3.5" width="100" height="5.5" rx="2.7"/>
+      <text class="lbl" x="12" y="23">KESTREL &amp; OAK</text>
+      <rect class="lt" x="230" y="19.5" width="16" height="3" rx="1"/><rect class="lt" x="252" y="19.5" width="16" height="3" rx="1"/><rect class="lt" x="274" y="19.5" width="16" height="3" rx="1"/>
+      <circle class="ln" cx="304" cy="21" r="3.2"/>
+    </symbol>
+    <symbol id="box" viewBox="0 0 60 70">
+      <rect class="ph" x="5" y="20" width="50" height="48"/>
+      <rect class="ph" x="2" y="10" width="56" height="12"/>
+      <line class="acs" x1="30" y1="10" x2="30" y2="68"/>
+      <circle class="ac" cx="30" cy="16" r="4"/>
+    </symbol>
+    <symbol id="bottle" viewBox="0 0 30 80">
+      <rect class="ph" x="11" y="1" width="8" height="7"/>
+      <path class="ph" d="M12 8v14q-10 6-10 16v38q0 2 2 2h22q2 0 2-2V38q0-10-10-16V8z"/>
+      <rect class="cv" x="6" y="46" width="18" height="18" style="stroke:var(--line);stroke-width:.6"/>
+      <rect class="lt" x="9" y="51" width="12" height="2"/><rect class="lt" x="10" y="56" width="10" height="1.5"/>
+    </symbol>
+    <symbol id="glass" viewBox="0 0 30 30">
+      <path class="ac" opacity=".75" d="M5.2 18L6 28h18l.8-10z"/>
+      <path class="ln" d="M3 4l3 24h18l3-24"/>
+    </symbol>
+    <symbol id="hand" viewBox="0 0 40 30">
+      <rect class="ph" x="11" y="4" width="4" height="13" rx="2"/>
+      <rect class="ph" x="16" y="1" width="4" height="16" rx="2"/>
+      <rect class="ph" x="21" y="2" width="4" height="15" rx="2"/>
+      <rect class="ph" x="26" y="5" width="4" height="12" rx="2"/>
+      <rect class="ph" x="4" y="13" width="4" height="10" rx="2" transform="rotate(-35 6 18)"/>
+      <rect class="ph" x="10" y="13" width="20" height="15" rx="5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">XR Projects · Concept sprint</div>
+    <h1>Ten ways to unbox a bottle</h1>
+    <p class="lede">Low-fidelity wireframes for a 3D whiskey unboxing site, built around a placeholder distillery called <em>Kestrel &amp; Oak</em>. Each one is a different way to interact with the box. Numbered pins match the notes under each frame.</p>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filter by interaction">
+    <button class="chip" data-f="all" aria-pressed="true">All 10</button>
+    <button class="chip" data-f="scroll" aria-pressed="false">Scroll</button>
+    <button class="chip" data-f="drag" aria-pressed="false">Drag</button>
+    <button class="chip" data-f="click" aria-pressed="false">Click / configure</button>
+    <button class="chip" data-f="cursor" aria-pressed="false">Cursor</button>
+    <button class="chip" data-f="camera" aria-pressed="false">Camera / AR</button>
+  </div>
+
+  <main class="grid">
+
+  <!-- 01 -->
+  <article class="card" data-int="scroll">
+    <div class="card-head"><span class="num">01</span><h2>Scrub to Unbox</h2></div>
+    <div class="tags"><span class="tag">Scroll</span><span class="tag e">Effort · Medium</span><span class="tag">Launch story</span></div>
+    <svg class="wf" viewBox="0 0 320 200" role="img" aria-label="Wireframe: pinned 3D scene with a chapter rail on the left">
+      <use href="#chrome" width="320" height="200"/>
+      <line class="ln" x1="18" y1="44" x2="18" y2="176"/>
+      <circle class="ac" cx="18" cy="44" r="3"/><circle class="ac" cx="18" cy="77" r="3"/>
+      <circle class="ph" cx="18" cy="110" r="3"/><circle class="ph" cx="18" cy="143" r="3"/><circle class="ph" cx="18" cy="176" r="3"/>
+      <text class="sm" x="26" y="46">SEALED</text><text class="lbl" x="26" y="79">SEAL</text><text class="sm" x="26" y="112">LID</text><text class="sm" x="26" y="145">TISSUE</text><text class="sm" x="26" y="178">REVEAL</text>
+      <use href="#bottle" x="147" y="42" width="26" height="70"/>
+      <path class="ln" d="M125 112q15-16 35 0q20-16 35 0"/>
+      <rect class="ph" x="125" y="112" width="70" height="58"/>
+      <line class="acs" x1="160" y1="112" x2="160" y2="170"/>
+      <rect class="ph" x="112" y="84" width="70" height="11" transform="rotate(-16 112 95)"/>
+      <path class="acd" d="M210 108V62"/><path class="acs" d="M206 66l4-5 4 5"/>
+      <text class="lbl" x="226" y="72">02 / BREAK THE SEAL</text>
+      <rect class="lt" x="226" y="78" width="72" height="3" rx="1"/><rect class="lt" x="226" y="84" width="62" height="3" rx="1"/><rect class="lt" x="226" y="90" width="66" height="3" rx="1"/>
+      <text class="sm mid" x="160" y="186">SCROLL</text><path class="ln" d="M156 189l4 3 4-3"/>
+      <g class="pin" transform="translate(18 34)"><circle r="5"/><text y="2">1</text></g>
+      <g class="pin" transform="translate(210 52)"><circle r="5"/><text y="2">2</text></g>
+      <g class="pin" transform="translate(304 72)"><circle r="5"/><text y="2">3</text></g>
+    </svg>
+    <p class="idea">The whole page is one pinned 3D scene, and the scroll position drives a single unboxing timeline. It's slow and cinematic. Nothing moves unless the visitor scrolls.</p>
+    <ol class="beats"><li>Sealed box, slow turntable</li><li>Wax seal cracks</li><li>Lid lifts, tissue parts</li><li>Bottle rises into key light + CTA</li></ol>
+    <div class="cols">
+      <div><h3>Pins</h3><ol><li>Chapter rail, also click-to-jump nav</li><li>Motion scrubbed by scroll, not autoplay</li><li>Caption swaps per chapter</li></ol></div>
+      <div><h3>Build notes</h3><p>One Blender animation clip exported as GLB, scrubbed with GSAP ScrollTrigger driving the AnimationMixer time. This is the cheapest way to get a lot of motion.</p></div>
+    </div>
+  </article>
+
+  <!-- 02 -->
+  <article class="card" data-int="scroll drag">
+    <div class="card-head"><span class="num">02</span><h2>Sticky Product Stage</h2></div>
+    <div class="tags"><span class="tag">Scroll + orbit</span><span class="tag e">Effort · Low–Med</span><span class="tag">E-commerce</span></div>
+    <svg class="wf" viewBox="0 0 320 200" role="img" aria-label="Wireframe: sticky 3D canvas left, scrolling chapters and buy button right">
+      <use href="#chrome" width="320" height="200"/>
+      <rect class="cv" x="8" y="30" width="148" height="162" rx="4"/>
+      <use href="#bottle" x="67" y="48" width="28" height="76"/>
+      <rect class="ph" x="52" y="118" width="58" height="40"/>
+      <line class="acs" x1="81" y1="118" x2="81" y2="158"/>
+      <ellipse class="acd" cx="81" cy="168" rx="44" ry="7"/>
+      <text class="sm mid" x="81" y="186">⟲ DRAG TO ROTATE</text>
+      <rect class="ac" x="172" y="34" width="24" height="6" rx="1"/><rect class="ph" x="200" y="34" width="24" height="6" rx="1"/><rect class="ph" x="228" y="34" width="24" height="6" rx="1"/><rect class="ph" x="256" y="34" width="24" height="6" rx="1"/>
+      <text class="hd" x="172" y="60">The Cask</text>
+      <rect class="lt" x="172" y="66" width="128" height="3" rx="1"/><rect class="lt" x="172" y="72" width="116" height="3" rx="1"/><rect class="lt" x="172" y="78" width="92" height="3" rx="1"/>
+      <line class="ln" x1="172" y1="94" x2="306" y2="94"/><text class="sm" x="172" y="102">AGE</text><text class="lbl end" x="306" y="102">18 YRS</text>
+      <line class="ln" x1="172" y1="106" x2="306" y2="106"/><text class="sm" x="172" y="114">CASK</text><text class="lbl end" x="306" y="114">OLOROSO</text>
+      <line class="ln" x1="172" y1="118" x2="306" y2="118"/><text class="sm" x="172" y="126">ABV</text><text class="lbl end" x="306" y="126">46%</text>
+      <line class="ln" x1="172" y1="130" x2="306" y2="130"/>
+      <text class="hd" x="172" y="152">$140</text>
+      <rect class="ac" x="172" y="160" width="134" height="16" rx="2"/><text class="wt mid" x="239" y="170">ADD TO CART</text>
+      <g class="pin" transform="translate(16 38)"><circle r="5"/><text y="2">1</text></g>
+      <g class="pin" transform="translate(294 52)"><circle r="5"/><text y="2">2</text></g>
+      <g class="pin" transform="translate(300 148)"><circle r="5"/><text y="2">3</text></g>
+    </svg>
+    <p class="idea">This one is built for e-commerce first. The 3D stage stays pinned on the left while the right column scrolls through chapters, and each chapter re-poses the box and bottle. It's the same skeleton as the necklace page, so most of the scaffold carries over.</p>
+    <ol class="beats"><li>Closed box + price above the fold</li><li>"The Cask": box opens, bottle turns to cask stamp</li><li>"The Spirit": label close-up</li><li>Buy block</li></ol>
+    <div class="cols">
+      <div><h3>Pins</h3><ol><li>Sticky canvas with free orbit</li><li>Chapter tabs mirror scroll position</li><li>Buy block always one scroll away</li></ol></div>
+      <div><h3>Build notes</h3><p>Camera + model poses tweened per chapter via IntersectionObserver. Collapse the canvas to the top half on mobile.</p></div>
+    </div>
+  </article>
+
+  <!-- 03 -->
+  <article class="card" data-int="drag">
+    <div class="card-head"><span class="num">03</span><h2>Pull the Ribbon</h2></div>
+    <div class="tags"><span class="tag">Drag</span><span class="tag e">Effort · Medium</span><span class="tag">Tactile</span></div>
+    <svg class="wf" viewBox="0 0 320 200" role="img" aria-label="Wireframe: large box centered with a ribbon handle to drag">
+      <use href="#chrome" width="320" height="200"/>
+      <use href="#box" x="118" y="38" width="84" height="98"/>
+      <path class="acs" style="stroke-width:2" d="M160 133q0 26 40 37"/>
+      <circle class="acd" cx="205" cy="171" r="11"/>
+      <path class="acs" style="stroke-width:2" d="M205 160a11 11 0 0 1 10 6"/>
+      <circle class="ac" cx="205" cy="171" r="5"/>
+      <path class="ds" d="M220 172q20 2 38 6"/><path class="ln" d="M254 174l5 4-6 2"/>
+      <text class="lbl" x="226" y="160">PULL THE RIBBON</text>
+      <text class="sm" x="14" y="186">● SEAL  ○ LID  ○ TISSUE  ○ BOTTLE</text>
+      <circle class="ln" cx="302" cy="184" r="6"/><text class="sm mid" x="302" y="186">♪</text>
+      <text class="sm end" x="306" y="40">SKIP TO BOTTLE →</text>
+      <g class="pin" transform="translate(188 172)"><circle r="5"/><text y="2">1</text></g>
+      <g class="pin" transform="translate(302 170)"><circle r="5"/><text y="2">2</text></g>
+      <g class="pin" transform="translate(14 174)"><circle r="5"/><text y="2">3</text></g>
+    </svg>
+    <p class="idea">The visitor opens the box with their own hands. Nothing is revealed until they pull the ribbon, lift the lid, and fold back the tissue. Each step is a drag with a little resistance and a satisfying sound.</p>
+    <ol class="beats"><li>Ribbon pull (progress ring)</li><li>Drag lid upward</li><li>Swipe tissue aside</li><li>Bottle settles, product sheet slides up</li></ol>
+    <div class="cols">
+      <div><h3>Pins</h3><ol><li>Ribbon handle + progress ring</li><li>Sound toggle (paper, cork pop)</li><li>Step tracker; "skip" fallback top-right</li></ol></div>
+      <div><h3>Build notes</h3><p>Raycast drag on three.js meshes, a damped spring for the resistance, and Web Audio for the sounds. Touch works with no extra code.</p></div>
+    </div>
+  </article>
+
+  <!-- 04 -->
+  <article class="card" data-int="scroll">
+    <div class="card-head"><span class="num">04</span><h2>Exploded Craft</h2></div>
+    <div class="tags"><span class="tag">Slider + hover</span><span class="tag e">Effort · Medium</span><span class="tag">Craft detail</span></div>
+    <svg class="wf" viewBox="0 0 320 200" role="img" aria-label="Wireframe: package parts floating apart vertically with annotated hotspots">
+      <use href="#chrome" width="320" height="200"/>
+      <line class="ds" x1="160" y1="30" x2="160" y2="192"/>
+      <rect class="ph" x="130" y="32" width="60" height="10"/>
+      <rect class="ph" x="154" y="51" width="12" height="8"/>
+      <use href="#bottle" x="146" y="66" width="28" height="76"/>
+      <rect class="cv" x="192" y="100" width="16" height="20" transform="rotate(8 200 110)" style="stroke:var(--line);stroke-width:.6"/>
+      <rect class="ph" x="128" y="158" width="64" height="30"/>
+      <circle class="ac" cx="132" cy="37" r="3"/><line class="ln" x1="129" y1="37" x2="70" y2="37"/><text class="lbl end" x="68" y="39">OAK LID</text>
+      <circle class="ac" cx="130" cy="172" r="3"/><line class="ln" x1="127" y1="172" x2="70" y2="172"/><text class="lbl end" x="68" y="174">CEDAR-LINED BASE</text>
+      <circle class="ac" cx="166" cy="55" r="3"/><line class="ln" x1="169" y1="55" x2="222" y2="55"/><text class="lbl" x="224" y="57">NATURAL CORK</text>
+      <circle class="ac" cx="172" cy="92" r="3"/><line class="ln" x1="175" y1="92" x2="222" y2="92"/><text class="lbl" x="224" y="94">HAND-BLOWN GLASS</text>
+      <circle class="ac" cx="206" cy="114" r="3"/><line class="ln" x1="209" y1="114" x2="222" y2="114"/><text class="lbl" x="224" y="116">LETTERPRESS LABEL</text>
+      <rect class="cv" x="224" y="120" width="70" height="26" rx="2" style="stroke:var(--amber);stroke-width:.8"/>
+      <rect class="lt" x="228" y="126" width="56" height="2.5"/><rect class="lt" x="228" y="132" width="50" height="2.5"/><rect class="lt" x="228" y="138" width="40" height="2.5"/>
+      <line class="ln" x1="304" y1="40" x2="304" y2="180"/><rect class="ac" x="300" y="70" width="8" height="5" rx="1"/>
+      <text class="sm" x="290" y="190">EXPLODE</text>
+      <g class="pin" transform="translate(216 104)"><circle r="5"/><text y="2">1</text></g>
+      <g class="pin" transform="translate(304 30)"><circle r="5"/><text y="2">2</text></g>
+    </svg>
+    <p class="idea">This uses the same exploded-view language as the Pegasus watch. Every part of the package floats apart along one axis, and hotspots tell the craft story behind each part. It's the most product-honest of the ten.</p>
+    <ol class="beats"><li>Assembled package</li><li>Explode via slider / scroll</li><li>Hover hotspot → craft card</li><li>Snap back together</li></ol>
+    <div class="cols">
+      <div><h3>Pins</h3><ol><li>Hotspot expands into a craft card</li><li>Explode slider (or bind to scroll)</li></ol></div>
+      <div><h3>Build notes</h3><p>Per-part Y offsets lerped from one 0–1 value. CSS2DRenderer for the labels so the text stays crisp.</p></div>
+    </div>
+  </article>
+
+  <!-- 05 -->
+  <article class="card" data-int="scroll">
+    <div class="card-head"><span class="num">05</span><h2>Grain to Glass</h2></div>
+    <div class="tags"><span class="tag">Horizontal scroll</span><span class="tag e">Effort · High</span><span class="tag">Brand story</span></div>
+    <svg class="wf" viewBox="0 0 320 200" role="img" aria-label="Wireframe: horizontal track of five stages from barley to boxed bottle">
+      <use href="#chrome" width="320" height="200"/>
+      <rect class="ph" x="10" y="40" width="56" height="120" rx="3"/>
+      <rect class="ph" x="72" y="40" width="56" height="120" rx="3"/>
+      <rect class="cv" x="134" y="40" width="56" height="120" rx="3" style="stroke:var(--amber);stroke-width:1.4"/>
+      <rect class="ph" x="196" y="40" width="56" height="120" rx="3"/>
+      <rect class="ph" x="258" y="40" width="56" height="120" rx="3"/>
+      <g class="ln"><ellipse cx="30" cy="96" rx="2" ry="4"/><ellipse cx="38" cy="88" rx="2" ry="4"/><ellipse cx="46" cy="98" rx="2" ry="4"/><ellipse cx="34" cy="108" rx="2" ry="4"/><ellipse cx="44" cy="112" rx="2" ry="4"/><path d="M38 92v30M30 100v24M46 102v22"/></g>
+      <circle class="ln" cx="100" cy="102" r="13"/><path class="ln" d="M100 89v-14h14v10"/>
+      <ellipse class="ln" cx="162" cy="100" rx="16" ry="21"/><path class="acs" d="M147 90h30M147 110h30"/>
+      <use href="#bottle" x="211" y="70" width="26" height="62"/>
+      <use href="#box" x="264" y="74" width="44" height="54"/>
+      <text class="sm mid" x="38" y="52">01</text><text class="sm mid" x="100" y="52">02</text><text class="lbl mid" x="162" y="52">03 · 18 YRS</text><text class="sm mid" x="224" y="52">04</text><text class="sm mid" x="286" y="52">05</text>
+      <text class="lbl mid" x="38" y="150">BARLEY</text><text class="lbl mid" x="100" y="150">STILL</text><text class="lbl mid" x="162" y="150">CASK</text><text class="lbl mid" x="224" y="150">BOTTLE</text><text class="lbl mid" x="286" y="150">BOXED</text>
+      <line class="ln" x1="10" y1="178" x2="310" y2="178"/><rect class="ac" x="134" y="176" width="56" height="4" rx="2"/>
+      <text class="sm mid" x="160" y="192">← SCROLL MOVES SIDEWAYS →</text>
+      <g class="pin" transform="translate(186 34)"><circle r="5"/><text y="2">1</text></g>
+      <g class="pin" transform="translate(196 170)"><circle r="5"/><text y="2">2</text></g>
+    </svg>
+    <p class="idea">The track is pinned horizontally, and a single object morphs through every stage of making the whisky: barley, still, cask, bottle, and finally the closed box. The unboxing comes at the very end, once the visitor has earned it.</p>
+    <ol class="beats"><li>Barley field</li><li>Copper still</li><li>Cask; age counter ticks to 18</li><li>Bottle → box closes → CTA</li></ol>
+    <div class="cols">
+      <div><h3>Pins</h3><ol><li>Pinned track, active stage outlined</li><li>Progress thumb (draggable)</li></ol></div>
+      <div><h3>Build notes</h3><p>ScrollTrigger pin with an x-translate. Dissolve shader between models instead of true morphs to keep the effort sane.</p></div>
+    </div>
+  </article>
+
+  <!-- 06 -->
+  <article class="card" data-int="click">
+    <div class="card-head"><span class="num">06</span><h2>Collector's Cabinet</h2></div>
+    <div class="tags"><span class="tag">Click</span><span class="tag e">Effort · Medium</span><span class="tag">Range page</span></div>
+    <svg class="wf" viewBox="0 0 320 200" role="img" aria-label="Wireframe: cabinet of boxes with one pulled into a detail drawer">
+      <use href="#chrome" width="320" height="200"/>
+      <rect class="ln" x="12" y="30" width="186" height="160" rx="2"/>
+      <line class="ln" x1="12" y1="110" x2="198" y2="110"/>
+      <use href="#box" x="20" y="52" width="36" height="56"/><use href="#box" x="64" y="52" width="36" height="56"/>
+      <rect class="ds" x="110" y="58" width="32" height="48"/>
+      <use href="#box" x="152" y="52" width="36" height="56"/>
+      <use href="#box" x="20" y="132" width="36" height="56"/><use href="#box" x="64" y="126" width="36" height="56"/><use href="#box" x="108" y="132" width="36" height="56"/><use href="#box" x="152" y="132" width="36" height="56"/>
+      <path class="acd" d="M142 82h64"/><path class="acs" d="M202 78l5 4-5 4"/>
+      <rect class="cv" x="210" y="30" width="102" height="160" rx="4"/>
+      <use href="#bottle" x="248" y="38" width="24" height="60"/>
+      <rect class="ph" x="238" y="92" width="44" height="28"/>
+      <text class="lbl" x="218" y="136">12 YR SHERRY CASK</text>
+      <rect class="lt" x="218" y="142" width="80" height="3" rx="1"/><rect class="lt" x="218" y="148" width="64" height="3" rx="1"/>
+      <rect class="ac" x="218" y="168" width="40" height="13" rx="2"/><text class="wt mid" x="238" y="176.5">UNBOX</text>
+      <rect class="ln" x="262" y="168" width="44" height="13" rx="2"/><text class="lbl mid" x="284" y="176.5">COMPARE</text>
+      <text class="sm" x="66" y="124">↑ HOVER LIFT</text>
+      <g class="pin" transform="translate(12 30)"><circle r="5"/><text y="2">1</text></g>
+      <g class="pin" transform="translate(306 36)"><circle r="5"/><text y="2">2</text></g>
+      <g class="pin" transform="translate(306 160)"><circle r="5"/><text y="2">3</text></g>
+    </svg>
+    <p class="idea">A range page instead of a single bottle. A wooden cabinet holds every boxed expression. Click one and it slides off the shelf into a drawer, where it unboxes. Compare mode puts two open bottles side by side.</p>
+    <ol class="beats"><li>Cabinet overview</li><li>Hover lifts a box off the shelf</li><li>Click: slides into drawer &amp; opens</li><li>Compare two side by side</li></ol>
+    <div class="cols">
+      <div><h3>Pins</h3><ol><li>Shelf grid with hover lift</li><li>Detail drawer with its own 3D view</li><li>Unbox / Compare actions</li></ol></div>
+      <div><h3>Build notes</h3><p>One box model with swapped label textures per expression, and one shared unbox clip, so new products don't need new 3D work.</p></div>
+    </div>
+  </article>
+
+  <!-- 07 -->
+  <article class="card" data-int="scroll">
+    <div class="card-head"><span class="num">07</span><h2>The First Pour</h2></div>
+    <div class="tags"><span class="tag">Scroll + hover</span><span class="tag e">Effort · High</span><span class="tag">Sensory</span></div>
+    <svg class="wf" viewBox="0 0 320 200" role="img" aria-label="Wireframe: tilted bottle pouring into a glass beside a flavor wheel">
+      <use href="#chrome" width="320" height="200"/>
+      <use href="#bottle" x="60" y="30" width="28" height="76" transform="rotate(115 74 68)"/>
+      <path class="acs" style="stroke-width:1.6" d="M108 86q5 22 4 56"/>
+      <use href="#glass" x="94" y="132" width="36" height="36"/>
+      <path class="ac" opacity=".35" d="M235 100L235 55A45 45 0 0 1 274 77.5Z"/>
+      <circle class="ln" cx="235" cy="100" r="45"/><circle class="ph" cx="235" cy="100" r="17"/>
+      <path class="ln" d="M235 83V55M249.7 91.5L274 77.5M249.7 108.5L274 122.5M235 117V145M220.3 108.5L196 122.5M220.3 91.5L196 77.5"/>
+      <text class="lbl mid" x="235" y="102">18</text>
+      <text class="lbl mid" x="262" y="49">SMOKE</text><text class="sm mid" x="292" y="102">HONEY</text><text class="sm mid" x="262" y="157">OAK</text>
+      <text class="sm mid" x="208" y="157">CITRUS</text><text class="sm mid" x="178" y="102">SPICE</text><text class="sm mid" x="208" y="49">VANILLA</text>
+      <rect class="ac" x="14" y="178" width="32" height="11" rx="5.5"/><text class="wt mid" x="30" y="185.5">NOSE</text>
+      <rect class="ln" x="50" y="178" width="36" height="11" rx="5.5"/><text class="lbl mid" x="68" y="185.5">PALATE</text>
+      <rect class="ln" x="90" y="178" width="34" height="11" rx="5.5"/><text class="lbl mid" x="107" y="185.5">FINISH</text>
+      <g class="pin" transform="translate(122 100)"><circle r="5"/><text y="2">1</text></g>
+      <g class="pin" transform="translate(292 60)"><circle r="5"/><text y="2">2</text></g>
+      <g class="pin" transform="translate(14 168)"><circle r="5"/><text y="2">3</text></g>
+    </svg>
+    <p class="idea">The unboxing doesn't end at the bottle. It ends in the glass. Once the bottle is out, it tips and pours, the glass fills to amber, and a flavor wheel lights up the tasting notes. This is the most sensory of the ten.</p>
+    <ol class="beats"><li>Bottle lifts from box</li><li>Tilt + pour</li><li>Glass fills to the right colour</li><li>Flavor wheel lights notes</li></ol>
+    <div class="cols">
+      <div><h3>Pins</h3><ol><li>Pour stream (scroll-scrubbed)</li><li>Flavor wheel: hover segment for a note</li><li>Nose / Palate / Finish tabs re-light the wheel</li></ol></div>
+      <div><h3>Build notes</h3><p>Fake the liquid with a stream mesh and a fill-level uniform on the glass. The wheel is plain SVG layered over the canvas.</p></div>
+    </div>
+  </article>
+
+  <!-- 08 -->
+  <article class="card" data-int="click">
+    <div class="card-head"><span class="num">08</span><h2>Build the Gift</h2></div>
+    <div class="tags"><span class="tag">Configure</span><span class="tag e">Effort · Medium</span><span class="tag">Gifting / checkout</span></div>
+    <svg class="wf" viewBox="0 0 320 200" role="img" aria-label="Wireframe: gift box configurator with steps, live box and checkout bar">
+      <use href="#chrome" width="320" height="200"/>
+      <line class="ln" x1="18" y1="44" x2="18" y2="110"/>
+      <circle class="ac" cx="18" cy="44" r="4"/><circle class="ac" cx="18" cy="66" r="4"/><circle class="ph" cx="18" cy="88" r="4" style="stroke:var(--amber)"/><circle class="ph" cx="18" cy="110" r="4"/>
+      <text class="sm" x="28" y="46">EXPRESSION</text><text class="sm" x="28" y="68">CASE</text><text class="lbl" x="28" y="90">ENGRAVING</text><text class="sm" x="28" y="112">GIFT NOTE</text>
+      <use href="#box" x="118" y="40" width="84" height="98"/>
+      <text class="mid" x="160" y="118" style="font:italic 600 7px Fraunces,serif;fill:var(--amber)">S.A. · 2026</text>
+      <ellipse class="acd" cx="160" cy="146" rx="46" ry="6"/>
+      <text class="lbl" x="226" y="42">CASE FINISH</text>
+      <circle cx="234" cy="56" r="7" style="fill:#7a4a22;stroke:var(--amber);stroke-width:1.6"/><circle cx="254" cy="56" r="7" style="fill:#2b2620"/><circle cx="274" cy="56" r="7" style="fill:#c9b28c"/>
+      <text class="lbl" x="226" y="80">ENGRAVING</text>
+      <rect class="ln" x="226" y="84" width="82" height="13" rx="2"/><text class="sm" x="230" y="92.5">S.A. · 2026|</text>
+      <rect class="ln" x="226" y="104" width="82" height="13" rx="2"/><text class="sm" x="230" y="112.5">+ ADD HANDWRITTEN NOTE</text>
+      <rect class="cv" x="6" y="170" width="308" height="24" rx="3" style="stroke:var(--line);stroke-width:.6"/>
+      <text class="hd" x="16" y="185">$185</text><text class="sm" x="44" y="185">SHIPS IN 3 DAYS · WAX-SEALED</text>
+      <rect class="ac" x="240" y="174" width="68" height="16" rx="2"/><text class="wt mid" x="274" y="184">CHECKOUT</text>
+      <g class="pin" transform="translate(10 34)"><circle r="5"/><text y="2">1</text></g>
+      <g class="pin" transform="translate(160 32)"><circle r="5"/><text y="2">2</text></g>
+      <g class="pin" transform="translate(304 162)"><circle r="5"/><text y="2">3</text></g>
+    </svg>
+    <p class="idea">The unboxing runs in reverse. The visitor puts together their own gift: they pick an expression, a case finish, an engraving, and a note. Then they watch the box close and the wax seal stamp down. This is the strongest of the ten for conversion.</p>
+    <ol class="beats"><li>Pick bottle; it drops into case</li><li>Swap case finish live</li><li>Type engraving onto lid</li><li>Lid closes, seal stamps → checkout</li></ol>
+    <div class="cols">
+      <div><h3>Pins</h3><ol><li>Step list (editable at any time)</li><li>Live box with engraving texture</li><li>Sticky price + checkout bar</li></ol></div>
+      <div><h3>Build notes</h3><p>Material variants on one GLB. Engraving is a canvas texture redrawn on each keystroke and blended into the roughness map so it looks pressed into the wood.</p></div>
+    </div>
+  </article>
+
+  <!-- 09 -->
+  <article class="card" data-int="cursor">
+    <div class="card-head"><span class="num">09</span><h2>Cellar by Candlelight</h2></div>
+    <div class="tags"><span class="tag">Cursor</span><span class="tag e">Effort · Medium</span><span class="tag">Atmosphere</span></div>
+    <svg class="wf" viewBox="0 0 320 200" role="img" aria-label="Wireframe: dark cellar with a cursor light revealing the crate">
+      <rect class="fr" x=".5" y=".5" width="319" height="199" rx="6"/>
+      <rect class="dk" x=".5" y="12" width="319" height="187.5" rx="6"/><rect class="dk" x=".5" y="12" width="319" height="10"/>
+      <line class="ln" x1=".5" y1="12" x2="319.5" y2="12"/>
+      <circle class="ph" cx="8" cy="6.2" r="1.6"/><circle class="ph" cx="13.5" cy="6.2" r="1.6"/><circle class="ph" cx="19" cy="6.2" r="1.6"/>
+      <text class="lite" x="12" y="24">KESTREL &amp; OAK</text>
+      <text class="lite end" x="308" y="24" style="fill:var(--amber)">FIND THE KEY · 1/3</text>
+      <circle cx="170" cy="108" r="66" fill="url(#spot)"/>
+      <use href="#box" x="140" y="76" width="58" height="68"/>
+      <circle cx="186" cy="94" r="4" style="fill:none;stroke:#fff;stroke-width:.8"/><path d="M186 86v4M186 98v4M178 94h4M190 94h4" style="stroke:#fff;stroke-width:.6"/>
+      <g opacity=".3" style="stroke:var(--dark-ink);fill:none;stroke-width:.9"><circle cx="56" cy="150" r="5"/><path d="M61 150h16M72 150v4M76 150v3"/></g>
+      <g opacity=".35"><rect x="268" y="66" width="6" height="18" style="fill:var(--dark-ink)"/><ellipse cx="271" cy="62" rx="2" ry="4" class="ac"/></g>
+      <g opacity=".25" style="stroke:var(--dark-ink);fill:none;stroke-width:.8"><path d="M30 60h40v26H30zM30 60l20 14 20-14"/></g>
+      <text class="lite mid" x="160" y="188" style="opacity:.7">MOVE YOUR LIGHT</text>
+      <rect x="252" y="180" width="56" height="12" rx="6" style="fill:none;stroke:var(--dark-ink);stroke-width:.6;opacity:.6"/><text class="lite mid" x="280" y="188" style="font-size:4.5px;opacity:.8">LIGHTS ON</text>
+      <g class="pin" transform="translate(232 106)"><circle r="5" style="fill:var(--amber)"/><text y="2" style="fill:#fff">1</text></g>
+      <g class="pin" transform="translate(56 138)"><circle r="5" style="fill:var(--amber)"/><text y="2" style="fill:#fff">2</text></g>
+      <g class="pin" transform="translate(240 34)"><circle r="5" style="fill:var(--amber)"/><text y="2" style="fill:#fff">3</text></g>
+    </svg>
+    <p class="idea">A dark, atmospheric discovery. The page is a dim cellar, and the cursor is a candle. The visitor searches for three hidden objects (a key, a letter, a cask stamp), and finding all three unlocks the crate. This is the most memorable of the ten, and the one people are most likely to share.</p>
+    <ol class="beats"><li>Darkness, faint crate silhouette</li><li>Light reveals clues</li><li>Third find unlocks crate</li><li>Lights rise, bottle fully lit</li></ol>
+    <div class="cols">
+      <div><h3>Pins</h3><ol><li>Light cone follows the pointer</li><li>Hidden object (glints when lit)</li><li>Find counter; "Lights on" skip for accessibility</li></ol></div>
+      <div><h3>Build notes</h3><p>A three.js SpotLight that follows the pointer, plus a dim ambient light. On mobile, tilt the phone (device orientation) or drag a finger to move the light.</p></div>
+    </div>
+  </article>
+
+  <!-- 10 -->
+  <article class="card" data-int="camera drag">
+    <div class="card-head"><span class="num">10</span><h2>Hands-on Unbox</h2></div>
+    <div class="tags"><span class="tag">Camera + AR</span><span class="tag e">Effort · High</span><span class="tag">XR showcase</span></div>
+    <svg class="wf" viewBox="0 0 320 200" role="img" aria-label="Wireframe: webcam hand tracking lifts the lid; AR button and QR code">
+      <use href="#chrome" width="320" height="200"/>
+      <use href="#bottle" x="148" y="72" width="24" height="54"/>
+      <rect class="ph" x="120" y="112" width="80" height="54"/><line class="acs" x1="160" y1="112" x2="160" y2="166"/>
+      <rect class="ph" x="112" y="68" width="96" height="11"/>
+      <use href="#hand" x="138" y="34" width="44" height="33"/>
+      <path class="acd" d="M106 92V62M214 92V62"/><path class="acs" d="M102 66l4-5 4 5M210 66l4-5 4 5"/>
+      <rect class="cv" x="232" y="28" width="80" height="54" rx="3" style="stroke:var(--line);stroke-width:.6"/>
+      <g style="stroke:var(--amber);stroke-width:.8"><path d="M272 74V60M272 60l-14-18M272 60l-6-22M272 60l1-24M272 60l8-21M272 60l14-10"/></g>
+      <g class="ac"><circle cx="272" cy="74" r="1.6"/><circle cx="272" cy="60" r="1.6"/><circle cx="258" cy="42" r="1.6"/><circle cx="266" cy="38" r="1.6"/><circle cx="273" cy="36" r="1.6"/><circle cx="280" cy="39" r="1.6"/><circle cx="286" cy="50" r="1.6"/></g>
+      <text class="sm" x="236" y="78">● LIVE</text>
+      <text class="lbl mid" x="160" y="180">PINCH &amp; LIFT</text>
+      <rect class="ln" x="12" y="168" width="86" height="18" rx="9"/><text class="lbl mid" x="55" y="179">VIEW IN YOUR ROOM</text>
+      <rect class="ln" x="276" y="160" width="32" height="32"/>
+      <g class="dk" style="fill:var(--line)"><rect x="279" y="163" width="8" height="8"/><rect x="297" y="163" width="8" height="8"/><rect x="279" y="181" width="8" height="8"/><rect x="290" y="174" width="3" height="3"/><rect x="296" y="182" width="3" height="3"/><rect x="301" y="177" width="3" height="3"/><rect x="290" y="166" width="3" height="3"/></g>
+      <g class="pin" transform="translate(232 28)"><circle r="5"/><text y="2">1</text></g>
+      <g class="pin" transform="translate(190 38)"><circle r="5"/><text y="2">2</text></g>
+      <g class="pin" transform="translate(12 160)"><circle r="5"/><text y="2">3</text></g>
+    </svg>
+    <p class="idea">This is the XR flagship. Webcam hand tracking lets the visitor pinch the ribbon and lift the lid in mid-air. On a phone, "View in your room" puts the box on their table. It reuses the hand-tracking work from the fingertip desktop.</p>
+    <ol class="beats"><li>Allow camera</li><li>Pinch to grab ribbon</li><li>Raise hand → lid lifts</li><li>Open palm presents bottle → AR handoff</li></ol>
+    <div class="cols">
+      <div><h3>Pins</h3><ol><li>Webcam picture-in-picture with landmarks</li><li>Hand-driven lid, mapped from pinch distance</li><li>AR button (mobile) / QR (desktop)</li></ol></div>
+      <div><h3>Build notes</h3><p>MediaPipe Hands for tracking, and &lt;model-viewer&gt; for AR (GLB + USDZ). Without a camera it falls back to the #03 drag interaction.</p></div>
+    </div>
+  </article>
+
+  </main>
+
+  <section class="pick">
+    <h2>If I had to build one</h2>
+    <p>Combine <strong>02 + 03 + 07</strong>. Start with the sticky product stage, since it shares a scaffold with the necklace page. Swap the scroll-driven opening for the ribbon pull, and end on the pour with the flavor wheel. You get a tactile moment, a sensory payoff, and a buy button that's always in reach. Hold <strong>10</strong> back as an optional "try it with your hands" mode for the XR portfolio angle.</p>
+  </section>
+</div>
+
+<script>
+const chips=[...document.querySelectorAll('.chip')], cards=[...document.querySelectorAll('.card')];
+chips.forEach(c=>c.addEventListener('click',()=>{
+  const f=c.dataset.f;
+  chips.forEach(x=>x.setAttribute('aria-pressed',x===c));
+  cards.forEach(k=>k.hidden=!(f==='all'||k.dataset.int.split(' ').includes(f)));
+}));
+</script>
+</body>
+</html>
