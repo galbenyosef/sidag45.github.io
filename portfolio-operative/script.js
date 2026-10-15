@@ -477,7 +477,7 @@
       body:'Files and folders can be picked up, dragged and dropped with fingers. A two-finger tap opens the context menu, and the usual trackpad controls still work. With the camera on, hand tracking drives a red pointer, mapped from finger movement to screen distance.',
       secret:'Built as a study in how far direct-manipulation habits transfer to mid-air input.',
       tags:['Hand tracking','Computer vision','Gesture UX','JavaScript'],
-      link:{href:'https://sidag45.github.io/XR%20Projects/virtual-desktop/', label:'Try the desktop'} },
+      link:{href:'https://sidag45.github.io/xr-projects/palm-desktop/', label:'Try the desktop'} },
     { id:'APARTMENT', code:'OP-02', name:'Immersive Airbnb', status:'Prototype', clr:'Public',
       op:'A 32-second phone video of an apartment, rebuilt as a walkable 3D home in the browser.',
       role:'Spatial reconstruction, interaction design and three.js build.',
@@ -498,7 +498,7 @@
           'Figure: motion-captured idle, walk and run clips blended by speed, with an over-the-shoulder camera or first person (V).',
           'Touch: an on-screen joystick for phones.' ] },
       ],
-      link:{href:'https://sidag45.github.io/XR%20Projects/Apartment%20Walkthrough/', label:'Walk the apartment'} },
+      link:{href:'https://sidag45.github.io/xr-projects/immersive-airbnb/', label:'Walk the apartment'} },
     { id:'CHOIR', code:'OP-03', name:'Voice of the World', status:'v1 build', clr:'Public',
       op:'A choir anyone can join: submitted voices are tuned to one key and sung together in the browser around a turning globe.',
       role:'Concept, audio DSP, interaction design and AWS pipeline.',
@@ -525,7 +525,7 @@
           'Voices are served as WAV; an Opus step would cut downloads about tenfold.',
           'The AI conductor (step 4 of the brief) has not been started; the rules-based conductor is in its place.' ] },
       ],
-      link:{href:'https://sidag45.github.io/XR%20Projects/voice-of-the-world/', label:'Listen to the choir'} },
+      link:{href:'https://sidag45.github.io/xr-projects/voice-of-the-world/', label:'Listen to the choir'} },
     { id:'GRAFFITI', code:'OP-04', name:'AR Graffiti', status:'Coming soon', clr:'Confidential',
       op:'Shared augmented-reality pieces pinned to real places, seen in the same spot by everyone.',
       role:'Concept, research design and AR build.',
@@ -541,7 +541,7 @@
       body:'A red pointer follows the visitor\'s gaze and settles on the nearest button or file. One deliberate blink clicks, two blinks open, a long blink picks something up and the next blink drops it, and a wink right-clicks. Looking at the top or bottom edge of a window scrolls it, and the top-right corner opens Mission Control. A short calibration learns each person\'s eyes and blink, and the video never leaves the device.',
       secret:'The hands-free sequel to Palm Desktop: can a desktop be run when the eyes have to both read the screen and act on it?',
       tags:['Eye tracking','Face landmarks (MediaPipe)','Gaze interaction','Accessibility','JavaScript'],
-      link:{href:'https://sidag45.github.io/XR%20Projects/eye-desktop/', label:'Try it with your eyes'} },
+      link:{href:'https://sidag45.github.io/xr-projects/glance-desktop/', label:'Try it with your eyes'} },
     { id:'LANTERNS', code:'OP-06', name:'The Lanterns', status:'Concept build', clr:'Public',
       op:'A scroll-driven 3D sales site for a fictional hillside tower in Hong Kong, one home to a floor.',
       role:'Concept, interaction design, 3D modelling and three.js build.',
@@ -566,7 +566,7 @@
           'Touch: horizontal swipes turn the model and vertical swipes scroll. A fallback view appears if the 3D module cannot load.',
           'Fictional by design: the development and developer are invented, and the booking form sends nothing.' ] },
       ],
-      link:{href:'https://sidag45.github.io/XR%20Projects/the-lanterns/', label:'Take the tour'} },
+      link:{href:'https://sidag45.github.io/xr-projects/the-lanterns/', label:'Take the tour'} },
     { id:'KESTREL', code:'OP-07', name:'Kestrel & Oak', status:'Concept build', clr:'Public',
       op:'A 3D unboxing and product page for a fictional 18-year single malt, with the bottle pinned on stage as the story scrolls.',
       role:'Concept sprint, interaction design and three.js build.',
@@ -595,7 +595,7 @@
           'Touch: on phones a vertical swipe anywhere scrolls the chapters and a horizontal drag turns the model, with momentum after a flick.',
           'Fictional by design: the brand, cask and prices are invented, and the cart does not take orders.' ] },
       ],
-      link:{href:'https://sidag45.github.io/XR%20Projects/whiskey-unboxing/', label:'Unbox the bottle'} },
+      link:{href:'https://sidag45.github.io/xr-projects/whiskey-unboxing/', label:'Unbox the bottle'} },
     { id:'KOMBAT', code:'OP-08', name:'Gesture Kombat', status:'Prototype', clr:'Confidential', brief:true,
       op:'A game prototype exploring full-body movement as a form of input.',
       role:'Design and engineering.',
@@ -614,14 +614,14 @@
       body:'An interactive exploded-watch experience for Halden & Vey, a brand invented for the exercise. As the visitor scrolls, the Pegasus-1 separates layer by layer so each part can be studied, with a path toward XR viewing.',
       secret:'The brand does not exist. The watch does not exist. The movement is real enough to fool a collector.',
       tags:['three.js','Scroll animation','WebXR','Product storytelling'],
-      link:{href:'https://sidag45.github.io/XR%20Projects/3d-watch-animate/', label:'View the watch'} },
+      link:{href:'https://sidag45.github.io/xr-projects/pegasus-3d/', label:'View the watch'} },
     { id:'PAPERTOSS', code:'OP-11', name:'Paper Toss', status:'Playable', clr:'Public',
       op:'Office basketball played hands-free: crumple a sheet and throw it in the bin, using only your hand in front of a webcam.',
       role:'Game design, gesture design and build.',
       body:'Pinch thumb and index finger to pick up the sheet from the desk, make a fist three times to crumple it into a ball, then swing toward the bin and open your hand to let go. A power meter shows the strength of the throw, and every basket moves the bin farther away. The game tracks baskets, tosses, streak and best streak. Hand tracking runs in the browser and the video never leaves the device; mouse and touch work too.',
       secret:'Every gesture maps to something a real hand does with real paper. Nobody needs a tutorial to throw.',
       tags:['Hand tracking','Gesture input','Game design','JavaScript'],
-      link:{href:'https://sidag45.github.io/XR%20Projects/paper-toss/paper-toss.html', label:'Play Paper Toss'} },
+      link:{href:'https://sidag45.github.io/xr-projects/paper-toss/', label:'Play Paper Toss'} },
     { id:'SRK', code:'OP-12', name:'SRK Haute Horlogerie', status:'Delivered', clr:'Confidential',
       op:'A private viewing room for a luxury watch boutique.',
       role:'Web design and Webflow development, via Enclave Labs.',
@@ -1503,7 +1503,7 @@
         { type: 'image', src: 'intel/pegasus-dial.webp', caption: 'Step 02: bezel lifted, dial and hands described.' },
         { type: 'image', src: 'intel/pegasus-exploded.webp', caption: 'Step 05: fully exploded, every part labelled in place.' },
       ],
-      links: [{ label: 'View the watch', href: 'https://sidag45.github.io/XR%20Projects/3d-watch-animate/' }],
+      links: [{ label: 'View the watch', href: 'https://sidag45.github.io/xr-projects/3d-watch-animate/' }],
     },
     KESTREL: {
       media: [
@@ -1517,7 +1517,7 @@
         { type: 'image', src: 'intel/kestrel-wf-chosen.webp', caption: 'Wireframe 02, Sticky Product Stage: the concept that was built.' },
         { type: 'image', src: 'intel/kestrel-wf-pick.webp', caption: 'The sprint\'s recommendation: combine the stage, the ribbon pull and the pour, with hands-on unboxing as an optional XR mode.' },
       ],
-      links: [{ label: 'Unbox the bottle', href: 'https://sidag45.github.io/XR%20Projects/whiskey-unboxing/' }],
+      links: [{ label: 'Unbox the bottle', href: 'https://sidag45.github.io/xr-projects/whiskey-unboxing/' }],
     },
     APARTMENT: {
       media: [
@@ -1531,7 +1531,7 @@
         { type: 'image', src: 'intel/apartment-bed1.webp', caption: 'Bedroom 1, with its door opening onto the corridor where the plan\'s slanted line put it.' },
         { type: 'image', src: 'intel/apartment-bed3.webp', caption: 'Bedroom 3 by the window at night.' },
       ],
-      links: [{ label: 'Walk the apartment', href: 'https://sidag45.github.io/XR%20Projects/Apartment%20Walkthrough/' }],
+      links: [{ label: 'Walk the apartment', href: 'https://sidag45.github.io/xr-projects/Apartment%20Walkthrough/' }],
     },
     CHOIR: {
       media: [
@@ -1539,13 +1539,13 @@
         { type: 'image', src: 'intel/vow-idle.webp', caption: 'Before Listen: every light on the globe is a voice waiting to sing.' },
         { type: 'image', src: 'intel/vow-consent.webp', caption: 'Adding a voice starts with consent: two explicit agreements and a plain note about where the recording goes.' },
       ],
-      links: [{ label: 'Listen to the choir', href: 'https://sidag45.github.io/XR%20Projects/voice-of-the-world/' }],
+      links: [{ label: 'Listen to the choir', href: 'https://sidag45.github.io/xr-projects/voice-of-the-world/' }],
     },
     DESKTOP: {
       media: [
         { type: 'image', src: 'intel/desktop-hand-setup.webp', caption: 'Hand-control setup over the desktop: hand-to-screen ratio and pinch calibration.' },
       ],
-      links: [{ label: 'Try the desktop', href: 'https://sidag45.github.io/XR%20Projects/virtual-desktop/' }],
+      links: [{ label: 'Try the desktop', href: 'https://sidag45.github.io/xr-projects/virtual-desktop/' }],
     },
     GLANCE: {
       media: [
@@ -1553,7 +1553,7 @@
         { type: 'image', src: 'intel/glance-gest.webp', caption: 'The eye-gesture vocabulary: look, blink, blink twice, long blink, wink, window edge and corner.' },
         { type: 'image', src: 'intel/glance-desk.webp', caption: 'The desktop it drives: files on a grid, a dock and windows, all sized as gaze targets.' },
       ],
-      links: [{ label: 'Try it with your eyes', href: 'https://sidag45.github.io/XR%20Projects/eye-desktop/' }],
+      links: [{ label: 'Try it with your eyes', href: 'https://sidag45.github.io/xr-projects/eye-desktop/' }],
     },
     LANTERNS: {
       media: [
@@ -1565,13 +1565,13 @@
         { type: 'image', src: 'intel/lanterns-terrazzo.webp', caption: 'The same room in terrazzo and jade.' },
         { type: 'image', src: 'intel/lanterns-viewing.webp', caption: 'Viewings: the form already holds the chosen flat and finish, with travel times underneath.' },
       ],
-      links: [{ label: 'Take the tour', href: 'https://sidag45.github.io/XR%20Projects/the-lanterns/' }],
+      links: [{ label: 'Take the tour', href: 'https://sidag45.github.io/xr-projects/the-lanterns/' }],
     },
     PAPERTOSS: {
       media: [
         { type: 'image', src: 'intel/paper-toss-intro.webp', caption: 'Mission card: pinch, squeeze three times, throw. Hands or mouse.' },
       ],
-      links: [{ label: 'Play Paper Toss', href: 'https://sidag45.github.io/XR%20Projects/paper-toss/paper-toss.html' }],
+      links: [{ label: 'Play Paper Toss', href: 'https://sidag45.github.io/xr-projects/paper-toss/paper-toss.html' }],
     },
   };
   function intelHTML(f) {
