@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Siddharth Agarwal · HCI</title>
+<meta name="description" content="Siddharth Agarwal is a graduate student in human–computer interaction at the University of Maryland, College Park, building and studying gesture, gaze and spatial interfaces.">
+<meta name="author" content="Siddharth Agarwal">
+<meta property="og:title" content="Siddharth Agarwal · Human–Computer Interaction">
+<meta property="og:description" content="Graduate student in HCI at the University of Maryland. Research prototypes in hands-free input, spatial interfaces and participatory systems.">
+<meta property="og:image" content="img/portrait.jpg">
+<meta name="theme-color" content="#ffffff">
+<style>
+:root{
+  --paper:#ffffff; --card:#fafafa; --ink:#000000; --ink2:#333333; --muted:#6b6b6b;
+  --rule:#e6e6e6; --accent:#1a0dab; --accent-soft:#eef0fb; --chip:#f2f2f2;
+  --serif:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  --sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 18px/1.62 var(--serif);text-rendering:optimizeLegibility}
+a{color:var(--accent);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,var(--accent) 40%,transparent)}
+a:hover{text-decoration-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:12px;background:var(--card);padding:6px 10px;z-index:9}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:saturate(1.2) blur(8px);border-bottom:1px solid var(--rule)}
+.top-in{max-width:1120px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:24px}
+.wordmark{font:500 19px/1 var(--serif);color:var(--ink);text-decoration:none;white-space:nowrap}
+.top nav{display:flex;gap:20px;margin-left:auto;font:500 13.5px/1 var(--sans);letter-spacing:.01em}
+.top nav a{color:var(--ink2);text-decoration:none;padding:6px 0;border-bottom:1.5px solid transparent}
+.top nav a:hover,.top nav a[aria-current="true"]{color:var(--ink);border-color:var(--accent)}
+.tbtn{display:inline-flex;align-items:center;font:500 13px/1 var(--sans);color:var(--ink2);background:none;border:1px solid var(--rule);border-radius:999px;padding:7px 12px;cursor:pointer}
+.tbtn:hover{border-color:var(--ink2);color:var(--ink)}
+
+/* layout */
+.page{max-width:1120px;margin:0 auto;padding:56px 24px 40px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:64px}
+.side{position:sticky;top:96px;align-self:start}
+.portrait{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;object-position:50% 22%;border-radius:4px;filter:grayscale(1) contrast(1.05);box-shadow:0 1px 0 var(--rule)}
+.side h1{font:500 30px/1.12 var(--serif);letter-spacing:-.01em;margin:22px 0 6px}
+.side .role{font:400 16px/1.45 var(--serif);color:var(--ink2);margin:0 0 18px}
+.side .role em{font-style:italic}
+.links{list-style:none;margin:0;padding:16px 0 0;border-top:1px solid var(--rule);font:400 14px/1.4 var(--sans)}
+.links li{display:flex;gap:10px;align-items:baseline;padding:5px 0}
+.links .k{flex:0 0 64px;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.links a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule);word-break:break-word}
+.links a:hover{border-color:var(--accent);color:var(--accent)}
+.seeking{margin-top:18px;padding:12px 14px;background:var(--accent-soft);border-radius:4px;font:400 13.5px/1.5 var(--sans);color:var(--ink2)}
+.seeking b{display:block;font-weight:600;color:var(--accent);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+
+/* sections */
+main section{padding-bottom:48px;margin-bottom:48px;border-bottom:1px solid var(--rule);scroll-margin-top:84px}
+main section:last-of-type{border-bottom:0}
+h2{font:600 12.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 22px;display:flex;align-items:center;gap:12px}
+h2::after{content:"";flex:1;height:1px;background:var(--rule)}
+.lede{font-size:21px;line-height:1.55;margin:0 0 18px;max-width:40em}
+#about p{max-width:40em}
+
+.interests{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 28px;margin:0;padding:0;list-style:none}
+.interests li{padding:16px 0 0;border-top:2px solid var(--ink)}
+.interests b{display:block;font:600 17px/1.3 var(--serif);margin-bottom:4px}
+.interests span{color:var(--ink2);font-size:16px;line-height:1.5}
+.interests .fut{border-top-style:dashed;border-top-color:var(--muted)}
+
+/* projects */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 26px}
+.chip{font:500 13px/1 var(--sans);color:var(--ink2);background:var(--chip);border:1px solid transparent;border-radius:999px;padding:8px 12px;cursor:pointer}
+.chip span{color:var(--muted);margin-left:3px;font-weight:400}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.chip[aria-pressed="true"] span{color:inherit;opacity:.7}
+.proj{display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px;padding:26px 0;border-top:1px solid var(--rule)}
+.proj:first-of-type{border-top:0;padding-top:0}
+.proj[hidden]{display:none}
+.thumb{display:block;border-radius:3px;overflow:hidden;border:1px solid var(--rule);aspect-ratio:16/10;background:var(--chip);align-self:start}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease}
+.thumb:hover img{transform:scale(1.03)}
+.proj h3{font:600 21px/1.25 var(--serif);margin:0 0 4px}
+.meta{font:400 13px/1.45 var(--sans);color:var(--muted);margin:0 0 10px}
+.meta .dot{margin:0 4px}
+.status{color:var(--ink2)}
+.summary{margin:0 0 10px}
+.rq{margin:0 0 12px;padding-left:14px;border-left:2px solid var(--accent);color:var(--ink2);font-size:16.5px;font-style:italic}
+.rq .lbl{font-style:normal;font-weight:600;color:var(--ink)}
+.kw{list-style:none;padding:0;margin:0 0 12px;display:flex;flex-wrap:wrap;gap:6px}
+.kw li{font:400 12px/1 var(--sans);color:var(--ink2);border:1px solid var(--rule);border-radius:3px;padding:5px 7px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.pill,.ghost{font:500 13px/1 var(--sans);border-radius:999px;padding:9px 14px;text-decoration:none;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.pill{background:var(--accent);color:#fff;border:1px solid var(--accent)}
+.pill:hover{filter:brightness(1.08)}
+.ghost{background:none;border:1px solid var(--rule);color:var(--ink)}
+.ghost::after{content:"+";color:var(--muted)}
+.ghost[aria-expanded="true"]::after{content:"\2212"}
+.ghost:hover{border-color:var(--ink2)}
+.detail{margin-top:16px;padding:20px 22px;background:var(--card);border:1px solid var(--rule);border-radius:4px;font-size:16.5px}
+.detail p{margin:0 0 12px}
+.detail h4{font:600 11.5px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
+.detail ul,.detail ol{margin:0;padding-left:20px}
+.detail li{margin:0 0 6px}
+.principles{margin:0}
+.principles div{padding:8px 0;border-top:1px solid var(--rule)}
+.principles dt{font-weight:600}
+.principles dd{margin:2px 0 0;color:var(--ink2)}
+
+/* cv lists */
+.entry{display:grid;grid-template-columns:140px minmax(0,1fr);gap:20px;padding:16px 0;border-top:1px solid var(--rule)}
+.entry:first-of-type{border-top:0;padding-top:0}
+.when{font:400 13.5px/1.6 var(--sans);color:var(--muted);padding-top:3px}
+.entry h3{font:600 18.5px/1.3 var(--serif);margin:0}
+.entry .org{color:var(--ink2);font-style:italic;margin:0 0 6px}
+.entry ul{margin:6px 0 0;padding-left:18px}
+.entry li{margin:0 0 4px}
+.entry p{margin:4px 0 0}
+.skills{display:grid;grid-template-columns:140px minmax(0,1fr);gap:12px 20px;margin:0}
+.skills dt{font:500 13.5px/1.6 var(--sans);color:var(--muted);padding-top:2px}
+.skills dd{margin:0}
+
+.contact p{max-width:38em}
+.contact .big{font-size:24px;margin:8px 0 6px}
+footer{max-width:1120px;margin:0 auto;padding:24px 24px 48px;font:400 13px/1.5 var(--sans);color:var(--muted);display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;border-top:1px solid var(--rule)}
+
+@media (max-width:900px){
+  .page{grid-template-columns:1fr;gap:36px;padding-top:32px}
+  .side{position:static;display:grid;grid-template-columns:132px minmax(0,1fr);gap:0 20px;align-items:start}
+  .portrait{grid-row:span 3}
+  .side h1{margin-top:0;font-size:26px}
+  .links,.seeking{grid-column:1/-1}
+  .top nav{display:none}
+  .top .tbtn{display:inline-flex;align-items:center;margin-left:auto}
+}
+@media (max-width:620px){
+  body{font-size:17px}
+  .top-in,.page,footer{padding-left:16px;padding-right:16px}
+  .lede{font-size:19px}
+  .interests{grid-template-columns:1fr}
+  .proj{grid-template-columns:1fr;gap:14px}
+  .entry,.skills{grid-template-columns:1fr;gap:2px}
+  .skills dd{margin-bottom:10px}
+  .side{grid-template-columns:96px minmax(0,1fr)}
+  .detail{padding:16px}
+}
+
+/* print: a tidy CV */
+@media print{
+  :root{--paper:#fff;--card:#fff;--ink:#000;--ink2:#222;--muted:#555;--rule:#ccc;--accent:#8c1d24}
+  body{font-size:10.5pt;line-height:1.4}
+  .top,.filters,.thumb,.actions,.tbtn,.seeking,footer .noprint{display:none!important}
+  .page{display:block;padding:0}
+  .side{position:static;display:block;margin-bottom:12pt}
+  .portrait{display:none}
+  .side h1{margin:0;font-size:20pt}
+  .links{display:flex;flex-wrap:wrap;gap:0 16pt;border:0;padding:4pt 0 0}
+  .links .k{flex:none}
+  .links a{border:0}
+  main section{padding-bottom:10pt;margin-bottom:10pt;break-inside:auto}
+  .proj{display:block;padding:6pt 0;break-inside:avoid}
+  .proj[hidden]{display:block}
+  .rq{font-size:10pt}
+  .kw{display:none}
+  .lede{font-size:11.5pt}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#about">Skip to content</a>
+
+<header class="top">
+  <div class="top-in">
+    <a class="wordmark" href="#about">Siddharth Agarwal</a>
+    <nav aria-label="Sections">
+      <a href="#about">About</a>
+      <a href="#research">Research</a>
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#education">Education</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button type="button" class="tbtn" id="printBtn" title="Print or save this page as a CV-style PDF">Print CV</button>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="side" aria-label="Profile">
+    <img class="portrait" src="img/portrait.jpg" alt="Portrait of Siddharth Agarwal" width="598" height="800">
+    <h1>Siddharth Agarwal</h1>
+    <p class="role">Graduate student, Human–Computer Interaction<br><em>University of Maryland, College Park</em></p>
+    <ul class="links">
+      <li><span class="k">Email</span><a href="mailto:sagarwa8@umd.edu">sagarwa8@umd.edu</a></li>
+      <li><span class="k">LinkedIn</span><a href="https://www.linkedin.com/in/siddharthagarwal2608/" target="_blank" rel="noopener">siddharthagarwal2608</a></li>
+      <li><span class="k">GitHub</span><a href="https://github.com/sidag45" target="_blank" rel="noopener">sidag45</a></li>
+      <li><span class="k">Based</span><span>College Park, Maryland</span></li>
+    </ul>
+    <div class="seeking"><b>Open to</b>Research internships in UX and human factors, especially wearables, health technology and automotive interfaces.</div>
+  </aside>
+
+  <main>
+    <section id="about" aria-labelledby="h-about">
+      <h2 id="h-about">About</h2>
+      <p class="lede">I design and build interfaces that use unusual input (hands, eyes, voice and space) and study how people understand, control and trust them.</p>
+      <p>I am a graduate student at the University of Maryland, College Park, focusing on human–computer interaction. My work starts as a working prototype and ends as a research question: each project here pairs a build with the design principles behind it and a study that would test it.</p>
+      <p>Before graduate school I was Lead Front-end Engineer at ParallelChain Lab, where I led a team of five-plus on a Layer 1 blockchain platform, and I shipped mobile apps to both app stores for ROJU, an online jump rope platform. I also founded Enclave Labs, a studio building web, 3D web and app work for clients. I studied at the University of Hong Kong, graduating in 2022, and have taught coding, Unity and Arduino robotics to school students.</p>
+    </section>
+
+    <section id="research" aria-labelledby="h-research">
+      <h2 id="h-research">Research interests</h2>
+      <ul class="interests">
+        <li><b>Hands-free and gestural input</b><span>Webcam hand and gaze tracking as everyday input: control-display gain, the Midas touch problem, feedback without touch, and fatigue.</span></li>
+        <li><b>Spatial understanding in 3D interfaces</b><span>How scroll-driven and walkable 3D views help people build mental maps of homes, objects and products, and when they mislead.</span></li>
+        <li><b>Participatory and privacy-preserving systems</b><span>Consent-first pipelines and shared experiences where many strangers contribute without anyone being exposed.</span></li>
+        <li class="fut"><b>Wearables and healthcare HCI</b><span>Where I am heading: human factors for wearables, bionics and prosthetics, and interfaces for autonomous vehicles.</span></li>
+      </ul>
+    </section>
+
+    <section id="projects" aria-labelledby="h-projects">
+      <h2 id="h-projects">Research prototypes</h2>
+      <div class="filters" role="group" aria-label="Filter projects by theme"><button type="button" class="chip" aria-pressed="true" data-f="all">All <span>10</span></button><button type="button" class="chip" aria-pressed="false" data-f="input">Hands-free &amp; gestural input <span>3</span></button><button type="button" class="chip" aria-pressed="false" data-f="spatial">Spatial &amp; 3D interfaces <span>4</span></button><button type="button" class="chip" aria-pressed="false" data-f="social">Participatory &amp; shared experiences <span>2</span></button><button type="button" class="chip" aria-pressed="false" data-f="tools">Design tools <span>1</span></button></div>
+      <div id="projList">
+    <article class="proj" data-theme="input" id="p-glance">
+      <a class="thumb" href="img/glance-desk.webp" target="_blank" rel="noopener" aria-label="Open image of Glance Desktop"><img src="img/glance-desk.webp" alt="Screenshot of Glance Desktop" loading="lazy" width="640" height="400"></a>
+      <div class="proj-body">
+        <h3>Glance Desktop</h3>
+        <p class="meta">Interaction design and engineering <span class="dot">·</span> 2026 <span class="dot">·</span> <span class="status">Prototype</span></p>
+        <p class="summary">A MacBook-style desktop in the browser, operated with the eyes through a webcam.</p>
+        <p class="rq"><span class="lbl">Research question.</span> Can webcam gaze and blink input run a desktop reliably enough for everyday pointing, selecting and dragging, and which design choices (target snapping, blink-duration thresholds, sound confirmation) most reduce unintended actions?</p>
+        <ul class="kw"><li>Eye tracking</li><li>Face landmarks (MediaPipe)</li><li>Gaze interaction</li><li>Accessibility</li><li>JavaScript</li></ul>
+        <div class="actions"><a class="pill" href="https://sidag45.github.io/xr-projects/glance-desktop/" target="_blank" rel="noopener">Live prototype <span aria-hidden="true">↗</span></a><button type="button" class="ghost" aria-expanded="false" aria-controls="d-glance">Case study</button></div>
+        <div class="detail" id="d-glance" hidden><p>A red pointer follows the visitor&#x27;s gaze and settles on the nearest button or file. One deliberate blink clicks, two blinks open, a long blink picks something up and the next blink drops it, and a wink right-clicks. Looking at the top or bottom edge of a window scrolls it, and the top-right corner opens Mission Control. A short calibration learns each person&#x27;s eyes and blink, and the video never leaves the device.</p><h4>Design rationale</h4><dl class="principles"><div><dt>The Midas touch problem</dt><dd>The eyes are both how people read the screen and, here, how they point, so anything that acts on looking alone fires constantly (Jacob, 1990). Glance never clicks on gaze. A deliberate blink is the clutch, and natural blinks shorter than 200 ms are ignored.</dd></div><div><dt>Target snapping and Fitts&#x27;s law</dt><dd>Webcam gaze is only accurate to a few degrees, which makes small targets behave as if they were even smaller. Pulling the pointer toward the nearest button or file widens every target&#x27;s effective width, trading free positioning for reliable selection.</dd></div><div><dt>Calibration and drift</dt><dd>Every face, screen and chair maps differently, so a short calibration learns how far the eyes travel across, then up and down, then how firmly the person blinks. After that, each blink-click on a small target nudges the mapping toward it, correcting drift without asking for a fresh calibration.</dd></div><div><dt>Feedback with the eyes closed</dt><dd>A long blink cannot be confirmed on screen, because the person cannot see it. A rising tone marks the moment a hold begins, moving the confirmation to sound, the one channel still open.</dd></div><div><dt>Graceful degradation</dt><dd>A closing eyelid distorts the iris reading, so the pointer freezes at the last steady position before a blink and stays put briefly after a click, letting a double blink land on the same item.</dd></div></dl><h4>Proposed evaluation</h4><p>A within-subjects study on a grid of icons in three sizes, comparing Glance with and without target snapping. Measures: selection time, error rate, unintended activations per minute and NASA-TLX workload. A second 20-minute session would test whether click-driven drift correction holds accuracy without recalibrating.</p></div>
+      </div>
+    </article>
+    <article class="proj" data-theme="input" id="p-desktop">
+      <a class="thumb" href="img/desktop-hand-setup.webp" target="_blank" rel="noopener" aria-label="Open image of Palm Desktop"><img src="img/desktop-hand-setup.webp" alt="Screenshot of Palm Desktop" loading="lazy" width="640" height="400"></a>
+      <div class="proj-body">
+        <h3>Palm Desktop</h3>
+        <p class="meta">Interaction design and engineering <span class="dot">·</span> 2026 <span class="dot">·</span> <span class="status">In progress</span></p>
+        <p class="summary">A MacBook-style desktop in the browser, operated by hand in front of a webcam.</p>
+        <p class="rq"><span class="lbl">Research question.</span> Can mid-air hand tracking through a laptop webcam support precise direct-manipulation tasks (pick up, drag, drop, open a context menu) on a desktop metaphor, and how does the finger-to-pointer gain affect speed, accuracy and arm fatigue?</p>
+        <ul class="kw"><li>Hand tracking</li><li>Computer vision</li><li>Gesture UX</li><li>JavaScript</li></ul>
+        <div class="actions"><a class="pill" href="https://sidag45.github.io/xr-projects/palm-desktop/" target="_blank" rel="noopener">Live prototype <span aria-hidden="true">↗</span></a><button type="button" class="ghost" aria-expanded="false" aria-controls="d-desktop">Case study</button></div>
+        <div class="detail" id="d-desktop" hidden><p>Files and folders can be picked up, dragged and dropped with fingers. A two-finger tap opens the context menu, and the usual trackpad controls still work. With the camera on, hand tracking drives a red pointer, mapped from finger movement to screen distance.</p><h4>Design rationale</h4><dl class="principles"><div><dt>Direct manipulation</dt><dd>Shneiderman&#x27;s criteria are continuous representation of objects, physical actions in place of commands, and fast, reversible results. The desktop keeps files and folders on screen and lets people pick them up by hand, so the question is whether those criteria survive when the hand never touches anything.</dd></div><div><dt>Fitts&#x27;s law and control-display gain</dt><dd>Movement time grows with distance and shrinks with target width. The ratio between finger movement and pointer movement trades one against the other: high gain crosses the screen quickly but makes small targets hard to hit, while low gain is precise but tiring.</dd></div><div><dt>The Midas touch problem</dt><dd>If every hand movement acts, people trigger things they only meant to look at. The gesture set uses an explicit clutch: the pointer follows the hand, but nothing is picked up until a pinch, and opening the hand drops.</dd></div><div><dt>Feedback without touch</dt><dd>Mid-air input has no physical click to confirm an action. The red pointer, hover highlights and a lifted look on grabbed items carry all of the confirmation a trackpad would give through the fingertip.</dd></div><div><dt>Fatigue and posture</dt><dd>Holding an arm up in front of a screen tires it within minutes, often called gorilla arm. Tracking the hand just above the keyboard, and keeping trackpad controls available, keeps sessions comfortable.</dd></div></dl><h4>Proposed evaluation</h4><p>A target-acquisition study in the style of ISO 9241-411, comparing the trackpad with hand tracking at three gain levels. Measures: throughput in bits per second, error rate, and perceived exertion on the Borg CR10 scale after each block.</p></div>
+      </div>
+    </article>
+    <article class="proj" data-theme="spatial" id="p-apartment">
+      <a class="thumb" href="img/apartment-living.webp" target="_blank" rel="noopener" aria-label="Open image of Immersive Airbnb"><img src="img/apartment-living.webp" alt="Screenshot of Immersive Airbnb" loading="lazy" width="640" height="400"></a>
+      <div class="proj-body">
+        <h3>Immersive Airbnb</h3>
+        <p class="meta">Spatial reconstruction, interaction design and three.js build <span class="dot">·</span> 2026 <span class="dot">·</span> <span class="status">Prototype</span></p>
+        <p class="summary">A 32-second phone video of an apartment, rebuilt as a walkable 3D home in the browser.</p>
+        <p class="rq"><span class="lbl">Research question.</span> Can a walkable 3D rebuild made from a short phone video help someone form an accurate mental map of a home (its layout, room sizes and how the rooms connect) better than watching the same video, and does linking each room back to its moment in the video make the model more trustworthy?</p>
+        <ul class="kw"><li>three.js</li><li>Video to 3D</li><li>Spatial reconstruction</li><li>Wayfinding</li><li>Character controller</li><li>Adaptive rendering</li></ul>
+        <div class="actions"><a class="pill" href="https://sidag45.github.io/xr-projects/immersive-airbnb/" target="_blank" rel="noopener">Live prototype <span aria-hidden="true">↗</span></a><button type="button" class="ghost" aria-expanded="false" aria-controls="d-apartment">Case study</button></div>
+        <div class="detail" id="d-apartment" hidden><p>A three-bedroom apartment rebuilt in three.js from a 32-second phone walkthrough and a hand-drawn floor plan. Visitors steer a figure through three bedrooms, two baths, the living and dining rooms, the kitchen and the balcony with WASD (Shift to run), drag to look around, and switch between an over-the-shoulder view and first person. A floor plan in the corner shows where they are and jumps to any room on click; a card in the opposite corner shows that room&#x27;s frame from the original video and plays the moment. The skyline outside the windows is stitched from the balcony shots, and the original video plays on the living-room TV.</p><h4>Design rationale</h4><dl class="principles"><div><dt>Route versus survey knowledge</dt><dd>A walkthrough video is a single route: rooms appear only in the order the camera passed them. Walking the rebuild with a floor plan that marks your position adds the survey view, so visitors learn how rooms connect as well as what they look like.</dd></div><div><dt>You are here</dt><dd>The corner plan is a you-are-here map that is also a menu: it shows the current room and jumps to any other. Both wayfinding questions, where am I and how do I get there, are answered without leaving the view.</dd></div><div><dt>Provenance builds trust</dt><dd>A reconstruction is an interpretation. Showing each room&#x27;s original frame and playing its moment lets visitors check the model against the source rather than taking the rebuild on faith.</dd></div><div><dt>Embodiment and scale</dt><dd>A human figure walking through doorways gives every room a familiar measure; first person trades that reference for presence. Visitors can switch to whichever helps them judge size.</dd></div><div><dt>Responsiveness first</dt><dd>Movement drops to Fast rendering and full quality returns once the view settles, so the camera never lags behind the keys. Lag between input and view is a known trigger of discomfort in steered 3D.</dd></div></dl><h4>Proposed evaluation</h4><p>A between-subjects study: watch the 32-second video, or explore the 3D rebuild for the same time. Measures: sketch-map accuracy (room adjacency and relative size), pointing towards rooms out of sight from a given spot, room-size estimates against the real plan, confidence, and the Simulator Sickness Questionnaire for the 3D group.</p><h4>Process</h4><ol><li>Source: a 32-second portrait phone video moving through the apartment, and a hand-drawn floor plan.</li><li>Layout: the plan drawn to scale at 1.2 m per grid square, about 23.2 × 7.2 m overall, with each door placed and swung where the slanted lines on the plan show it.</li><li>Finishes: marble, oak and fabrics matched to the video with physically based materials (clearcoat stone and wood, sheen fabrics, lacquer).</li><li>Views and art: the skyline stitched from the balcony frames, and the wall art cropped from the video.</li><li>Link to the source: every room keeps the timestamp where it appears in the video, so the corner card can show and play that moment.</li></ol><h4>Build notes</h4><ul><li>Rendering: ground-truth ambient occlusion and bloom, 2048 soft shadows, and reflections captured from inside the apartment so they match the rooms.</li><li>Adaptive quality: Fast while the visitor moves or turns, Ultra once the view settles. The Quality button can pin either.</li><li>Shadows in rooms away from the figure keep their last maps instead of re-rendering every frame.</li><li>Figure: motion-captured idle, walk and run clips blended by speed, with an over-the-shoulder camera or first person (V).</li><li>Touch: an on-screen joystick for phones.</li></ul></div>
+      </div>
+    </article>
+    <article class="proj" data-theme="social" id="p-choir">
+      <a class="thumb" href="img/vow-singing.webp" target="_blank" rel="noopener" aria-label="Open image of Voice of the World"><img src="img/vow-singing.webp" alt="Screenshot of Voice of the World" loading="lazy" width="640" height="400"></a>
+      <div class="proj-body">
+        <h3>Voice of the World</h3>
+        <p class="meta">Concept, audio DSP, interaction design and AWS pipeline <span class="dot">·</span> 2026 <span class="dot">·</span> <span class="status">v1 build</span></p>
+        <p class="summary">A choir anyone can join: submitted voices are tuned to one key and sung together in the browser around a turning globe.</p>
+        <p class="rq"><span class="lbl">Research question.</span> Can an automated, consent-first pipeline turn strangers&#x27; short voice clips into a choir that listeners find musical and contributors recognise themselves in, and does hearing your own voice join change how connected you feel to the others?</p>
+        <ul class="kw"><li>Web Audio API</li><li>Pitch tracking (YIN)</li><li>Granular synthesis</li><li>Spatial audio (HRTF)</li><li>AWS Lambda</li><li>Consent design</li></ul>
+        <div class="actions"><a class="pill" href="https://sidag45.github.io/xr-projects/voice-of-the-world/" target="_blank" rel="noopener">Live prototype <span aria-hidden="true">↗</span></a><button type="button" class="ghost" aria-expanded="false" aria-controls="d-choir">Case study</button></div>
+        <div class="detail" id="d-choir" hidden><p>Every light on the globe is someone&#x27;s voice. Press Listen and the voices are tuned to one shared key, staggered so they enter one at a time, and placed in 3D sound by where they sit on the globe; dragging the globe moves the choir around you. A rules-based conductor picks the key and mood, plays a chord progression, decides who sings and who rests, keeps the registers balanced and gives new voices the first entry. Anyone can add a voice in four steps (consent, record up to eight seconds, automatic checks, join). Ten synthesised seed voices, sung slightly off-key on purpose, let the tuning be heard from the first visit. Submissions go through an automated moderation pipeline on AWS; without a server configured, the page runs entirely on the device.</p><h4>Design rationale</h4><dl class="principles"><div><dt>Consent as interaction design</dt><dd>Two explicit checkboxes, a plain-language note about where the recording goes, and a withdraw token make consent informed and revocable, built into the flow rather than buried in a policy.</dd></div><div><dt>Privacy by design</dt><dd>No person listens to submissions, transcripts are deleted after moderation, only summaries are kept, and any failure deletes the clip. The safe outcome is the default one.</dd></div><div><dt>Recognising yourself</dt><dd>New voices get the first entry, so contributors can hear themselves arrive. That moment of recognition is the feedback that makes joining feel worthwhile.</dd></div><div><dt>A natural mapping for sound</dt><dd>Position on the globe maps to position in space: voices on the far side sound distant and muffled, and dragging the globe moves the choir around the listener. The control and its effect line up, which Norman calls a natural mapping.</dd></div><div><dt>No skill required</dt><dd>An open &quot;aaah&quot; works best and the tuning places every voice on the chord, so nobody needs to be able to sing. Lowering performance anxiety widens who will take part.</dd></div></dl><h4>Proposed evaluation</h4><p>A mixed-methods study with contributors: record a voice, then listen for it. Measures: whether and how quickly people find themselves, perceived musicality, connectedness to the other voices (Inclusion of Other in the Self scale), and comfort with the consent flow; plus a listener-only group rating the choir with and without tuning.</p><h4>How the blend works</h4><ul><li>Analysis: each clip gets a YIN pitch track, smoothed to keep intonation but drop vibrato, plus level, voiced ratio, a rough tone measure and its steadiest 0.7 s of vowel.</li><li>Tuning: granular playback with ~110 ms grains, each pitch-shifted from its own pitch to the nearest chord tone, so speech becomes held notes and natural vibrato survives. On a chord change every voice moves to the nearest tone of the new chord.</li><li>Time: phrases are slowed to 0.55–0.85× and enter 1–2.6 s apart, and how many voices sing at once rises and falls so the texture breathes.</li><li>Space: a voice&#x27;s place on the globe sets its HRTF position, a lowpass filter and its reverb send, so voices on the far side sound distant and muffled.</li><li>Drones: the steady vowel is frozen and held on the chord&#x27;s root and fifth, swelling over 16–26 s.</li></ul><h4>The pipeline</h4><ul><li>Upload: consent is stored, then the browser gets a one-time link to a private bucket; anything unfinished is deleted within a day.</li><li>Moderation: the server re-checks the clip and analyses its pitch, then speech is transcribed, translated to English if needed, and rejected for toxic content or personal information (phone numbers, addresses, emails, ID numbers).</li><li>Nobody listens to clips. Transcripts are deleted as soon as moderation finishes, and only a pitch summary, the consent record and a toxicity score are kept.</li><li>It fails closed: if transcription or moderation errors, the clip is deleted. A sung &quot;aaah&quot; with no words skips the text checks.</li><li>Withdrawal: each contributor&#x27;s browser keeps a withdraw token (only its hash is stored) that removes the file, the record and the cached copy.</li><li>Limits: five submissions per hour per address, WAV only, 1.1 MB maximum; approved voices are kept for 365 days.</li><li>Tests: 18 pipeline checks and 6 browser checks run against in-memory stand-ins for the AWS services.</li></ul><h4>Known limits</h4><ul><li>Short clips in languages outside the configured set are the weak spot for transcription, so abuse in them could slip through.</li><li>Voices are served as WAV; an Opus step would cut downloads about tenfold.</li><li>The AI conductor (step 4 of the brief) has not been started; the rules-based conductor is in its place.</li></ul></div>
+      </div>
+    </article>
+    <article class="proj" data-theme="spatial" id="p-lanterns">
+      <a class="thumb" href="img/lanterns-floorplan.webp" target="_blank" rel="noopener" aria-label="Open image of The Lanterns"><img src="img/lanterns-floorplan.webp" alt="Screenshot of The Lanterns" loading="lazy" width="640" height="400"></a>
+      <div class="proj-body">
+        <h3>The Lanterns</h3>
+        <p class="meta">Concept, interaction design, 3D modelling and three.js build <span class="dot">·</span> 2026 <span class="dot">·</span> <span class="status">Concept build</span></p>
+        <p class="summary">A scroll-driven 3D sales site for a fictional hillside tower in Hong Kong, one home to a floor.</p>
+        <p class="rq"><span class="lbl">Research question.</span> Can a scroll-driven 3D tour help someone shortlist a home remotely, understanding its layout, scale and finish well enough to book a viewing with confidence, compared with the usual gallery of renders and a PDF floor plan?</p>
+        <ul class="kw"><li>three.js</li><li>Scroll storytelling</li><li>3D configurator</li><li>Wayfinding</li><li>Procedural modelling</li><li>Ambient sound</li></ul>
+        <div class="actions"><a class="pill" href="https://sidag45.github.io/xr-projects/the-lanterns/" target="_blank" rel="noopener">Live prototype <span aria-hidden="true">↗</span></a><button type="button" class="ghost" aria-expanded="false" aria-controls="d-lanterns">Case study</button></div>
+        <div class="detail" id="d-lanterns" hidden><p>The Lanterns (燈苑) is an invented development of 24 homes on the hillside above Pok Fu Lam, one flat to a floor, every one facing the East Lamma Channel. Scrolling rides the building like a lift: arrival at the foot of the tower, the building with availability by floor, terraces that swap corners floor by floor, then up to Flat 23 with the floors above lifted away. Visitors read the floor plan with room sizes labelled in place, try three finish schemes in the rooms, furnished or empty, by day or night, stand in the living room looking out to sea, and book a viewing with their choices already filled in. A lift-style floor indicator shows where they are in the tour throughout.</p><h4>Design rationale</h4><dl class="principles"><div><dt>From route to map</dt><dd>People learn a new place first as a route and only later as a map. The tour follows that order: arrive at the foot of the tower, ride up, step inside, look down on the plan with sizes labelled in place, then stand in the living room at eye level.</dd></div><div><dt>Wayfinding in a long scroll</dt><dd>A lift-style floor indicator is the tour&#x27;s progress bar and its menu at once: it shows the current stop, how many remain, and lets visitors jump. &quot;Short on time?&quot; links skip straight to the plan or the booking, keeping the visitor in control.</dd></div><div><dt>One question per stop</dt><dd>Each card asks one thing (which floor, which finish, how big is the bedroom) and the model beside it answers. Progressive disclosure keeps a dense decision from arriving all at once.</dd></div><div><dt>Seeing over imagining</dt><dd>Finish schemes, furnished or empty, and day or night are applied to the actual rooms, so visitors compare outcomes rather than swatches. Lifting the floors above opens the flat while keeping the tower in view.</dd></div><div><dt>Recognition over recall</dt><dd>The booking form arrives filled in with the flat and finish chosen along the way, and a link copies that exact flat to share, so nothing has to be remembered or re-entered at the moment of commitment.</dd></div></dl><h4>Proposed evaluation</h4><p>A between-subjects study with prospective buyers or renters: the 3D tour versus a conventional listing (photo gallery and PDF plan) for the same flat. Measures: accuracy sketching the layout from memory and estimating room sizes, time to a booking decision, confidence in the choice, and SUS. Logging which stops people skip would show where the tour runs long.</p><h4>The tour</h4><ol><li>Arrival: the tower at dusk from the foot of the hill, with skip links to the floor plan or viewings for visitors short on time.</li><li>The building: one flat per floor, glass on all four sides; pick a floor by its availability.</li><li>Terraces: each terrace swaps corners on alternate floors, so none looks down onto another.</li><li>Up to the flat: the camera rises to the chosen floor and the floors above lift out of the way.</li><li>Floor plan: a top-down view with every room&#x27;s dimensions labelled in the model and listed in the card.</li><li>Finishes: oak and linen, walnut and brass, or terrazzo and jade, applied to the rooms; furnished or empty; day or night.</li><li>Living room: an eye-level view from the sofa that turns to the sea.</li><li>Viewings: a booking form that already knows the flat and finish, with travel times underneath.</li></ol><h4>Build notes</h4><ul><li>Modelled procedurally in three.js: the tower, interiors and furniture, the hillside, neighbouring estates and Lamma Island across the channel.</li><li>Image-based lighting for day and blue hour; switching to night plays the sunset and lights the flats. The page opens in day or night to match the visitor&#x27;s local time.</li><li>Performance: shadows re-render only when something moves, resolution drops while moving if frames are slow, idle frames render at a low rate, and sharper interior textures load once the page is idle.</li><li>Ambient sound: sea swell, cicadas by day, crickets at night and room tone indoors.</li><li>Touch: horizontal swipes turn the model and vertical swipes scroll. A fallback view appears if the 3D module cannot load.</li><li>Fictional by design: the development and developer are invented, and the booking form sends nothing.</li></ul></div>
+      </div>
+    </article>
+    <article class="proj" data-theme="spatial" id="p-pegasus">
+      <a class="thumb" href="img/pegasus-exploded.webp" target="_blank" rel="noopener" aria-label="Open image of Pegasus-1"><img src="img/pegasus-exploded.webp" alt="Screenshot of Pegasus-1" loading="lazy" width="640" height="400"></a>
+      <div class="proj-body">
+        <h3>Pegasus-1</h3>
+        <p class="meta">Concept, 3D direction, three.js build <span class="dot">·</span> 2026 <span class="dot">·</span> <span class="status">Completed</span></p>
+        <p class="summary">Scroll-driven 3D exploded view of a mechanical watch for a fictional maison.</p>
+        <p class="rq"><span class="lbl">Research question.</span> Does an exploded view that the reader drives by scrolling help people understand how a mechanical watch is built, and remember its parts and their order, better than a static exploded diagram or an animation that plays by itself?</p>
+        <ul class="kw"><li>three.js</li><li>Scroll animation</li><li>WebXR</li><li>Product storytelling</li></ul>
+        <div class="actions"><a class="pill" href="https://sidag45.github.io/xr-projects/pegasus-3d/" target="_blank" rel="noopener">Live prototype <span aria-hidden="true">↗</span></a><button type="button" class="ghost" aria-expanded="false" aria-controls="d-pegasus">Case study</button></div>
+        <div class="detail" id="d-pegasus" hidden><p>An interactive exploded-watch experience for Halden &amp; Vey, a brand invented for the exercise. As the visitor scrolls, the Pegasus-1 separates layer by layer so each part can be studied, with a path toward XR viewing.</p><h4>Design rationale</h4><dl class="principles"><div><dt>Progressive disclosure</dt><dd>A watch has dozens of parts. Showing all of them at once overwhelms; the scroll separates one layer at a time, crystal, bezel, dial, hands, movement, case and caseback, so the reader takes in each part before meeting the next.</dd></div><div><dt>Control over animation</dt><dd>Tversky, Morrison and Bétrancourt found that animated diagrams often teach no better than static ones, partly because they run too fast to follow. Tying the motion to the scroll position hands the pace to the reader: stop, reverse and replay at will.</dd></div><div><dt>Natural mapping</dt><dd>Scrolling down pulls the watch apart and scrolling up puts it back together, so the direction of input matches the direction of motion. The distance scrolled maps to how far the layers separate, which makes the effect predictable.</dd></div><div><dt>Spatial contiguity</dt><dd>Mayer&#x27;s multimedia principle says people learn more when words sit next to the thing they describe. Each label is drawn beside its part with a leader line, not in a numbered legend the eye has to jump to.</dd></div><div><dt>Orientation and restraint</dt><dd>Scroll-driven pages can make people feel the page has been taken from them. A progress indicator shows how far through the breakdown the reader is, ordinary scrolling still works, and people who prefer reduced motion get a static exploded diagram.</dd></div></dl><h4>Proposed evaluation</h4><p>A between-subjects study with three conditions: a static exploded diagram, an exploded animation that plays by itself, and the scroll-controlled exploded view. Measures: accuracy naming parts, recall of assembly order, time spent, and self-rated understanding. A follow-up in XR would test whether pulling parts apart by hand improves recall further.</p></div>
+      </div>
+    </article>
+    <article class="proj" data-theme="spatial" id="p-kestrel">
+      <a class="thumb" href="img/kestrel-hero.webp" target="_blank" rel="noopener" aria-label="Open image of Kestrel &amp; Oak"><img src="img/kestrel-hero.webp" alt="Screenshot of Kestrel &amp; Oak" loading="lazy" width="640" height="400"></a>
+      <div class="proj-body">
+        <h3>Kestrel &amp; Oak</h3>
+        <p class="meta">Concept sprint, interaction design and three.js build <span class="dot">·</span> 2026 <span class="dot">·</span> <span class="status">Concept build</span></p>
+        <p class="summary">A 3D unboxing and product page for a fictional 18-year single malt, with the bottle pinned on stage as the story scrolls.</p>
+        <p class="rq"><span class="lbl">Research question.</span> Does a pinned 3D product stage that re-poses with each chapter of the story help shoppers understand and trust a premium product (its craft, provenance and contents) better than a static image gallery, without slowing the path to purchase?</p>
+        <ul class="kw"><li>three.js</li><li>Custom GLSL shaders</li><li>Scroll storytelling</li><li>E-commerce UX</li><li>Wireframing</li><li>Responsive bottom sheet</li></ul>
+        <div class="actions"><a class="pill" href="https://sidag45.github.io/xr-projects/whiskey-unboxing/" target="_blank" rel="noopener">Live prototype <span aria-hidden="true">↗</span></a><button type="button" class="ghost" aria-expanded="false" aria-controls="d-kestrel">Case study</button></div>
+        <div class="detail" id="d-kestrel" hidden><p>Kestrel &amp; Oak is an invented Speyside distillery, and the page sells one bottle: an Eighteen Year Oloroso in a St George gold-foil case. The 3D stage stays pinned on the left while the chapters scroll on the right, and every chapter re-poses the case, bottle and nosing glass to show what the text is describing: the wax seal, the lid lifting, the back label with its cask and bottle number, the front label up close, then both objects together beside the buy panel. Visitors can drag the model at any point; the spirit sloshes inside the faceted bottle and glass and leaves tears on the glass as it settles. Chapter tabs track the scroll and jump between chapters, and the price and Add to cart sit above the fold from the first screen.</p><h4>Design rationale</h4><dl class="principles"><div><dt>Spatial contiguity</dt><dd>People learn more when words sit beside the thing they describe (Mayer). Each chapter turns the object to show exactly what its text is about: the seal while the seal is described, the back label while the cask number is read out.</dd></div><div><dt>The visitor drives the motion</dt><dd>Nothing animates on its own. Scrolling moves between poses and dragging turns the model at any time, so the visitor sets the pace, and chapter tabs both report the position and jump to any chapter.</dd></div><div><dt>Keep the goal in reach</dt><dd>Storytelling pages often bury the buy button. Here the price and Add to cart are above the fold, and the buy panel is one scroll from anywhere, so the story can be skipped without penalty.</dd></div><div><dt>Visceral design</dt><dd>Norman&#x27;s visceral level is the gut response to how something looks and feels. Refraction through cut glass, a spirit that sloshes and leaves tears, and foil that catches the light carry the sense of quality that a premium price asks for.</dd></div><div><dt>One gesture, one meaning</dt><dd>On a phone, scroll and rotate compete for the same finger. The page splits them by direction: vertical swipes anywhere scroll the chapters, horizontal drags turn the model.</dd></div></dl><h4>Proposed evaluation</h4><p>A between-subjects study with whisky buyers: the 3D product stage versus the same copy with a static photo gallery. Measures: recall of product details (contents, cask number, edition differences), perceived quality and trust, purchase intent, time to add to cart, and SUS, with interaction logs showing how often people rotate the model and which chapters they skip.</p><h4>Process</h4><ol><li>Concept sprint: ten wireframes, each a different way to interact with the box (scrub to unbox, sticky product stage, pull the ribbon, exploded craft, grain to glass, collector&#x27;s cabinet, the first pour, build the gift, cellar by candlelight, hands-on unbox), tagged by input type, effort and purpose.</li><li>Pick: the Sticky Product Stage, the lowest-effort concept built for e-commerce first, and the one that shares a scaffold with the gold-necklace page.</li><li>2D build: the full page, copy and buy panel in HTML, CSS and SVG, with each chapter declaring a pose. A pose table (camera, case, bottle) was written as the hand-off spec for 3D.</li><li>3D pass: each pose became a camera and model keyframe in three.js, with materials and lighting built to read as a studio product shot.</li><li>Phone layout: the stage stays on top and the chapters move into a bottom sheet that opens from a quarter to three quarters of the screen.</li></ol><h4>The chapters</h4><ol><li>The Bottle: the sealed case, price, Add to cart and Gift edition above the fold.</li><li>The Case: a push-in on the wax seal and the St George foil.</li><li>The Opening: the lid lifts and the bottle rises beside its nosing glass.</li><li>The Cask: the bottle turns to its back label (cask 0417, bottle 211 of 612) while a spec table lists fill and bottling dates.</li><li>The Spirit: a close-up of the front label beside the tasting notes.</li><li>Make it Yours: both objects together beside the buy panel, with two editions, quantity and an engraving field for the gift edition.</li></ol><h4>Build notes</h4><ul><li>Materials: linen-wrapped board with fibre noise, gold foil and a tonal gloss emboss from one mask, a wax seal with a gold-leaf crest, crushed velvet and a walnut stopper.</li><li>Glass and spirit: a custom shader refracts light through a diamond-cut vessel, tints by the distance travelled through the whisky (Beer–Lambert), and draws total internal reflection at the edges.</li><li>Liquid physics: the surface leans against the drag&#x27;s acceleration and springs back; where the slosh wets the glass, a film drains back down in tears.</li><li>Lighting: an overhead softbox, two strip lights for long highlights on the glass, and a low front bounce. The scene renders a few frames per pose, then idles.</li><li>Touch: on phones a vertical swipe anywhere scrolls the chapters and a horizontal drag turns the model, with momentum after a flick.</li><li>Fictional by design: the brand, cask and prices are invented, and the cart does not take orders.</li></ul></div>
+      </div>
+    </article>
+    <article class="proj" data-theme="tools" id="p-pagelift">
+      <a class="thumb" href="img/pagelift-in-figma.webp" target="_blank" rel="noopener" aria-label="Open image of Pagelift"><img src="img/pagelift-in-figma.webp" alt="Screenshot of Pagelift" loading="lazy" width="640" height="400"></a>
+      <div class="proj-body">
+        <h3>Pagelift</h3>
+        <p class="meta">Sole operative. Design, build, publishing <span class="dot">·</span> 2026 <span class="dot">·</span> <span class="status">Active</span></p>
+        <p class="summary">Lifts any live webpage into Figma as editable frames and layers.</p>
+        <p class="rq"><span class="lbl">Research question.</span> Does importing a live webpage as editable Figma layers shorten the path from &quot;I want to work on this page&quot; to an editable design, and reduce reconstruction errors, compared with rebuilding the page from screenshots?</p>
+        <ul class="kw"><li>Figma Plugin API</li><li>Chrome Extension</li><li>TypeScript</li><li>DOM capture</li></ul>
+        <div class="actions"><a class="pill" href="https://sidag45.github.io/pagelift/" target="_blank" rel="noopener">Live prototype <span aria-hidden="true">↗</span></a><button type="button" class="ghost" aria-expanded="false" aria-controls="d-pagelift">Case study</button></div>
+        <div class="detail" id="d-pagelift" hidden><p>A free Figma plugin paired with a Chrome extension, Pagelift — Capture. The extension reads a page as it renders in the browser; the plugin rebuilds it in Figma as real frames and layers. Published on the Figma Community and the Chrome Web Store.</p><h4>Design rationale</h4><dl class="principles"><div><dt>Gulf of execution</dt><dd>Norman describes the gap between what a person wants and the actions a tool offers for it. Rebuilding a page by hand turns one goal into hundreds of steps: measuring spacing, retyping copy, re-picking colours. Pagelift reduces it to one action in the browser and one in Figma.</dd></div><div><dt>Match with the real world</dt><dd>The imported layer tree follows the structure of the page itself, and layers are named after the parts people see, such as header, card and button, instead of &quot;Rectangle 12&quot;. Designers find their way by recognition rather than recall.</dd></div><div><dt>Visibility of system status</dt><dd>Capturing a long page takes a few seconds. The extension shows what it is collecting and the plugin reports progress, so nobody has to wonder whether the click registered.</dd></div><div><dt>Error prevention and recovery</dt><dd>Every import lands in a new frame, so nothing already on the canvas is touched. A poor capture is removed or undone in one step.</dd></div></dl><h4>Proposed evaluation</h4><p>A within-subjects study in which designers recreate the same landing-page section twice: once by tracing a screenshot and once with Pagelift. Measures: time to a first editable frame, fidelity errors counted against the live page, and perceived workload on the NASA-TLX.</p></div>
+      </div>
+    </article>
+    <article class="proj" data-theme="input" id="p-papertoss">
+      <a class="thumb" href="img/paper-toss-intro.webp" target="_blank" rel="noopener" aria-label="Open image of Paper Toss"><img src="img/paper-toss-intro.webp" alt="Screenshot of Paper Toss" loading="lazy" width="640" height="400"></a>
+      <div class="proj-body">
+        <h3>Paper Toss</h3>
+        <p class="meta">Game design, gesture design and build <span class="dot">·</span> 2026 <span class="dot">·</span> <span class="status">Playable</span></p>
+        <p class="summary">Office basketball played hands-free: crumple a sheet and throw it in the bin, using only your hand in front of a webcam.</p>
+        
+        <ul class="kw"><li>Hand tracking</li><li>Gesture input</li><li>Game design</li><li>JavaScript</li></ul>
+        <div class="actions"><a class="pill" href="https://sidag45.github.io/xr-projects/paper-toss/" target="_blank" rel="noopener">Live prototype <span aria-hidden="true">↗</span></a><button type="button" class="ghost" aria-expanded="false" aria-controls="d-papertoss">Case study</button></div>
+        <div class="detail" id="d-papertoss" hidden><p>Pinch thumb and index finger to pick up the sheet from the desk, make a fist three times to crumple it into a ball, then swing toward the bin and open your hand to let go. A power meter shows the strength of the throw, and every basket moves the bin farther away. The game tracks baskets, tosses, streak and best streak. Hand tracking runs in the browser and the video never leaves the device; mouse and touch work too.</p></div>
+      </div>
+    </article>
+    <article class="proj" data-theme="social" id="p-graffiti">
+      <a class="thumb" href="img/argraffiti-plots.webp" target="_blank" rel="noopener" aria-label="Open image of AR Graffiti"><img src="img/argraffiti-plots.webp" alt="Screenshot of AR Graffiti" loading="lazy" width="640" height="400"></a>
+      <div class="proj-body">
+        <h3>AR Graffiti</h3>
+        <p class="meta">Concept, research design and AR build <span class="dot">·</span> 2026 <span class="dot">·</span> <span class="status">Coming soon</span></p>
+        <p class="summary">Shared augmented-reality pieces pinned to real places, seen in the same spot by everyone.</p>
+        <p class="rq"><span class="lbl">Research question.</span> Can a mark left in augmented reality feel genuinely shared, appearing in the same place for everyone who looks, and how precise does that need to be before people trust it is really there?</p>
+        <ul class="kw"><li>Augmented reality</li><li>Location-based experiences</li><li>Field research</li></ul>
+        <div class="actions"><button type="button" class="ghost" aria-expanded="false" aria-controls="d-graffiti">Case study</button></div>
+        <div class="detail" id="d-graffiti" hidden><p>An early-stage AR project about pinning digital marks to physical places so that different people, on different phones and on different days, all see them in the same spot. It is in an early feasibility phase, testing whether that is reliable enough before any creative tools are built. Details are withheld until that phase is complete.</p></div>
+      </div>
+    </article>
+      </div>
+    </section>
+
+    <section id="experience" aria-labelledby="h-exp">
+      <h2 id="h-exp">Experience</h2>
+      <div class="entry">
+        <div class="when">Present</div>
+        <div>
+          <h3>Founder</h3>
+          <p class="org">Enclave Labs (formerly Enclave Studios)</p>
+          <p>A digital studio offering web design, 3D web design, web and app development, and workflow automation.</p>
+          <ul>
+            <li><b>Movement Lab:</b> product and engineering lead on a coaching app for a Hong Kong gym, built so the same codebase can grow from in-gym personal training into a global self-serve subscription.</li>
+            <li><b>SRK Haute Horlogerie:</b> Webflow design and development for a luxury watch boutique, including CMS architecture, collection filtering, custom JavaScript interactions and publishing automations.</li>
+            <li><b>Faateh Real Estate:</b> Webflow build plus a full client handover kit (documentation and tutorial video script).</li>
+          </ul>
+        </div>
+      </div>
+      <div class="entry">
+        <div class="when">Prior</div>
+        <div>
+          <h3>Lead Front-end Engineer</h3>
+          <p class="org">ParallelChain Lab</p>
+          <ul>
+            <li>Led a front-end team of five-plus and set the architecture for a Layer 1 blockchain platform.</li>
+            <li>Shipped the block explorer and a native wallet; built developer tools and documentation.</li>
+            <li>Helped improve engineering processes across the lab.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="entry">
+        <div class="when">Prior</div>
+        <div>
+          <h3>Mobile and Full-stack Engineer</h3>
+          <p class="org">ROJU, online jump rope learning platform</p>
+          <ul>
+            <li>Built the React Native app and published it to the App Store and Google Play.</li>
+            <li>Contributed backend features in Java Spring Boot and built a React content management system.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="entry">
+        <div class="when">Prior</div>
+        <div>
+          <h3>STEM and Coding Instructor</h3>
+          <p>Taught HTML, CSS and JavaScript, Unity game development and Arduino robotics.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="education" aria-labelledby="h-edu">
+      <h2 id="h-edu">Education</h2>
+      <div class="entry">
+        <div class="when">2026 – present</div>
+        <div>
+          <h3>Master's programme, Human–Computer Interaction focus</h3>
+          <p class="org">University of Maryland, College Park</p>
+        </div>
+      </div>
+      <div class="entry">
+        <div class="when">Graduated 2022</div>
+        <div>
+          <h3>Undergraduate degree</h3>
+          <p class="org">The University of Hong Kong</p>
+          <p>Coursework spanning computer science, software development and product thinking.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills" aria-labelledby="h-skills">
+      <h2 id="h-skills">Methods and skills</h2>
+      <dl class="skills">
+        <dt>Research</dt><dd>Study design (within- and between-subjects), usability evaluation, NASA-TLX, SUS, Fitts's law and ISO 9241-411 target acquisition, user-sentiment analysis, consent and privacy design</dd>
+        <dt>Prototyping</dt><dd>Hand and face tracking (MediaPipe), gaze and blink input, three.js and WebGL, custom GLSL shaders, Web Audio (pitch tracking, granular synthesis, HRTF), WebXR</dd>
+        <dt>Engineering</dt><dd>React, Next.js, TypeScript, React Native and Expo, Node and Express, GraphQL, Java Spring Boot, AWS Lambda, Docker, SQL and NoSQL, published npm libraries</dd>
+        <dt>Design</dt><dd>Figma (including plugin development), Webflow, wireframing and concept sprints, interaction design</dd>
+      </dl>
+    </section>
+
+    <section id="contact" class="contact" aria-labelledby="h-contact">
+      <h2 id="h-contact">Contact</h2>
+      <p class="big"><a href="mailto:sagarwa8@umd.edu">sagarwa8@umd.edu</a></p>
+      <p>I am glad to hear about research internships, lab collaborations and studies that need a prototype built. The quickest route is email or <a href="https://www.linkedin.com/in/siddharthagarwal2608/" target="_blank" rel="noopener">LinkedIn</a>.</p>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <span>© 2026 Siddharth Agarwal · College Park, Maryland</span>
+  <span class="noprint">Last updated October 2026 · <a href="../../portfolio-operative/">The playful version of this site ↗</a></span>
+</footer>
+
+<script>
+(() => {
+  const chips = document.querySelectorAll('.chip');
+  const projs = document.querySelectorAll('.proj');
+  chips.forEach((c) => c.addEventListener('click', () => {
+    chips.forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+    const f = c.dataset.f;
+    projs.forEach((p) => { p.hidden = !(f === 'all' || p.dataset.theme === f); });
+  }));
+
+  document.querySelectorAll('.ghost').forEach((b) => b.addEventListener('click', () => {
+    const open = b.getAttribute('aria-expanded') !== 'true';
+    b.setAttribute('aria-expanded', String(open));
+    document.getElementById(b.getAttribute('aria-controls')).hidden = !open;
+  }));
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+  // highlight the section in view
+  const links = [...document.querySelectorAll('.top nav a')];
+  const io = new IntersectionObserver((es) => es.forEach((en) => {
+    if (en.isIntersecting) links.forEach((a) => a.setAttribute('aria-current', String(a.hash === '#' + en.target.id)));
+  }), { rootMargin: '-40% 0px -55% 0px' });
+  document.querySelectorAll('main section').forEach((s) => io.observe(s));
+})();
+</script>
+</body>
+</html>
