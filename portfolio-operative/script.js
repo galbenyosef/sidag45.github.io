@@ -539,21 +539,90 @@
           'Fictional by design: the brand, cask and prices are invented, and the cart does not take orders.' ] },
       ],
       link:{href:'https://sidag45.github.io/XR%20Projects/whiskey-unboxing/', label:'Unbox the bottle'} },
-    { id:'DESKTOP', code:'OP-05', name:'Gesture Desktop', status:'In progress', clr:'Public',
+    { id:'APARTMENT', code:'OP-05', name:'Apartment Walkthrough', status:'Prototype', clr:'Public',
+      op:'A 32-second phone video of an apartment, rebuilt as a walkable 3D home in the browser.',
+      role:'Spatial reconstruction, interaction design and three.js build.',
+      body:'A three-bedroom apartment rebuilt in three.js from a 32-second phone walkthrough and a hand-drawn floor plan. Visitors steer a figure through three bedrooms, two baths, the living and dining rooms, the kitchen and the balcony with WASD (Shift to run), drag to look around, and switch between an over-the-shoulder view and first person. A floor plan in the corner shows where they are and jumps to any room on click; a card in the opposite corner shows that room\'s frame from the original video and plays the moment. The skyline outside the windows is stitched from the balcony shots, and the original video plays on the living-room TV.',
+      secret:'The question underneath: can a casual phone video and a hand-drawn plan carry enough of a home for someone to understand it without visiting?',
+      tags:['three.js','Video to 3D','Spatial reconstruction','Wayfinding','Character controller','Adaptive rendering'],
+      sections:[
+        { h:'PROCESS', ordered:true, list:[
+          'Source: a 32-second portrait phone video moving through the apartment, and a hand-drawn floor plan.',
+          'Layout: the plan drawn to scale at 1.2 m per grid square, about 23.2 × 7.2 m overall, with each door placed and swung where the slanted lines on the plan show it.',
+          'Finishes: marble, oak and fabrics matched to the video with physically based materials (clearcoat stone and wood, sheen fabrics, lacquer).',
+          'Views and art: the skyline stitched from the balcony frames, and the wall art cropped from the video.',
+          'Link to the source: every room keeps the timestamp where it appears in the video, so the corner card can show and play that moment.' ] },
+        { h:'BUILD NOTES', list:[
+          'Rendering: ground-truth ambient occlusion and bloom, 2048 soft shadows, and reflections captured from inside the apartment so they match the rooms.',
+          'Adaptive quality: Fast while the visitor moves or turns, Ultra once the view settles. The Quality button can pin either.',
+          'Shadows in rooms away from the figure keep their last maps instead of re-rendering every frame.',
+          'Figure: motion-captured idle, walk and run clips blended by speed, with an over-the-shoulder camera or first person (V).',
+          'Touch: an on-screen joystick for phones.' ] },
+      ],
+      link:{href:'https://sidag45.github.io/XR%20Projects/Apartment%20Walkthrough/', label:'Walk the apartment'} },
+    { id:'GRAFFITI', code:'OP-06', name:'AR Graffiti', status:'Phase 0 · field test pending', clr:'Public',
+      op:'Shared AR pieces pinned to real places. Phase 0 tests whether a mark placed on the ground appears in exactly the same spot for everyone.',
+      role:'Concept, field-test design, Unity AR build and results dashboard.',
+      body:'The idea is a wall anyone can paint in AR: pieces anchored to real places that every visitor sees in the same spot. Before building any drawing tools, Phase 0 asks the go/no-go question. One phone places a test marker on a chalk X on McKeldin Mall, using Google\'s Geospatial API to turn its pose into latitude, longitude, altitude and a compass rotation stored in Supabase. Other phones, signed in as other accounts, load it from other directions on other days, and each tester marks where the real X is. The app logs how far off the marker appeared, in which direction, at what height and rotation, how well the phone was localized, how long the marker took to lock, and how many hours had passed since it was placed. A dashboard grades each kind of spot as Pass, Marginal or Fail against the brief\'s criteria.',
+      secret:'If two people cannot see the same mark within half a metre and ten degrees, a shared wall does not work. Phase 0 exists to find that out before anything else is built.',
+      tags:['Unity 6','AR Foundation','ARCore Geospatial API','Supabase','Field study design','Data visualisation'],
+      sections:[
+        { h:'HOW THE TEST WORKS', ordered:true, list:[
+          'Chalk an X and a facing dot at three kinds of spot on the Mall: open and well mapped, a plain lawn, and shaded under trees.',
+          'Phone A places a marker on each X. Saving is only allowed once Google\'s visual positioning has the phone within ±1 m and ±4°; terrain anchors are the default, with fixed-altitude anchors for comparison.',
+          'No home advantage: the placer\'s marker is deleted and rebuilt from the stored record, exactly as every other phone loads it.',
+          'Phone B, on another account, walks in from a different direction, loads the marker (optionally from a cold start to time a fresh lock) and measures the error against the real X and facing dot.',
+          'Repeat at different times of day and again the next day; the dashboard groups results by spot and light.' ] },
+        { h:'BUILD NOTES', list:[
+          'Unity 6 with AR Foundation 6 and ARCore Extensions 1.56; the same build runs on Android and iPhone.',
+          'Supabase with an anonymous account per install and row-level security: everyone can read, each account writes only as itself, and logged results cannot be edited.',
+          'Results dashboard: the brief\'s success criteria, a grade per kind of spot, a top-down plot of every error with 25 cm, 50 cm and 1 m rings, and error against hours since placing to show drift.',
+          'Verified before handoff: the C# type-checks against the real ARCore Extensions API, the placement and measurement maths passed unit tests, and the database rules were tested on Postgres 16.',
+          'Not yet done: running it on phones on the Mall. The dashboard images here use its built-in sample data, not field results.' ] },
+      ],
+      link:{href:'https://sidag45.github.io/XR%20Projects/ar-graffiti/results/?demo', label:'Open the results dashboard (sample data)'} },
+    { id:'CHOIR', code:'OP-07', name:'Voice of the World', status:'v1 build', clr:'Public',
+      op:'A choir anyone can join: submitted voices are tuned to one key and sung together in the browser around a turning globe.',
+      role:'Concept, audio DSP, interaction design and AWS pipeline.',
+      body:'Every light on the globe is someone\'s voice. Press Listen and the voices are tuned to one shared key, staggered so they enter one at a time, and placed in 3D sound by where they sit on the globe; dragging the globe moves the choir around you. A rules-based conductor picks the key and mood, plays a chord progression, decides who sings and who rests, keeps the registers balanced and gives new voices the first entry. Anyone can add a voice in four steps (consent, record up to eight seconds, automatic checks, join). Ten synthesised seed voices, sung slightly off-key on purpose, let the tuning be heard from the first visit. Submissions go through an automated moderation pipeline on AWS; without a server configured, the page runs entirely on the device.',
+      secret:'A test of whether strangers\' voices can become one piece of music without anyone listening to, or judging, a single clip.',
+      tags:['Web Audio API','Pitch tracking (YIN)','Granular synthesis','Spatial audio (HRTF)','AWS Lambda','Consent design'],
+      sections:[
+        { h:'HOW THE BLEND WORKS', list:[
+          'Analysis: each clip gets a YIN pitch track, smoothed to keep intonation but drop vibrato, plus level, voiced ratio, a rough tone measure and its steadiest 0.7 s of vowel.',
+          'Tuning: granular playback with ~110 ms grains, each pitch-shifted from its own pitch to the nearest chord tone, so speech becomes held notes and natural vibrato survives. On a chord change every voice moves to the nearest tone of the new chord.',
+          'Time: phrases are slowed to 0.55–0.85× and enter 1–2.6 s apart, and how many voices sing at once rises and falls so the texture breathes.',
+          'Space: a voice\'s place on the globe sets its HRTF position, a lowpass filter and its reverb send, so voices on the far side sound distant and muffled.',
+          'Drones: the steady vowel is frozen and held on the chord\'s root and fifth, swelling over 16–26 s.' ] },
+        { h:'THE PIPELINE', list:[
+          'Upload: consent is stored, then the browser gets a one-time link to a private bucket; anything unfinished is deleted within a day.',
+          'Moderation: the server re-checks the clip and analyses its pitch, then speech is transcribed, translated to English if needed, and rejected for toxic content or personal information (phone numbers, addresses, emails, ID numbers).',
+          'Nobody listens to clips. Transcripts are deleted as soon as moderation finishes, and only a pitch summary, the consent record and a toxicity score are kept.',
+          'It fails closed: if transcription or moderation errors, the clip is deleted. A sung "aaah" with no words skips the text checks.',
+          'Withdrawal: each contributor\'s browser keeps a withdraw token (only its hash is stored) that removes the file, the record and the cached copy.',
+          'Limits: five submissions per hour per address, WAV only, 1.1 MB maximum; approved voices are kept for 365 days.',
+          'Tests: 18 pipeline checks and 6 browser checks run against in-memory stand-ins for the AWS services.' ] },
+        { h:'KNOWN LIMITS', list:[
+          'Short clips in languages outside the configured set are the weak spot for transcription, so abuse in them could slip through.',
+          'Voices are served as WAV; an Opus step would cut downloads about tenfold.',
+          'The AI conductor (step 4 of the brief) has not been started; the rules-based conductor is in its place.' ] },
+      ],
+      link:{href:'https://sidag45.github.io/XR%20Projects/voice-of-the-world/', label:'Listen to the choir'} },
+    { id:'DESKTOP', code:'OP-08', name:'Gesture Desktop', status:'In progress', clr:'Public',
       op:'A MacBook-style desktop in the browser, operated by hand in front of a webcam.',
       role:'Interaction design and engineering.',
       body:'Files and folders can be picked up, dragged and dropped with fingers. A two-finger tap opens the context menu, and the usual trackpad controls still work. With the camera on, hand tracking drives a red pointer, mapped from finger movement to screen distance.',
       secret:'Built as a study in how far direct-manipulation habits transfer to mid-air input.',
       tags:['Hand tracking','Computer vision','Gesture UX','JavaScript'],
       link:{href:'https://sidag45.github.io/XR%20Projects/virtual-desktop/', label:'Try the desktop'} },
-    { id:'GLANCE', code:'OP-06', name:'Glance Desktop', status:'Prototype', clr:'Public',
+    { id:'GLANCE', code:'OP-09', name:'Glance Desktop', status:'Prototype', clr:'Public',
       op:'A MacBook-style desktop in the browser, operated with the eyes through a webcam.',
       role:'Interaction design and engineering.',
       body:'A red pointer follows the visitor\'s gaze and settles on the nearest button or file. One deliberate blink clicks, two blinks open, a long blink picks something up and the next blink drops it, and a wink right-clicks. Looking at the top or bottom edge of a window scrolls it, and the top-right corner opens Mission Control. A short calibration learns each person\'s eyes and blink, and the video never leaves the device.',
       secret:'The hands-free sequel to Gesture Desktop: can a desktop be run when the eyes have to both read the screen and act on it?',
       tags:['Eye tracking','Face landmarks (MediaPipe)','Gaze interaction','Accessibility','JavaScript'],
       link:{href:'https://sidag45.github.io/XR%20Projects/eye-desktop/', label:'Try it with your eyes'} },
-    { id:'KOMBAT', code:'OP-07', name:'Gesture Kombat', status:'Prototype', clr:'Public',
+    { id:'KOMBAT', code:'OP-10', name:'Gesture Kombat', status:'Prototype', clr:'Public',
       op:'A browser fighting-game prototype played with full-body webcam gestures or the keyboard.',
       role:'Design and engineering: game, gesture recognition and match server.',
       body:'Gesture Kombat turns a player\'s body movements into fighting-game actions in an original 2D side-view arena, with two original fighters, Ember and Glacier. Gestures select animated moves rather than mapping the body directly onto the character, so the fight keeps the rules of a classic 2D fighter: health bars, a 60-second round timer, hit effects, blocking and combos. It runs in the browser with solo training against an AI opponent, local two-player, a full keyboard fallback and an optional webcam mode using full-body pose tracking. A WebSocket server prototype adds room-code online matches.',
@@ -584,38 +653,38 @@
           'For two players on one machine choose Local Duel. Online rooms need the match server running.' ] },
       ],
       link:{href:'https://sidag45.github.io/gesture-kombat/', label:'Play the prototype'} },
-    { id:'PAPERTOSS', code:'OP-08', name:'Paper Toss', status:'Playable', clr:'Public',
+    { id:'PAPERTOSS', code:'OP-11', name:'Paper Toss', status:'Playable', clr:'Public',
       op:'Office basketball played hands-free: crumple a sheet and throw it in the bin, using only your hand in front of a webcam.',
       role:'Game design, gesture design and build.',
       body:'Pinch thumb and index finger to pick up the sheet from the desk, make a fist three times to crumple it into a ball, then swing toward the bin and open your hand to let go. A power meter shows the strength of the throw, and every basket moves the bin farther away. The game tracks baskets, tosses, streak and best streak. Hand tracking runs in the browser and the video never leaves the device; mouse and touch work too.',
       secret:'Every gesture maps to something a real hand does with real paper. Nobody needs a tutorial to throw.',
       tags:['Hand tracking','Gesture input','Game design','JavaScript'],
       link:{href:'https://sidag45.github.io/XR%20Projects/paper-toss/paper-toss.html', label:'Play Paper Toss'} },
-    { id:'SRK', code:'OP-09', name:'SRK Haute Horlogerie', status:'Delivered', clr:'Confidential',
+    { id:'SRK', code:'OP-12', name:'SRK Haute Horlogerie', status:'Delivered', clr:'Confidential',
       op:'A private viewing room for a luxury watch boutique.',
       role:'Web design and Webflow development, via Enclave Labs.',
       body:'Designed and improved the boutique\'s Webflow site to feel like an appointment, not a checkout. Built the CMS structure, SEO-friendly imports, collection filtering, dynamic content and custom JavaScript interactions, plus automations for publishing new pieces.',
       secret:'The brief: nobody should feel they are shopping. They should feel invited.',
       tags:['Webflow','CMS architecture','Custom JS','Automation'] },
-    { id:'MOVEMENT', code:'OP-10', name:'Movement Lab', status:'Active', clr:'Confidential',
+    { id:'MOVEMENT', code:'OP-13', name:'Movement Lab', status:'Active', clr:'Confidential',
       op:'A coaching app for a Hong Kong gym, built to grow into a global subscription.',
       role:'Product and engineering lead, via Enclave Labs.',
       body:'Stage one equips Movement Fitness\'s personal trainers to coach their in-gym clients through the app. Stage two opens the same codebase to self-serve subscribers worldwide, covering training programmes and nutrition.',
       secret:'Two products, one codebase. Planned that way from day one.',
       tags:['Next.js','Mobile','Product strategy','Scalability'] },
-    { id:'PARALLEL', code:'OP-11', name:'ParallelChain Lab', status:'Concluded', clr:'Confidential',
+    { id:'PARALLEL', code:'OP-14', name:'ParallelChain Lab', status:'Concluded', clr:'Confidential',
       op:'Front-end lead on a Layer 1 blockchain platform.',
       role:'Lead Front-end Engineer. Unit of 5+.',
       body:'Led the front-end team and set its architecture. Shipped the block explorer and a native wallet, built developer tools and documentation, and helped tighten engineering processes across the lab.',
       secret:'Leadership of the unit included process reform, not only code.',
       tags:['React','TypeScript','Team lead','Developer tools'] },
-    { id:'ROJU', code:'OP-12', name:'ROJU', status:'Concluded', clr:'Confidential',
+    { id:'ROJU', code:'OP-15', name:'ROJU', status:'Concluded', clr:'Confidential',
       op:'Mobile app and CMS for an online jump rope learning platform.',
       role:'Mobile and full-stack engineer.',
       body:'Built ROJU\'s React Native app and published it to the App Store and Google Play. Contributed backend features in Java Spring Boot and built a React content management system for the coaching content.',
       secret:'Shipped on both stores, which is its own kind of fieldcraft.',
       tags:['React Native','Spring Boot','React CMS'] },
-    { id:'FAATEH', code:'OP-13', name:'Faateh Real Estate', status:'Handed over', clr:'Confidential',
+    { id:'FAATEH', code:'OP-16', name:'Faateh Real Estate', status:'Handed over', clr:'Confidential',
       op:'A Webflow site for a real estate firm, plus a full handover kit.',
       role:'Design, build and client training, via Enclave Labs.',
       body:'Built the site in Webflow, then prepared the client to own it: a handover document and a tutorial video script covering sign-up, site transfer and day-to-day editing.',
@@ -709,6 +778,42 @@
       ],
       figs: ['ko-concepts', 'ko-poses', 'ko-phone', 'ko-slosh'],
       study: 'A between-subjects study with whisky buyers: the 3D product stage versus the same copy with a static photo gallery. Measures: recall of product details (contents, cask number, edition differences), perceived quality and trust, purchase intent, time to add to cart, and SUS, with interaction logs showing how often people rotate the model and which chapters they skip.',
+    },
+    APARTMENT: {
+      rq: 'Can a walkable 3D rebuild made from a short phone video help someone form an accurate mental map of a home (its layout, room sizes and how the rooms connect) better than watching the same video, and does linking each room back to its moment in the video make the model more trustworthy?',
+      principles: [
+        ['Route versus survey knowledge', 'A walkthrough video is a single route: rooms appear only in the order the camera passed them. Walking the rebuild with a floor plan that marks your position adds the survey view, so visitors learn how rooms connect as well as what they look like.'],
+        ['You are here', 'The corner plan is a you-are-here map that is also a menu: it shows the current room and jumps to any other. Both wayfinding questions, where am I and how do I get there, are answered without leaving the view.'],
+        ['Provenance builds trust', 'A reconstruction is an interpretation. Showing each room\'s original frame and playing its moment lets visitors check the model against the source rather than taking the rebuild on faith.'],
+        ['Embodiment and scale', 'A human figure walking through doorways gives every room a familiar measure; first person trades that reference for presence. Visitors can switch to whichever helps them judge size.'],
+        ['Responsiveness first', 'Movement drops to Fast rendering and full quality returns once the view settles, so the camera never lags behind the keys. Lag between input and view is a known trigger of discomfort in steered 3D.'],
+      ],
+      figs: ['ap-pipeline', 'ap-plan', 'ap-quality'],
+      study: 'A between-subjects study: watch the 32-second video, or explore the 3D rebuild for the same time. Measures: sketch-map accuracy (room adjacency and relative size), pointing towards rooms out of sight from a given spot, room-size estimates against the real plan, confidence, and the Simulator Sickness Questionnaire for the 3D group.',
+    },
+    GRAFFITI: {
+      rq: 'How consistently can phone-based geospatial anchors put the same virtual mark in the same real spot for different people, phones and days, how does the kind of place change that, and how much error can people tolerate before a shared AR mark stops feeling like it is "there"?',
+      principles: [
+        ['Common ground', 'Collaboration rests on a shared reference (Clark and Brennan). A piece of AR graffiti is only social if everyone who looks sees it in the same place; if each phone shows it somewhere slightly different, people are no longer looking at the same thing.'],
+        ['Measure against ground truth', 'Asking testers whether a marker "looks right" invites guesswork. Chalk marks give an objective target, so error is measured in centimetres and degrees, and the placer\'s own measurements are left out so nobody grades their own work.'],
+        ['Ecological validity', 'The test runs on a real campus across sun, overcast and dusk, approach directions, cold starts and days apart: the conditions real visitors bring, not a lab bench.'],
+        ['Risk first', 'The riskiest assumption, that anchors hold, is tested before any drawing tools, sharing or social features exist. A failed Phase 0 saves months.'],
+        ['Showing the system\'s confidence', 'Localization accuracy is shown live and saving is locked until it is good enough, so people can see when the system is unsure instead of trusting a marker that has quietly drifted.'],
+      ],
+      figs: ['ag-test', 'ag-anchor', 'ag-target'],
+      study: 'Phase 0 is itself the field study (two phones, two accounts, three kinds of spot, varied light and days). A follow-up perception study would show markers at controlled offsets from a real mark and ask whether each one is "on it", to find the error people will accept, and compare that threshold with what the anchors deliver.',
+    },
+    CHOIR: {
+      rq: 'Can an automated, consent-first pipeline turn strangers\' short voice clips into a choir that listeners find musical and contributors recognise themselves in, and does hearing your own voice join change how connected you feel to the others?',
+      principles: [
+        ['Consent as interaction design', 'Two explicit checkboxes, a plain-language note about where the recording goes, and a withdraw token make consent informed and revocable, built into the flow rather than buried in a policy.'],
+        ['Privacy by design', 'No person listens to submissions, transcripts are deleted after moderation, only summaries are kept, and any failure deletes the clip. The safe outcome is the default one.'],
+        ['Recognising yourself', 'New voices get the first entry, so contributors can hear themselves arrive. That moment of recognition is the feedback that makes joining feel worthwhile.'],
+        ['A natural mapping for sound', 'Position on the globe maps to position in space: voices on the far side sound distant and muffled, and dragging the globe moves the choir around the listener. The control and its effect line up, which Norman calls a natural mapping.'],
+        ['No skill required', 'An open "aaah" works best and the tuning places every voice on the chord, so nobody needs to be able to sing. Lowering performance anxiety widens who will take part.'],
+      ],
+      figs: ['vw-flow', 'vw-tune', 'vw-globe'],
+      study: 'A mixed-methods study with contributors: record a voice, then listen for it. Measures: whether and how quickly people find themselves, perceived musicality, connectedness to the other voices (Inclusion of Other in the Self scale), and comfort with the consent flow; plus a listener-only group rating the choir with and without tuning.',
     },
   };
 
@@ -1265,10 +1370,177 @@
         return k.svg(this.label);
       },
     },
+    'ap-pipeline': {
+      caption: 'From phone to floor plan to rooms you can walk. The video supplies looks and timestamps, the hand-drawn plan supplies proportions, and each finished room keeps a link back to its moment in the video.',
+      label: 'Wireframe pipeline: a portrait phone with a timeline and a hand-drawn grid plan feed into a scaled 3D layout, then materials and lighting, then walkable rooms, each tagged with a video timestamp that loops back to the phone.',
+      draw(){
+        const k = sketcher(83, 660, 290);
+        k.rect(24, 30, 64, 112).rect(32, 42, 48, 76).line(32, 130, 80, 130, 'pc', 1).dot(52, 130, 3, 'fr');
+        k.text(56, 162, '32 s video', {size: 13, anchor: 'middle'});
+        k.rect(14, 186, 86, 64);
+        for (let i = 1; i < 6; i++) k.line(14 + i * 14.3, 186, 14 + i * 14.3, 250, 'pc', 0.5);
+        for (let i = 1; i < 4; i++) k.line(14, 186 + i * 16, 100, 186 + i * 16, 'pc', 0.5);
+        k.line(40, 202, 50, 194, 'pr', 1.4).line(70, 234, 80, 226, 'pr', 1.4);
+        k.text(56, 272, 'hand-drawn plan', {size: 13, anchor: 'middle'});
+        k.arrow(110, 90, 160, 140).arrow(110, 220, 160, 170);
+        k.rect(170, 118, 120, 70).line(210, 118, 210, 188, 'pc', 1).line(250, 118, 250, 188, 'pc', 1).line(170, 152, 290, 152, 'pc', 1);
+        k.text(230, 210, 'scaled layout', {size: 13, anchor: 'middle'}).text(230, 226, '1 square = 1.2 m', {size: 11, anchor: 'middle'});
+        k.arrow(300, 152, 340, 152);
+        k.rect(350, 110, 120, 84).hatch(350, 166, 120, 28, 6).ellipse(410, 132, 16, 10, 'pc', 1.2);
+        k.text(410, 214, 'materials, light', {size: 13, anchor: 'middle'}).text(410, 230, 'skyline from balcony', {size: 11, anchor: 'middle'});
+        k.arrow(480, 152, 520, 152);
+        k.rect(530, 104, 112, 96).ellipse(586, 140, 6, 6).line(586, 146, 586, 172).line(586, 172, 578, 190).line(586, 172, 594, 190);
+        k.rect(536, 176, 40, 18, 'pr', 1.4).text(556, 189, '0:22', {size: 11, anchor: 'middle'});
+        k.text(586, 220, 'walkable rooms', {size: 13, anchor: 'middle'});
+        k.curve(556, 98, 330, -20, 88, 52, 'pd');
+        k.text(330, 40, 'each room links back to its moment', {cls: 'ptr', size: 19, anchor: 'middle'});
+        return k.svg(this.label);
+      },
+    },
+    'ap-plan': {
+      caption: 'The video is one route; the rebuild is a map. The dashed line follows the order rooms appear in the 32 seconds, while the plan in the corner lets visitors go anywhere, in any order, and always shows where they are.',
+      label: 'Wireframe floor plan to scale with eleven rooms: bedroom 1 and bath 1 on the left, bedroom 2, hallway and bath 2, the living room behind the balcony, dining, kitchen, pantry and bedroom 3 on the right. A dashed numbered path shows the video route, and a marker labelled you are here sits in the living room.',
+      draw(){
+        const k = sketcher(97, 660, 300);
+        const X = (m) => 20 + m * 26.7, Z = (m) => 40 + m * 28;
+        const R = [['Bed 1', 0, 0, 5.75, 4.44], ['', 3.6, 4.44, 5.75, 7.2], ['Bath 1', 0, 4.44, 3.6, 7.2], ['Bed 2', 5.75, 0, 10.7, 3.6], ['hall', 5.75, 3.6, 10.7, 4.8], ['Bath 2', 5.75, 4.8, 11.05, 7.2], ['balcony', 10.7, 0, 18.25, .9], ['Living', 10.7, .9, 18.25, 3.9], ['Dining', 11.05, 3.9, 18.25, 7.2], ['Kitchen', 18.25, 3.35, 21.96, 7.2], ['', 21.96, 4.5, 23.2, 7.2], ['Bed 3', 18.25, 0, 23.2, 3.35]];
+        R.forEach(([n, x1, z1, x2, z2]) => { k.rect(X(x1), Z(z1), X(x2) - X(x1), Z(z2) - Z(z1), 'pc', 1.2); if (n) k.text(X(x1) + 6, Z(z1) + 15, n, {size: 12}); });
+        k.hatch(X(13.6), Z(0), X(18.25) - X(13.6), Z(.9) - Z(0), 6);
+        const route = [[1.8, 5.8], [3, 2.2], [8.2, 1.8], [8.4, 6], [14.6, 5.6], [20.1, 5.2], [20.7, 1.6], [14.6, 2.4], [14.6, .5]];
+        for (let i = 0; i < route.length - 1; i++) k.dash(X(route[i][0]), Z(route[i][1]), X(route[i + 1][0]), Z(route[i + 1][1]));
+        route.forEach(([x, z], i) => k.ellipse(X(x), Z(z), 7, 7, 'pc', 1).text(X(x), Z(z) + 4, String(i + 1), {size: 9, anchor: 'middle'}));
+        k.dot(X(16.4), Z(2.8), 6, 'fr').arrow(X(16.4), Z(2.8), X(16.4) - 2, Z(2.8) - 24, 'pr', 1.8);
+        k.text(X(16.4) + 14, Z(2.8) + 22, 'you are here', {cls: 'ptr', size: 17});
+        k.text(20, 284, 'dashed = the order rooms appear in the video', {size: 12});
+        k.text(640, 284, 'click any room to jump', {cls: 'ptr', size: 18, anchor: 'end'});
+        k.text(20, 26, '23.2 m', {size: 11}).text(640, 26, '7.2 m deep', {size: 11, anchor: 'end'});
+        return k.svg(this.label);
+      },
+    },
+    'ap-quality': {
+      caption: 'Adaptive quality over a few seconds of play. Rendering drops to Fast the moment the visitor moves or turns and returns to Ultra once the view settles, so control stays immediate and still views look their best.',
+      label: 'Wireframe timeline: a row marks key presses and drags; beneath it, a quality line steps down to Fast during movement and back up to Ultra when still, with labels for walking, looking around and standing still.',
+      draw(){
+        const k = sketcher(61, 660, 240);
+        k.text(14, 64, 'input', {size: 13}).text(14, 140, 'Ultra', {size: 13}).text(14, 196, 'Fast', {size: 13});
+        const segs = [[90, 230, 'walking (W, Shift)'], [330, 430, 'dragging to look']];
+        segs.forEach(([a, b, t]) => { k.rect(a, 50, b - a, 22, 'pc', 1.2).hatch(a, 50, b - a, 22, 6).text((a + b) / 2, 42, t, {size: 12, anchor: 'middle'}); });
+        k.text(520, 66, 'standing still', {size: 12, anchor: 'middle'});
+        const hi = 136, lo = 192, pts = [[70, hi], [90, hi], [90, lo], [244, lo], [262, hi], [330, hi], [330, lo], [444, lo], [462, hi], [640, hi]];
+        for (let i = 0; i < pts.length - 1; i++) k.line(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], 'pr', 2);
+        k.dash(70, hi, 640, hi).dash(70, lo, 640, lo);
+        k.text(253, 228, 'settles → Ultra', {cls: 'ptr', size: 16, anchor: 'middle'}).text(90, 228, 'moves → Fast', {cls: 'ptr', size: 16, anchor: 'middle'});
+        k.arrow(70, 214, 640, 214, 'pc', 1).text(640, 232, 'time', {size: 11, anchor: 'end'});
+        return k.svg(this.label);
+      },
+    },
+    'ag-test': {
+      caption: 'The Phase 0 test on the Mall. Phone A places the marker on a chalk X; phone B, on another account, walks in from another direction, loads it, and marks where the real X is. The gap between the two is the error.',
+      label: 'Wireframe from above: a chalk X with a facing dot, phone A on one side placing a marker, phone B approaching from another side, and an arrow from the X to where the marker appeared, labelled offset, with the rotation error marked as an angle.',
+      draw(){
+        const k = sketcher(19, 660, 290);
+        k.line(300, 130, 340, 170, 'pc', 2.6).line(340, 130, 300, 170, 'pc', 2.6).text(290, 184, 'chalk X', {size: 13, anchor: 'end'});
+        k.dot(440, 150, 5).text(452, 155, 'facing dot', {size: 12}).dash(320, 150, 440, 150);
+        k.ellipse(352, 124, 12, 12, 'pr', 1.8).dot(352, 124, 3, 'fr').text(366, 106, 'marker as loaded', {cls: 'ptr', size: 17});
+        k.arrow(320, 150, 348, 128, 'pr', 1.6).text(296, 116, 'offset', {cls: 'ptr', size: 16, anchor: 'end'});
+        k.line(352, 124, 470, 104, 'pr', 1.2).curve(420, 150, 432, 128, 428, 110, 'pr', false).text(436, 132, 'rotation', {size: 11});
+        k.rect(80, 120, 34, 58).text(97, 200, 'phone A', {size: 13, anchor: 'middle'}).text(97, 216, 'places', {size: 11, anchor: 'middle'}).arrow(118, 150, 286, 150, 'pc', 1);
+        k.rect(300, 236, 58, 34).text(372, 258, 'phone B, other account', {size: 13}).text(372, 274, 'from another side', {size: 11}).arrow(344, 232, 336, 180, 'pc', 1);
+        k.text(20, 40, 'open · plain lawn · under trees', {size: 13}).text(20, 60, 'sun · overcast · dusk · next day', {size: 13});
+        k.text(640, 40, 'no home advantage:', {cls: 'ptr', size: 17, anchor: 'end'}).text(640, 60, 'placer reloads from the cloud too', {cls: 'ptr', size: 17, anchor: 'end'});
+        return k.svg(this.label);
+      },
+    },
+    'ag-anchor': {
+      caption: 'What actually travels between phones. Not the marker but its pose: latitude, longitude, altitude and a compass rotation, saved only when the phone is well localized, and rebuilt on every phone, the placer\'s included.',
+      label: 'Wireframe pipeline: a phone pose converted to latitude, longitude, altitude and an east-up-north rotation, gated by a localization check of plus or minus one metre and four degrees, stored in a database row, then loaded and rebuilt as a terrain anchor on another phone; a side note compares terrain and fixed-altitude anchors.',
+      draw(){
+        const k = sketcher(29, 660, 270);
+        k.rect(20, 70, 50, 86).text(45, 176, 'phone pose', {size: 12, anchor: 'middle'});
+        k.arrow(78, 112, 120, 112);
+        k.rect(126, 64, 150, 96).text(140, 90, 'lat, long', {size: 13}).text(140, 112, 'altitude', {size: 13}).text(140, 134, 'rotation (E-U-N)', {size: 13});
+        k.rect(150, 196, 104, 44, 'pr', 1.6).text(202, 216, 'save only if', {size: 11, anchor: 'middle'}).text(202, 232, '±1 m · ±4°', {cls: 'ptr', size: 16, anchor: 'middle'}).line(202, 196, 202, 164, 'pr', 1.2);
+        k.arrow(284, 112, 326, 112);
+        k.rect(332, 80, 110, 64).line(332, 100, 442, 100, 'pc', 1).line(332, 120, 442, 120, 'pc', 1).text(387, 74, 'Supabase row', {size: 12, anchor: 'middle'});
+        k.arrow(450, 112, 492, 112);
+        k.rect(500, 70, 50, 86).ellipse(525, 108, 10, 10, 'pr', 1.6).text(525, 176, 'any phone', {size: 12, anchor: 'middle'}).text(525, 192, 'rebuilds it', {size: 12, anchor: 'middle'});
+        k.text(400, 236, 'terrain anchor: sits on Google\'s ground model', {size: 12}).text(400, 254, 'fixed altitude: kept for comparison', {size: 12});
+        k.text(20, 34, 'the mark never travels, only its pose', {cls: 'ptr', size: 20});
+        return k.svg(this.label);
+      },
+    },
+    'ag-target': {
+      caption: 'How a spot passes. Every measurement lands on a target centred on the chalk X; the brief asks for most within 50 cm and 10°, across devices, accounts, light and days.',
+      label: 'Wireframe target from above with rings at 25 centimetres, 50 centimetres and 1 metre around the chalk X, scattered measurement dots, and a checklist of criteria: two devices, two accounts, same position, same orientation, different light, days apart.',
+      draw(){
+        const k = sketcher(37, 660, 280);
+        const cx = 170, cy = 140;
+        [[30, '25 cm'], [62, '50 cm'], [118, '1 m']].forEach(([r, t], i) => { k.ellipse(cx, cy, r, r, i === 1 ? 'pr' : 'pd', i === 1 ? 1.6 : 1.1); k.text(cx + r * .72 + 4, cy - r * .72, t, {size: 11}); });
+        k.line(cx - 8, cy - 8, cx + 8, cy + 8, 'pc', 2.4).line(cx + 8, cy - 8, cx - 8, cy + 8, 'pc', 2.4);
+        [[12, -6], [-18, 10], [24, 22], [-6, -30], [40, -14], [-44, -20], [70, 40], [-20, 52], [8, 14]].forEach(([dx, dy]) => k.dot(cx + dx, cy + dy, 4));
+        const C = ['two separate devices', 'two separate accounts', 'same position (≤ 50 cm)', 'same facing (≤ 10°)', 'different light', 'days apart'];
+        C.forEach((t, i) => { const y = 54 + i * 34; k.rect(340, y - 14, 16, 16).text(368, y, t, {size: 14}); });
+        k.text(340, 262, 'Pass · Marginal · Fail per kind of spot', {cls: 'ptr', size: 18});
+        return k.svg(this.label);
+      },
+    },
+    'vw-flow': {
+      caption: 'Adding a voice, as the contributor sees it and as the server handles it. Every branch that is not a clear pass deletes the clip, and nobody listens at any step.',
+      label: 'Wireframe flow: consent, record, check, join on the contributor side; on the server, upload to a private bucket, transcribe, translate, toxicity and personal-information checks, then either the pool or deletion; a withdraw token loops back to remove the voice.',
+      draw(){
+        const k = sketcher(43, 660, 300);
+        ['consent', 'record ≤ 8 s', 'check', 'join'].forEach((t, i) => { const x = 30 + i * 150; k.rect(x, 26, 118, 36, i === 0 ? 'pr' : 'pc', i === 0 ? 1.6 : 1.1).text(x + 59, 49, t, {size: 14, anchor: 'middle'}); if (i) k.arrow(x - 30, 44, x - 4, 44); });
+        k.text(20, 90, 'contributor', {size: 12}).dash(20, 100, 640, 100).text(20, 122, 'server', {size: 12});
+        const S = [['private upload', 30, 118], ['transcribe', 176, 104], ['translate', 306, 104], ['toxic? personal info?', 436, 180]];
+        S.forEach(([t, x, w], i) => { k.rect(x, 140, w, 34).text(x + w / 2, 162, t, {size: 13, anchor: 'middle'}); if (i) k.arrow(x - 26, 157, x - 2, 157); });
+        k.arrow(526, 178, 440, 230, 'pc', 1.4).arrow(526, 178, 570, 230, 'pc', 1.4);
+        k.rect(380, 234, 110, 32).text(435, 255, 'pool (365 days)', {size: 13, anchor: 'middle'});
+        k.rect(520, 234, 110, 32, 'pr', 1.6).text(575, 255, 'delete', {cls: 'ptr', size: 17, anchor: 'middle'});
+        k.text(20, 210, 'nobody listens', {cls: 'ptr', size: 19}).text(20, 234, 'errors fail closed', {cls: 'ptr', size: 19});
+        k.curve(500, 62, 640, 120, 600, 232, 'pd').text(560, 90, 'withdraw token', {size: 11});
+        k.text(20, 286, 'transcripts deleted after moderation; only a pitch summary and consent record are kept', {size: 12});
+        return k.svg(this.label);
+      },
+    },
+    'vw-tune': {
+      caption: 'How speech becomes a held note. Each short grain is moved from its own pitch to the nearest chord tone, so a wandering spoken contour becomes steps on the chord while its small wobbles survive; voices then enter one at a time.',
+      label: 'Wireframe: a wavy pitch line of a spoken phrase above dashed horizontal lines for chord tones; below it the same phrase as short grains snapped onto the nearest chord tone; on the right, staggered bars showing voices entering one after another.',
+      draw(){
+        const k = sketcher(53, 660, 290);
+        const tones = [70, 110, 150, 190];
+        tones.forEach((y) => k.dash(30, y, 380, y));
+        ['E', 'C♯', 'A', 'E'].forEach((t, i) => k.text(20, tones[i] + 4, t, {size: 12, anchor: 'end'}));
+        k.curve(40, 160, 90, 96, 140, 132, 'pc', false).curve(140, 132, 190, 166, 240, 118, 'pc', false).curve(240, 118, 290, 80, 360, 104, 'pc', false);
+        k.text(150, 100, 'spoken contour', {size: 11});
+        const grains = [[40, 150], [80, 110], [120, 110], [160, 150], [200, 150], [240, 110], [280, 70], [320, 70]];
+        grains.forEach(([x, y]) => k.line(x + 4, y, x + 34, y, 'pr', 3));
+        k.text(200, 222, 'grains snapped to the nearest chord tone (~110 ms each)', {size: 12, anchor: 'middle'});
+        k.text(200, 246, 'on a chord change, each voice steps to the nearest new tone', {size: 12, anchor: 'middle'});
+        [[430, 640], [470, 640], [520, 640], [560, 640]].forEach(([a, b], i) => k.rect(a, 70 + i * 30, b - a, 18, i === 3 ? 'pr' : 'pc', 1.2));
+        k.text(430, 56, 'entries 1–2.6 s apart', {size: 12}).text(560, 206, 'newest voice', {cls: 'ptr', size: 16}).text(560, 224, 'enters first', {cls: 'ptr', size: 16});
+        return k.svg(this.label);
+      },
+    },
+    'vw-globe': {
+      caption: 'The globe is the mixing desk. A voice\'s place on the globe sets where it sounds around the listener and how far away; voices on the far side are quieter, muffled and wetter, and dragging the globe moves the whole choir.',
+      label: 'Wireframe: a globe with lights on the near and far sides, a listener\'s head with headphones below it, arrows showing a near voice panned clearly to one side and a far voice muffled with more reverb, and a drag arrow around the globe.',
+      draw(){
+        const k = sketcher(61, 660, 290);
+        k.ellipse(200, 130, 100, 100).ellipse(200, 130, 100, 34, 'pd', 1).ellipse(200, 130, 36, 100, 'pd', 1);
+        k.dot(150, 110, 7, 'fr').text(120, 96, 'near', {size: 12, anchor: 'end'});
+        k.ellipse(258, 66, 5, 5, 'pc', 1).text(270, 56, 'far side', {size: 12});
+        k.curve(84, 200, 200, 270, 316, 200, 'pr').text(200, 284, 'drag to turn the choir', {cls: 'ptr', size: 17, anchor: 'middle'});
+        k.ellipse(500, 150, 34, 40).ellipse(464, 150, 8, 16, 'pc', 1.6).ellipse(536, 150, 8, 16, 'pc', 1.6).curve(464, 134, 500, 92, 536, 134, 'pc', false).text(500, 220, 'listener', {size: 13, anchor: 'middle'});
+        k.arrow(320, 110, 456, 140, 'pr', 1.8).text(330, 96, 'clear, panned left', {size: 12});
+        k.arrow(330, 70, 470, 112, 'pd', 1.2).text(350, 50, 'far: quieter, muffled, more reverb', {size: 12});
+        k.text(640, 40, 'HRTF on headphones', {size: 12, anchor: 'end'}).text(640, 58, 'equal-power on touch', {size: 12, anchor: 'end'});
+        return k.svg(this.label);
+      },
+    },
   };
 
 
-  const CAT = { PAGELIFT: 'Research', PEGASUS: 'XR', LANTERNS: 'XR', KESTREL: 'XR', DESKTOP: 'XR', GLANCE: 'XR', KOMBAT: 'XR', PAPERTOSS: 'XR', SRK: 'Client', MOVEMENT: 'Client', PARALLEL: 'Engineering', ROJU: 'Engineering', FAATEH: 'Client' };
+  const CAT = { PAGELIFT: 'Research', PEGASUS: 'XR', LANTERNS: 'XR', KESTREL: 'XR', APARTMENT: 'XR', GRAFFITI: 'XR', CHOIR: 'Engineering', DESKTOP: 'XR', GLANCE: 'XR', KOMBAT: 'XR', PAPERTOSS: 'XR', SRK: 'Client', MOVEMENT: 'Client', PARALLEL: 'Engineering', ROJU: 'Engineering', FAATEH: 'Client' };
   const CAT_LABEL = { Research: 'TOOLS', XR: 'XR & GESTURE', Client: 'CLIENT', Engineering: 'ENGINEERING' };
   const pad2 = (n) => String(n).padStart(2, '0');
 
@@ -1309,6 +1581,35 @@
         { type: 'image', src: 'intel/kestrel-wf-pick.webp', caption: 'The sprint\'s recommendation: combine the stage, the ribbon pull and the pour, with hands-on unboxing as an optional XR mode.' },
       ],
       links: [{ label: 'Unbox the bottle', href: 'https://sidag45.github.io/XR%20Projects/whiskey-unboxing/' }],
+    },
+    APARTMENT: {
+      media: [
+        { type: 'video', src: 'intel/apartment-phone.mp4', webm: 'intel/apartment-phone.webm', poster: 'intel/apartment-phone-poster.webp', caption: 'The source: the 32-second phone walkthrough the apartment was rebuilt from.' },
+        { type: 'image', src: 'intel/apartment-compare-living.webp', caption: 'Video frame at 0:22 beside the rebuilt living room in first person.' },
+        { type: 'image', src: 'intel/apartment-compare-kitchen.webp', caption: 'Video frame at 0:16 beside the rebuilt kitchen, looking through to dining and living.' },
+        { type: 'image', src: 'intel/apartment-living.webp', caption: 'Living room, over the shoulder: the floor plan marks the room, and the corner card links to 0:22 in the video.' },
+        { type: 'image', src: 'intel/apartment-living-fp.webp', caption: 'First person at the living-room glass, with the skyline stitched from the balcony shots.' },
+        { type: 'image', src: 'intel/apartment-dining.webp', caption: 'Dining and entry: pendant lights, the front door and the card linking to 0:13.' },
+        { type: 'image', src: 'intel/apartment-kitchen.webp', caption: 'From the kitchen counter through dining to the living room, the full length of the flat.' },
+        { type: 'image', src: 'intel/apartment-bed1.webp', caption: 'Bedroom 1, with its door opening onto the corridor where the plan\'s slanted line put it.' },
+        { type: 'image', src: 'intel/apartment-bed3.webp', caption: 'Bedroom 3 by the window at night.' },
+      ],
+      links: [{ label: 'Walk the apartment', href: 'https://sidag45.github.io/XR%20Projects/Apartment%20Walkthrough/' }],
+    },
+    GRAFFITI: {
+      media: [
+        { type: 'image', src: 'intel/argraffiti-criteria.webp', caption: 'Results dashboard (sample data): the brief\'s criteria and a Pass, Marginal or Fail for each kind of spot.' },
+        { type: 'image', src: 'intel/argraffiti-plots.webp', caption: 'Results dashboard (sample data): every error plotted around the chalk X, and error against hours since placing.' },
+      ],
+      links: [{ label: 'Results dashboard (sample data)', href: 'https://sidag45.github.io/XR%20Projects/ar-graffiti/results/?demo' }],
+    },
+    CHOIR: {
+      media: [
+        { type: 'image', src: 'intel/vow-singing.webp', caption: 'Listening: five of ten voices singing in A Lydian, each light glowing as its voice sings.' },
+        { type: 'image', src: 'intel/vow-idle.webp', caption: 'Before Listen: every light on the globe is a voice waiting to sing.' },
+        { type: 'image', src: 'intel/vow-consent.webp', caption: 'Adding a voice starts with consent: two explicit agreements and a plain note about where the recording goes.' },
+      ],
+      links: [{ label: 'Listen to the choir', href: 'https://sidag45.github.io/XR%20Projects/voice-of-the-world/' }],
     },
     DESKTOP: {
       media: [

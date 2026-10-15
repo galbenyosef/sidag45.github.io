@@ -17,5 +17,8 @@ Door positions and swings follow the slanted lines on the plan.
 ## Rendering
 - Physically based materials (clearcoat marble and oak, sheen fabrics, lacquer), high-res procedural textures with normal and roughness maps
 - Ground-truth ambient occlusion (GTAO) + bloom, 2048 soft shadows, reflections captured from the apartment itself
-- Figure: three.js "Xbot" (Mixamo rig) with motion-captured idle / walk / run blended by speed — embedded in `assets/xbot-model.js` (base64 GLB)
-- "Quality" button switches between Ultra (post-processing, up to 2× resolution) and Fast
+- Person: the Ready Player Me avatar from the three.js examples (`assets/person-model.js`, base64 GLB), animated with motion-captured idle / walk / run clips retargeted from the Mixamo "Xbot" rig and pre-baked into `assets/person-anims.json`
+- Adaptive quality (default "Auto"): while you move or turn, frames render Fast (reduced resolution, no post-processing); once the view settles for ~0.3 s it switches to Ultra (full resolution up to 2×, ambient occlusion, bloom), fading the effects in
+- Shadow maps of lights away from the person are frozen rather than re-rendered every frame
+- The Quality button cycles Auto → Ultra → Fast
+- `assets/Xbot.glb` and `assets/xbot-model.js` from earlier versions are no longer used
