@@ -471,21 +471,78 @@
 
   /* ---------- DATA ---------- */
   const FILES = [
-    { id:'PAGELIFT', code:'OP-01', name:'Pagelift', status:'Active', clr:'Public',
-      op:'Lifts any live webpage into Figma as editable frames and layers.',
-      role:'Sole operative. Design, build, publishing.',
-      body:'A free Figma plugin paired with a Chrome extension, Pagelift — Capture. The extension reads a page as it renders in the browser; the plugin rebuilds it in Figma as real frames and layers. Published on the Figma Community and the Chrome Web Store.',
-      secret:'Originally filed under the codename "Web to Figma" before it was renamed.',
-      tags:['Figma Plugin API','Chrome Extension','TypeScript','DOM capture'],
-      link:{href:'https://sidag45.github.io/pagelift/', label:'Visit site'} },
-    { id:'PEGASUS', code:'OP-02', name:'Pegasus-1', status:'Completed', clr:'Public',
-      op:'Scroll-driven 3D exploded view of a mechanical watch for a fictional maison.',
-      role:'Concept, 3D direction, three.js build.',
-      body:'An interactive exploded-watch experience for Halden & Vey, a brand invented for the exercise. As the visitor scrolls, the Pegasus-1 separates layer by layer so each part can be studied, with a path toward XR viewing.',
-      secret:'The brand does not exist. The watch does not exist. The movement is real enough to fool a collector.',
-      tags:['three.js','Scroll animation','WebXR','Product storytelling'],
-      link:{href:'https://sidag45.github.io/XR%20Projects/3d-watch-animate/', label:'View the watch'} },
-    { id:'LANTERNS', code:'OP-03', name:'The Lanterns', status:'Concept build', clr:'Public',
+    { id:'DESKTOP', code:'OP-01', name:'Palm Desktop', status:'In progress', clr:'Public',
+      op:'A MacBook-style desktop in the browser, operated by hand in front of a webcam.',
+      role:'Interaction design and engineering.',
+      body:'Files and folders can be picked up, dragged and dropped with fingers. A two-finger tap opens the context menu, and the usual trackpad controls still work. With the camera on, hand tracking drives a red pointer, mapped from finger movement to screen distance.',
+      secret:'Built as a study in how far direct-manipulation habits transfer to mid-air input.',
+      tags:['Hand tracking','Computer vision','Gesture UX','JavaScript'],
+      link:{href:'https://sidag45.github.io/XR%20Projects/virtual-desktop/', label:'Try the desktop'} },
+    { id:'APARTMENT', code:'OP-02', name:'Immersive Airbnb', status:'Prototype', clr:'Public',
+      op:'A 32-second phone video of an apartment, rebuilt as a walkable 3D home in the browser.',
+      role:'Spatial reconstruction, interaction design and three.js build.',
+      body:'A three-bedroom apartment rebuilt in three.js from a 32-second phone walkthrough and a hand-drawn floor plan. Visitors steer a figure through three bedrooms, two baths, the living and dining rooms, the kitchen and the balcony with WASD (Shift to run), drag to look around, and switch between an over-the-shoulder view and first person. A floor plan in the corner shows where they are and jumps to any room on click; a card in the opposite corner shows that room\'s frame from the original video and plays the moment. The skyline outside the windows is stitched from the balcony shots, and the original video plays on the living-room TV.',
+      secret:'The question underneath: can a casual phone video and a hand-drawn plan carry enough of a home for someone to understand it without visiting?',
+      tags:['three.js','Video to 3D','Spatial reconstruction','Wayfinding','Character controller','Adaptive rendering'],
+      sections:[
+        { h:'PROCESS', ordered:true, list:[
+          'Source: a 32-second portrait phone video moving through the apartment, and a hand-drawn floor plan.',
+          'Layout: the plan drawn to scale at 1.2 m per grid square, about 23.2 × 7.2 m overall, with each door placed and swung where the slanted lines on the plan show it.',
+          'Finishes: marble, oak and fabrics matched to the video with physically based materials (clearcoat stone and wood, sheen fabrics, lacquer).',
+          'Views and art: the skyline stitched from the balcony frames, and the wall art cropped from the video.',
+          'Link to the source: every room keeps the timestamp where it appears in the video, so the corner card can show and play that moment.' ] },
+        { h:'BUILD NOTES', list:[
+          'Rendering: ground-truth ambient occlusion and bloom, 2048 soft shadows, and reflections captured from inside the apartment so they match the rooms.',
+          'Adaptive quality: Fast while the visitor moves or turns, Ultra once the view settles. The Quality button can pin either.',
+          'Shadows in rooms away from the figure keep their last maps instead of re-rendering every frame.',
+          'Figure: motion-captured idle, walk and run clips blended by speed, with an over-the-shoulder camera or first person (V).',
+          'Touch: an on-screen joystick for phones.' ] },
+      ],
+      link:{href:'https://sidag45.github.io/XR%20Projects/Apartment%20Walkthrough/', label:'Walk the apartment'} },
+    { id:'CHOIR', code:'OP-03', name:'Voice of the World', status:'v1 build', clr:'Public',
+      op:'A choir anyone can join: submitted voices are tuned to one key and sung together in the browser around a turning globe.',
+      role:'Concept, audio DSP, interaction design and AWS pipeline.',
+      body:'Every light on the globe is someone\'s voice. Press Listen and the voices are tuned to one shared key, staggered so they enter one at a time, and placed in 3D sound by where they sit on the globe; dragging the globe moves the choir around you. A rules-based conductor picks the key and mood, plays a chord progression, decides who sings and who rests, keeps the registers balanced and gives new voices the first entry. Anyone can add a voice in four steps (consent, record up to eight seconds, automatic checks, join). Ten synthesised seed voices, sung slightly off-key on purpose, let the tuning be heard from the first visit. Submissions go through an automated moderation pipeline on AWS; without a server configured, the page runs entirely on the device.',
+      secret:'A test of whether strangers\' voices can become one piece of music without anyone listening to, or judging, a single clip.',
+      tags:['Web Audio API','Pitch tracking (YIN)','Granular synthesis','Spatial audio (HRTF)','AWS Lambda','Consent design'],
+      sections:[
+        { h:'HOW THE BLEND WORKS', list:[
+          'Analysis: each clip gets a YIN pitch track, smoothed to keep intonation but drop vibrato, plus level, voiced ratio, a rough tone measure and its steadiest 0.7 s of vowel.',
+          'Tuning: granular playback with ~110 ms grains, each pitch-shifted from its own pitch to the nearest chord tone, so speech becomes held notes and natural vibrato survives. On a chord change every voice moves to the nearest tone of the new chord.',
+          'Time: phrases are slowed to 0.55–0.85× and enter 1–2.6 s apart, and how many voices sing at once rises and falls so the texture breathes.',
+          'Space: a voice\'s place on the globe sets its HRTF position, a lowpass filter and its reverb send, so voices on the far side sound distant and muffled.',
+          'Drones: the steady vowel is frozen and held on the chord\'s root and fifth, swelling over 16–26 s.' ] },
+        { h:'THE PIPELINE', list:[
+          'Upload: consent is stored, then the browser gets a one-time link to a private bucket; anything unfinished is deleted within a day.',
+          'Moderation: the server re-checks the clip and analyses its pitch, then speech is transcribed, translated to English if needed, and rejected for toxic content or personal information (phone numbers, addresses, emails, ID numbers).',
+          'Nobody listens to clips. Transcripts are deleted as soon as moderation finishes, and only a pitch summary, the consent record and a toxicity score are kept.',
+          'It fails closed: if transcription or moderation errors, the clip is deleted. A sung "aaah" with no words skips the text checks.',
+          'Withdrawal: each contributor\'s browser keeps a withdraw token (only its hash is stored) that removes the file, the record and the cached copy.',
+          'Limits: five submissions per hour per address, WAV only, 1.1 MB maximum; approved voices are kept for 365 days.',
+          'Tests: 18 pipeline checks and 6 browser checks run against in-memory stand-ins for the AWS services.' ] },
+        { h:'KNOWN LIMITS', list:[
+          'Short clips in languages outside the configured set are the weak spot for transcription, so abuse in them could slip through.',
+          'Voices are served as WAV; an Opus step would cut downloads about tenfold.',
+          'The AI conductor (step 4 of the brief) has not been started; the rules-based conductor is in its place.' ] },
+      ],
+      link:{href:'https://sidag45.github.io/XR%20Projects/voice-of-the-world/', label:'Listen to the choir'} },
+    { id:'GRAFFITI', code:'OP-04', name:'AR Graffiti', status:'Coming soon', clr:'Confidential',
+      op:'Shared augmented-reality pieces pinned to real places, seen in the same spot by everyone.',
+      role:'Concept, research design and AR build.',
+      body:'An early-stage AR project about pinning digital marks to physical places so that different people, on different phones and on different days, all see them in the same spot. It is in an early feasibility phase, testing whether that is reliable enough before any creative tools are built. Details are withheld until that phase is complete.',
+      secret:'Details withheld until the feasibility phase concludes.',
+      tags:['Augmented reality','Location-based experiences','Field research'],
+      sections:[
+        { h:'RESEARCH QUESTION', p:['Can a mark left in augmented reality feel genuinely shared, appearing in the same place for everyone who looks, and how precise does that need to be before people trust it is really there?'] },
+      ] },
+    { id:'GLANCE', code:'OP-05', name:'Glance Desktop', status:'Prototype', clr:'Public',
+      op:'A MacBook-style desktop in the browser, operated with the eyes through a webcam.',
+      role:'Interaction design and engineering.',
+      body:'A red pointer follows the visitor\'s gaze and settles on the nearest button or file. One deliberate blink clicks, two blinks open, a long blink picks something up and the next blink drops it, and a wink right-clicks. Looking at the top or bottom edge of a window scrolls it, and the top-right corner opens Mission Control. A short calibration learns each person\'s eyes and blink, and the video never leaves the device.',
+      secret:'The hands-free sequel to Palm Desktop: can a desktop be run when the eyes have to both read the screen and act on it?',
+      tags:['Eye tracking','Face landmarks (MediaPipe)','Gaze interaction','Accessibility','JavaScript'],
+      link:{href:'https://sidag45.github.io/XR%20Projects/eye-desktop/', label:'Try it with your eyes'} },
+    { id:'LANTERNS', code:'OP-06', name:'The Lanterns', status:'Concept build', clr:'Public',
       op:'A scroll-driven 3D sales site for a fictional hillside tower in Hong Kong, one home to a floor.',
       role:'Concept, interaction design, 3D modelling and three.js build.',
       body:'The Lanterns (燈苑) is an invented development of 24 homes on the hillside above Pok Fu Lam, one flat to a floor, every one facing the East Lamma Channel. Scrolling rides the building like a lift: arrival at the foot of the tower, the building with availability by floor, terraces that swap corners floor by floor, then up to Flat 23 with the floors above lifted away. Visitors read the floor plan with room sizes labelled in place, try three finish schemes in the rooms, furnished or empty, by day or night, stand in the living room looking out to sea, and book a viewing with their choices already filled in. A lift-style floor indicator shows where they are in the tour throughout.',
@@ -510,7 +567,7 @@
           'Fictional by design: the development and developer are invented, and the booking form sends nothing.' ] },
       ],
       link:{href:'https://sidag45.github.io/XR%20Projects/the-lanterns/', label:'Take the tour'} },
-    { id:'KESTREL', code:'OP-04', name:'Kestrel & Oak', status:'Concept build', clr:'Public',
+    { id:'KESTREL', code:'OP-07', name:'Kestrel & Oak', status:'Concept build', clr:'Public',
       op:'A 3D unboxing and product page for a fictional 18-year single malt, with the bottle pinned on stage as the story scrolls.',
       role:'Concept sprint, interaction design and three.js build.',
       body:'Kestrel & Oak is an invented Speyside distillery, and the page sells one bottle: an Eighteen Year Oloroso in a St George gold-foil case. The 3D stage stays pinned on the left while the chapters scroll on the right, and every chapter re-poses the case, bottle and nosing glass to show what the text is describing: the wax seal, the lid lifting, the back label with its cask and bottle number, the front label up close, then both objects together beside the buy panel. Visitors can drag the model at any point; the spirit sloshes inside the faceted bottle and glass and leaves tears on the glass as it settles. Chapter tabs track the scroll and jump between chapters, and the price and Add to cart sit above the fold from the first screen.',
@@ -539,120 +596,25 @@
           'Fictional by design: the brand, cask and prices are invented, and the cart does not take orders.' ] },
       ],
       link:{href:'https://sidag45.github.io/XR%20Projects/whiskey-unboxing/', label:'Unbox the bottle'} },
-    { id:'APARTMENT', code:'OP-05', name:'Apartment Walkthrough', status:'Prototype', clr:'Public',
-      op:'A 32-second phone video of an apartment, rebuilt as a walkable 3D home in the browser.',
-      role:'Spatial reconstruction, interaction design and three.js build.',
-      body:'A three-bedroom apartment rebuilt in three.js from a 32-second phone walkthrough and a hand-drawn floor plan. Visitors steer a figure through three bedrooms, two baths, the living and dining rooms, the kitchen and the balcony with WASD (Shift to run), drag to look around, and switch between an over-the-shoulder view and first person. A floor plan in the corner shows where they are and jumps to any room on click; a card in the opposite corner shows that room\'s frame from the original video and plays the moment. The skyline outside the windows is stitched from the balcony shots, and the original video plays on the living-room TV.',
-      secret:'The question underneath: can a casual phone video and a hand-drawn plan carry enough of a home for someone to understand it without visiting?',
-      tags:['three.js','Video to 3D','Spatial reconstruction','Wayfinding','Character controller','Adaptive rendering'],
-      sections:[
-        { h:'PROCESS', ordered:true, list:[
-          'Source: a 32-second portrait phone video moving through the apartment, and a hand-drawn floor plan.',
-          'Layout: the plan drawn to scale at 1.2 m per grid square, about 23.2 × 7.2 m overall, with each door placed and swung where the slanted lines on the plan show it.',
-          'Finishes: marble, oak and fabrics matched to the video with physically based materials (clearcoat stone and wood, sheen fabrics, lacquer).',
-          'Views and art: the skyline stitched from the balcony frames, and the wall art cropped from the video.',
-          'Link to the source: every room keeps the timestamp where it appears in the video, so the corner card can show and play that moment.' ] },
-        { h:'BUILD NOTES', list:[
-          'Rendering: ground-truth ambient occlusion and bloom, 2048 soft shadows, and reflections captured from inside the apartment so they match the rooms.',
-          'Adaptive quality: Fast while the visitor moves or turns, Ultra once the view settles. The Quality button can pin either.',
-          'Shadows in rooms away from the figure keep their last maps instead of re-rendering every frame.',
-          'Figure: motion-captured idle, walk and run clips blended by speed, with an over-the-shoulder camera or first person (V).',
-          'Touch: an on-screen joystick for phones.' ] },
-      ],
-      link:{href:'https://sidag45.github.io/XR%20Projects/Apartment%20Walkthrough/', label:'Walk the apartment'} },
-    { id:'GRAFFITI', code:'OP-06', name:'AR Graffiti', status:'Phase 0 · field test pending', clr:'Public',
-      op:'Shared AR pieces pinned to real places. Phase 0 tests whether a mark placed on the ground appears in exactly the same spot for everyone.',
-      role:'Concept, field-test design, Unity AR build and results dashboard.',
-      body:'The idea is a wall anyone can paint in AR: pieces anchored to real places that every visitor sees in the same spot. Before building any drawing tools, Phase 0 asks the go/no-go question. One phone places a test marker on a chalk X on McKeldin Mall, using Google\'s Geospatial API to turn its pose into latitude, longitude, altitude and a compass rotation stored in Supabase. Other phones, signed in as other accounts, load it from other directions on other days, and each tester marks where the real X is. The app logs how far off the marker appeared, in which direction, at what height and rotation, how well the phone was localized, how long the marker took to lock, and how many hours had passed since it was placed. A dashboard grades each kind of spot as Pass, Marginal or Fail against the brief\'s criteria.',
-      secret:'If two people cannot see the same mark within half a metre and ten degrees, a shared wall does not work. Phase 0 exists to find that out before anything else is built.',
-      tags:['Unity 6','AR Foundation','ARCore Geospatial API','Supabase','Field study design','Data visualisation'],
-      sections:[
-        { h:'HOW THE TEST WORKS', ordered:true, list:[
-          'Chalk an X and a facing dot at three kinds of spot on the Mall: open and well mapped, a plain lawn, and shaded under trees.',
-          'Phone A places a marker on each X. Saving is only allowed once Google\'s visual positioning has the phone within ±1 m and ±4°; terrain anchors are the default, with fixed-altitude anchors for comparison.',
-          'No home advantage: the placer\'s marker is deleted and rebuilt from the stored record, exactly as every other phone loads it.',
-          'Phone B, on another account, walks in from a different direction, loads the marker (optionally from a cold start to time a fresh lock) and measures the error against the real X and facing dot.',
-          'Repeat at different times of day and again the next day; the dashboard groups results by spot and light.' ] },
-        { h:'BUILD NOTES', list:[
-          'Unity 6 with AR Foundation 6 and ARCore Extensions 1.56; the same build runs on Android and iPhone.',
-          'Supabase with an anonymous account per install and row-level security: everyone can read, each account writes only as itself, and logged results cannot be edited.',
-          'Results dashboard: the brief\'s success criteria, a grade per kind of spot, a top-down plot of every error with 25 cm, 50 cm and 1 m rings, and error against hours since placing to show drift.',
-          'Verified before handoff: the C# type-checks against the real ARCore Extensions API, the placement and measurement maths passed unit tests, and the database rules were tested on Postgres 16.',
-          'Not yet done: running it on phones on the Mall. The dashboard images here use its built-in sample data, not field results.' ] },
-      ],
-      link:{href:'https://sidag45.github.io/XR%20Projects/ar-graffiti/results/?demo', label:'Open the results dashboard (sample data)'} },
-    { id:'CHOIR', code:'OP-07', name:'Voice of the World', status:'v1 build', clr:'Public',
-      op:'A choir anyone can join: submitted voices are tuned to one key and sung together in the browser around a turning globe.',
-      role:'Concept, audio DSP, interaction design and AWS pipeline.',
-      body:'Every light on the globe is someone\'s voice. Press Listen and the voices are tuned to one shared key, staggered so they enter one at a time, and placed in 3D sound by where they sit on the globe; dragging the globe moves the choir around you. A rules-based conductor picks the key and mood, plays a chord progression, decides who sings and who rests, keeps the registers balanced and gives new voices the first entry. Anyone can add a voice in four steps (consent, record up to eight seconds, automatic checks, join). Ten synthesised seed voices, sung slightly off-key on purpose, let the tuning be heard from the first visit. Submissions go through an automated moderation pipeline on AWS; without a server configured, the page runs entirely on the device.',
-      secret:'A test of whether strangers\' voices can become one piece of music without anyone listening to, or judging, a single clip.',
-      tags:['Web Audio API','Pitch tracking (YIN)','Granular synthesis','Spatial audio (HRTF)','AWS Lambda','Consent design'],
-      sections:[
-        { h:'HOW THE BLEND WORKS', list:[
-          'Analysis: each clip gets a YIN pitch track, smoothed to keep intonation but drop vibrato, plus level, voiced ratio, a rough tone measure and its steadiest 0.7 s of vowel.',
-          'Tuning: granular playback with ~110 ms grains, each pitch-shifted from its own pitch to the nearest chord tone, so speech becomes held notes and natural vibrato survives. On a chord change every voice moves to the nearest tone of the new chord.',
-          'Time: phrases are slowed to 0.55–0.85× and enter 1–2.6 s apart, and how many voices sing at once rises and falls so the texture breathes.',
-          'Space: a voice\'s place on the globe sets its HRTF position, a lowpass filter and its reverb send, so voices on the far side sound distant and muffled.',
-          'Drones: the steady vowel is frozen and held on the chord\'s root and fifth, swelling over 16–26 s.' ] },
-        { h:'THE PIPELINE', list:[
-          'Upload: consent is stored, then the browser gets a one-time link to a private bucket; anything unfinished is deleted within a day.',
-          'Moderation: the server re-checks the clip and analyses its pitch, then speech is transcribed, translated to English if needed, and rejected for toxic content or personal information (phone numbers, addresses, emails, ID numbers).',
-          'Nobody listens to clips. Transcripts are deleted as soon as moderation finishes, and only a pitch summary, the consent record and a toxicity score are kept.',
-          'It fails closed: if transcription or moderation errors, the clip is deleted. A sung "aaah" with no words skips the text checks.',
-          'Withdrawal: each contributor\'s browser keeps a withdraw token (only its hash is stored) that removes the file, the record and the cached copy.',
-          'Limits: five submissions per hour per address, WAV only, 1.1 MB maximum; approved voices are kept for 365 days.',
-          'Tests: 18 pipeline checks and 6 browser checks run against in-memory stand-ins for the AWS services.' ] },
-        { h:'KNOWN LIMITS', list:[
-          'Short clips in languages outside the configured set are the weak spot for transcription, so abuse in them could slip through.',
-          'Voices are served as WAV; an Opus step would cut downloads about tenfold.',
-          'The AI conductor (step 4 of the brief) has not been started; the rules-based conductor is in its place.' ] },
-      ],
-      link:{href:'https://sidag45.github.io/XR%20Projects/voice-of-the-world/', label:'Listen to the choir'} },
-    { id:'DESKTOP', code:'OP-08', name:'Gesture Desktop', status:'In progress', clr:'Public',
-      op:'A MacBook-style desktop in the browser, operated by hand in front of a webcam.',
-      role:'Interaction design and engineering.',
-      body:'Files and folders can be picked up, dragged and dropped with fingers. A two-finger tap opens the context menu, and the usual trackpad controls still work. With the camera on, hand tracking drives a red pointer, mapped from finger movement to screen distance.',
-      secret:'Built as a study in how far direct-manipulation habits transfer to mid-air input.',
-      tags:['Hand tracking','Computer vision','Gesture UX','JavaScript'],
-      link:{href:'https://sidag45.github.io/XR%20Projects/virtual-desktop/', label:'Try the desktop'} },
-    { id:'GLANCE', code:'OP-09', name:'Glance Desktop', status:'Prototype', clr:'Public',
-      op:'A MacBook-style desktop in the browser, operated with the eyes through a webcam.',
-      role:'Interaction design and engineering.',
-      body:'A red pointer follows the visitor\'s gaze and settles on the nearest button or file. One deliberate blink clicks, two blinks open, a long blink picks something up and the next blink drops it, and a wink right-clicks. Looking at the top or bottom edge of a window scrolls it, and the top-right corner opens Mission Control. A short calibration learns each person\'s eyes and blink, and the video never leaves the device.',
-      secret:'The hands-free sequel to Gesture Desktop: can a desktop be run when the eyes have to both read the screen and act on it?',
-      tags:['Eye tracking','Face landmarks (MediaPipe)','Gaze interaction','Accessibility','JavaScript'],
-      link:{href:'https://sidag45.github.io/XR%20Projects/eye-desktop/', label:'Try it with your eyes'} },
-    { id:'KOMBAT', code:'OP-10', name:'Gesture Kombat', status:'Prototype', clr:'Public',
-      op:'A browser fighting-game prototype played with full-body webcam gestures or the keyboard.',
-      role:'Design and engineering: game, gesture recognition and match server.',
-      body:'Gesture Kombat turns a player\'s body movements into fighting-game actions in an original 2D side-view arena, with two original fighters, Ember and Glacier. Gestures select animated moves rather than mapping the body directly onto the character, so the fight keeps the rules of a classic 2D fighter: health bars, a 60-second round timer, hit effects, blocking and combos. It runs in the browser with solo training against an AI opponent, local two-player, a full keyboard fallback and an optional webcam mode using full-body pose tracking. A WebSocket server prototype adds room-code online matches.',
-      secret:'An exploration of embodied interaction, inspired by classic arcade fighters but with its own characters, arena and art: the camera recognises intent, and the game executes a predefined move with its own timing and combat rules.',
-      tags:['Pose tracking (MediaPipe)','Embodied interaction','Game design','Canvas 2D','WebSocket','Node.js'],
-      sections:[
-        { h:'INTERACTION DESIGN', p:[
-          'The body is a source of intent rather than a puppet. Each camera reading is classified into a small set of commands, and the fighter then plays an authored move with its own startup, hit and recovery timing. The familiar rules of a 2D fighter stay intact: moves are readable, can be blocked or ducked, and cannot be spammed faster than they play.',
-          'Strikes are events and stance is state. A punch fires when a forearm extends quickly, not whenever an arm happens to be out, and a kick when an ankle rises above the knee. Guard (both hands raised) and crouch (hips below the calibrated standing height) last exactly as long as the posture does.',
-          'Calibration records a neutral stance as the baseline, then walks the player through the squat and guard poses beside a mirrored live skeleton, so they can see what the camera sees before the first round.' ] },
-        { h:'TECHNICAL APPROACH', list:[
-          'Client: plain JavaScript and Canvas 2D for the arena, fighters, health bars, round timer, hit flashes and the punch, punch, kick combo.',
-          'Pose: MediaPipe Pose Landmarker (Lite model) running in the browser, GPU first with a CPU fallback, sampled about 12 times a second.',
-          'Privacy: camera frames and pose landmarks stay on the device. In an online match only small action messages are sent.',
-          'Online prototype: a Node.js WebSocket server creates six-character room codes and owns the combat state, running a 60 Hz loop with sequence checks, action cooldowns, move startup and recovery, and server-side hit resolution.',
-          'Modes: solo training against an AI opponent, local two-player on one keyboard, and room-code online matches.' ] },
-        { h:'CURRENT LIMITATIONS', list:[
-          'A working prototype, not a released game. There is no live matchmaking.',
-          'Online play needs the included WebSocket server deployed separately; the static site on its own covers solo and local play.',
-          'No accounts, reconnect handling, ranking or competitive anti-cheat yet.',
-          'Gesture thresholds are hand-tuned, and full-body tracking needs room to stand back with the whole body in frame.',
-          'The camera needs HTTPS or localhost, and the pose model loads from a CDN on first use.' ] },
-        { h:'DEMO WALKTHROUGH', ordered:true, list:[
-          'Open the page, keep Solo Training selected and press Start Fight (or Space).',
-          'Fight on the keyboard: A/D move, W jump, S crouch, J/K punch, L kick, hold I to guard. Punch, punch, kick lands a 3-hit combo.',
-          'Press Enable Camera, allow access, then Calibrate: stand neutral, squat, and raise both hands to guard.',
-          'Fight again with your body: extend an arm to punch, lift a leg to kick, raise both hands to block, squat to duck.',
-          'For two players on one machine choose Local Duel. Online rooms need the match server running.' ] },
-      ],
-      link:{href:'https://sidag45.github.io/gesture-kombat/', label:'Play the prototype'} },
+    { id:'KOMBAT', code:'OP-08', name:'Gesture Kombat', status:'Prototype', clr:'Confidential', brief:true,
+      op:'A game prototype exploring full-body movement as a form of input.',
+      role:'Design and engineering.',
+      body:'An early prototype exploring how a player\'s body movement can drive a fast, rule-based game, and how a system can read intent from motion while keeping play fair and readable. Details are withheld.',
+      secret:'', tags:[] },
+    { id:'PAGELIFT', code:'OP-09', name:'Pagelift', status:'Active', clr:'Public',
+      op:'Lifts any live webpage into Figma as editable frames and layers.',
+      role:'Sole operative. Design, build, publishing.',
+      body:'A free Figma plugin paired with a Chrome extension, Pagelift — Capture. The extension reads a page as it renders in the browser; the plugin rebuilds it in Figma as real frames and layers. Published on the Figma Community and the Chrome Web Store.',
+      secret:'Originally filed under the codename "Web to Figma" before it was renamed.',
+      tags:['Figma Plugin API','Chrome Extension','TypeScript','DOM capture'],
+      link:{href:'https://sidag45.github.io/pagelift/', label:'Visit site'} },
+    { id:'PEGASUS', code:'OP-10', name:'Pegasus-1', status:'Completed', clr:'Public',
+      op:'Scroll-driven 3D exploded view of a mechanical watch for a fictional maison.',
+      role:'Concept, 3D direction, three.js build.',
+      body:'An interactive exploded-watch experience for Halden & Vey, a brand invented for the exercise. As the visitor scrolls, the Pegasus-1 separates layer by layer so each part can be studied, with a path toward XR viewing.',
+      secret:'The brand does not exist. The watch does not exist. The movement is real enough to fool a collector.',
+      tags:['three.js','Scroll animation','WebXR','Product storytelling'],
+      link:{href:'https://sidag45.github.io/XR%20Projects/3d-watch-animate/', label:'View the watch'} },
     { id:'PAPERTOSS', code:'OP-11', name:'Paper Toss', status:'Playable', clr:'Public',
       op:'Office basketball played hands-free: crumple a sheet and throw it in the bin, using only your hand in front of a webcam.',
       role:'Game design, gesture design and build.',
@@ -742,19 +704,6 @@
       figs: ['gl-blink', 'gl-snap'],
       study: 'A within-subjects study on a grid of icons in three sizes, comparing Glance with and without target snapping. Measures: selection time, error rate, unintended activations per minute and NASA-TLX workload. A second 20-minute session would test whether click-driven drift correction holds accuracy without recalibrating.',
     },
-    KOMBAT: {
-      rq: 'When a webcam recognises intent and the game plays a predefined move, do players still feel in control? How do recognition delay, gesture thresholds and move commitment shape responsiveness, readability and fatigue compared with a keyboard?',
-      principles: [
-        ['Intent, not mimicry', 'Mapping the body straight onto the fighter would pass every tracking jitter into the fight and make hits hard to judge. Classifying a gesture into one of a few commands, then playing an authored move, trades some expressiveness for moves that read clearly and follow consistent rules.'],
-        ['Responsiveness and commitment', 'Pose readings arrive about 12 times a second, so a strike is recognised a beat after the arm moves. Each move then has its own startup before it can hit, the same commitment players expect from a 2D fighter. The open question is how much recognition delay can hide inside that wind-up before the game feels sluggish.'],
-        ['Events versus states', 'Strikes trigger on fast extension, so an arm resting out in front does not keep punching: the Midas touch problem, for the whole body. Guard and crouch mirror posture continuously, because they are held in real life too.'],
-        ['Personal baselines', 'Crouching is measured against the player\'s own standing hip height, captured during calibration, so the same thresholds work for different heights and distances from the camera.'],
-        ['Readable feedback', 'During setup a mirrored skeleton shows what the camera sees. In the fight, hit flashes, knockback, BLOCKED messages and the combo banner confirm what each gesture did.'],
-        ['Exertion and choice', 'Full-body play is tiring in a way keys are not. Rounds last 60 seconds and the keyboard always works, so the camera is an option, not a gate.'],
-      ],
-      figs: ['gk-pipeline', 'gk-gestures'],
-      study: 'A within-subjects study in solo training comparing keyboard and camera input. Measures: recognition accuracy (intended versus triggered moves, coded from session video), false triggers per minute, delay from gesture peak to on-screen strike, win rate against the AI, perceived control and enjoyment, and exertion on the Borg CR10 scale.',
-    },
     LANTERNS: {
       rq: 'Can a scroll-driven 3D tour help someone shortlist a home remotely, understanding its layout, scale and finish well enough to book a viewing with confidence, compared with the usual gallery of renders and a PDF floor plan?',
       principles: [
@@ -790,18 +739,6 @@
       ],
       figs: ['ap-pipeline', 'ap-plan', 'ap-quality'],
       study: 'A between-subjects study: watch the 32-second video, or explore the 3D rebuild for the same time. Measures: sketch-map accuracy (room adjacency and relative size), pointing towards rooms out of sight from a given spot, room-size estimates against the real plan, confidence, and the Simulator Sickness Questionnaire for the 3D group.',
-    },
-    GRAFFITI: {
-      rq: 'How consistently can phone-based geospatial anchors put the same virtual mark in the same real spot for different people, phones and days, how does the kind of place change that, and how much error can people tolerate before a shared AR mark stops feeling like it is "there"?',
-      principles: [
-        ['Common ground', 'Collaboration rests on a shared reference (Clark and Brennan). A piece of AR graffiti is only social if everyone who looks sees it in the same place; if each phone shows it somewhere slightly different, people are no longer looking at the same thing.'],
-        ['Measure against ground truth', 'Asking testers whether a marker "looks right" invites guesswork. Chalk marks give an objective target, so error is measured in centimetres and degrees, and the placer\'s own measurements are left out so nobody grades their own work.'],
-        ['Ecological validity', 'The test runs on a real campus across sun, overcast and dusk, approach directions, cold starts and days apart: the conditions real visitors bring, not a lab bench.'],
-        ['Risk first', 'The riskiest assumption, that anchors hold, is tested before any drawing tools, sharing or social features exist. A failed Phase 0 saves months.'],
-        ['Showing the system\'s confidence', 'Localization accuracy is shown live and saving is locked until it is good enough, so people can see when the system is unsure instead of trusting a marker that has quietly drifted.'],
-      ],
-      figs: ['ag-test', 'ag-anchor', 'ag-target'],
-      study: 'Phase 0 is itself the field study (two phones, two accounts, three kinds of spot, varied light and days). A follow-up perception study would show markers at controlled offsets from a real mark and ask whether each one is "on it", to find the error people will accept, and compare that threshold with what the anchors deliver.',
     },
     CHOIR: {
       rq: 'Can an automated, consent-first pipeline turn strangers\' short voice clips into a choir that listeners find musical and contributors recognise themselves in, and does hearing your own voice join change how connected you feel to the others?',
@@ -1544,7 +1481,7 @@
   const CAT_LABEL = { Research: 'TOOLS', XR: 'XR & GESTURE', Client: 'CLIENT', Engineering: 'ENGINEERING' };
   const pad2 = (n) => String(n).padStart(2, '0');
 
-  // INTEL per case file: images, video and links shown under the field report.
+  // ASSETS per case file (INTEL object): images, video and links shown under the field report.
   // Add your own: drop files into the intel/ folder and list them here.
   //   { type: 'image', src: 'intel/file.webp', caption: '...' }
   //   { type: 'video', src: 'intel/clip.mp4', webm: 'intel/clip.webm' (optional), poster: 'intel/clip.webp', caption: '...' }
@@ -1596,13 +1533,6 @@
       ],
       links: [{ label: 'Walk the apartment', href: 'https://sidag45.github.io/XR%20Projects/Apartment%20Walkthrough/' }],
     },
-    GRAFFITI: {
-      media: [
-        { type: 'image', src: 'intel/argraffiti-criteria.webp', caption: 'Results dashboard (sample data): the brief\'s criteria and a Pass, Marginal or Fail for each kind of spot.' },
-        { type: 'image', src: 'intel/argraffiti-plots.webp', caption: 'Results dashboard (sample data): every error plotted around the chalk X, and error against hours since placing.' },
-      ],
-      links: [{ label: 'Results dashboard (sample data)', href: 'https://sidag45.github.io/XR%20Projects/ar-graffiti/results/?demo' }],
-    },
     CHOIR: {
       media: [
         { type: 'image', src: 'intel/vow-singing.webp', caption: 'Listening: five of ten voices singing in A Lydian, each light glowing as its voice sings.' },
@@ -1637,17 +1567,6 @@
       ],
       links: [{ label: 'Take the tour', href: 'https://sidag45.github.io/XR%20Projects/the-lanterns/' }],
     },
-    KOMBAT: {
-      media: [
-        { type: 'video', src: 'intel/kombat-fight.mp4', webm: 'intel/kombat-fight.webm', poster: 'intel/kombat-fight-poster.webp', caption: 'Solo training on the keyboard: approach, punch, punch, kick for the 3-hit combo, block, jump kick.' },
-        { type: 'image', src: 'intel/kombat-landing.webp', caption: 'The arena: original fighters Ember and Glacier, health bars and the 60-second round timer.' },
-        { type: 'image', src: 'intel/kombat-combo.webp', caption: 'Punch, punch, kick: the 3-hit combo banner as the kick connects.' },
-        { type: 'image', src: 'intel/kombat-counter.webp', caption: 'The AI opponent answers with a kick of its own.' },
-        { type: 'image', src: 'intel/kombat-controls.webp', caption: 'Mode select (solo, local duel, online room) and the input guide pairing each gesture with its key.' },
-        { type: 'image', src: 'intel/kombat-calibrate.webp', caption: 'Camera setup: stand neutral to set a baseline, then squat and raise a guard. Video stays in the browser.' },
-      ],
-      links: [{ label: 'Play the prototype', href: 'https://sidag45.github.io/gesture-kombat/' }],
-    },
     PAPERTOSS: {
       media: [
         { type: 'image', src: 'intel/paper-toss-intro.webp', caption: 'Mission card: pinch, squeeze three times, throw. Hands or mouse.' },
@@ -1668,8 +1587,8 @@
         '<img src="' + m.src + '" alt="' + esc(m.caption || '') + '" loading="lazy"></button>' +
         '<figcaption><b>IMG-' + pad2(i + 1) + '</b> ' + esc(m.caption || '') + '</figcaption></figure>';
     }).join('');
-    const empty = '<div class="intel-empty"><span class="k">NO IMAGERY ON FILE</span><span>Intel for this operation is pending clearance.</span></div>';
-    return '<h4>INTEL</h4><div class="intel">' + (media ? '<div class="intel-grid">' + media + '</div>' : empty) +
+    const empty = f.brief ? '<div class="intel-empty"><span class="k">NO ASSET FILES AVAILABLE</span></div>' : '<div class="intel-empty"><span class="k">NO IMAGERY ON FILE</span><span>Assets for this operation are pending clearance.</span></div>';
+    return '<h4>ASSETS</h4><div class="intel">' + (media ? '<div class="intel-grid">' + media + '</div>' : empty) +
       (links.length ? '<ul class="intel-links">' + links.map((l) => '<li><a href="' + l.href + '" target="_blank" rel="noopener">' + esc(l.label) + ' ↗</a><span class="k">' + esc(l.href.replace(/^https?:\/\//, '').replace(/%20/g, ' ')) + '</span></li>').join('') + '</ul>' : '') +
       '</div>';
   }
@@ -1860,17 +1779,17 @@
       '<dl class="grid"><div><dt class="k">STATUS</dt><dd>' + esc(f.status) + '</dd></div><div><dt class="k">ROLE</dt><dd>' + esc(f.role) + '</dd></div>' +
       '<div><dt class="k">CATEGORY</dt><dd>' + (CAT_LABEL[CAT[f.id]] || '') + '</dd></div><div><dt class="k">CLEARED FOR</dt><dd>AGENT ' + esc(agent) + '</dd></div></dl>' +
       '<h4>FIELD REPORT</h4><p>' + esc(f.body) + '</p>' +
-      sectionsHTML(f) +
+      (f.brief ? intelHTML(f) : sectionsHTML(f) +
       intelHTML(f) +
       '<h4>ENCRYPTED ANNEX</h4><div class="cipher" id="cipher"><span class="txt" id="cipherTxt">' + esc(scramble(f.secret)) + '</span><button type="button" class="bevel sm" id="decrypt">Decrypt</button></div>' +
       '<h4>METHODS</h4><div class="tags">' + f.tags.map((t) => '<span>' + esc(t) + '</span>').join('') + '</div>' +
-      annexHTML(f) +
+      annexHTML(f)) +
       '<div class="links">' +
       '<button type="button" class="bevel" id="nextFile">Next File →</button></div>';
     viewer.hidden = false; document.body.style.overflow = 'hidden'; viewer.scrollTop = 0;
     $('closeVx').focus();
     $('nextFile').onclick = () => { const i = FILES.indexOf(f); openFile(FILES[(i + 1) % FILES.length].id); };
-    $('decrypt').onclick = () => decrypt(f);
+    if ($('decrypt')) $('decrypt').onclick = () => decrypt(f);
     vx.querySelectorAll('.intel-img').forEach((b) => b.addEventListener('click', () => openLightbox(b.dataset.src, b.dataset.caption, b)));
     unsealFile(vx);            // symbols decode into letters: heading first, then the file; imagery comes into focus
     say('File ' + f.code + ' "' + f.name + '" unsealed. Clearance logged for ' + agent + '.', true);
@@ -2005,13 +1924,14 @@
         '<h3 id="p-' + f.id.toLowerCase() + '-h">' + esc(f.name) + ' <span class="p-code">' + f.code + '</span></h3>' +
         '<p class="p-sum">' + esc(f.op) + '</p>' +
         dl([['Status', f.status], ['Role', f.role], ['Category', (CAT_LABEL[CAT[f.id]] || '').replace('&amp;', '&')], ['Classification', f.clr]]) +
-        '<h4>Field report</h4><p>' + esc(f.body) + '</p>' +
-        (f.sections || []).map((x) => '<h4>' + esc(x.h.charAt(0) + x.h.slice(1).toLowerCase()) + '</h4>' + (x.p || []).map((t) => '<p>' + esc(t) + '</p>').join('') + (x.list ? '<' + (x.ordered ? 'ol' : 'ul') + ' class="p-pr">' + x.list.map((t) => '<li>' + esc(t) + '</li>').join('') + '</' + (x.ordered ? 'ol' : 'ul') + '>' : '')).join('') +
+        '<h4>Field report</h4><p>' + esc(f.body) + '</p>';
+      if (f.brief) { h += '<h4>Assets</h4><p>No asset files available.</p></article>'; return; }
+      h += (f.sections || []).map((x) => '<h4>' + esc(x.h.charAt(0) + x.h.slice(1).toLowerCase()) + '</h4>' + (x.p || []).map((t) => '<p>' + esc(t) + '</p>').join('') + (x.list ? '<' + (x.ordered ? 'ol' : 'ul') + ' class="p-pr">' + x.list.map((t) => '<li>' + esc(t) + '</li>').join('') + '</' + (x.ordered ? 'ol' : 'ul') + '>' : '')).join('') +
         '<h4>Annex</h4><p>' + esc(f.secret) + '</p>' +
         '<h4>Methods</h4><p>' + f.tags.map(esc).join(', ') + '</p>';
       const media = I.media || [];
       if (media.length) {
-        h += '<h4>Intel</h4><div class="p-media">' + media.map((m) => '<figure><img src="' + abs(m.poster || m.src) + '" alt="' + esc(m.caption || '') + '"><figcaption>' +
+        h += '<h4>Assets</h4><div class="p-media">' + media.map((m) => '<figure><img src="' + abs(m.poster || m.src) + '" alt="' + esc(m.caption || '') + '"><figcaption>' +
           (m.type === 'video' ? 'Video still. ' : '') + esc(m.caption || '') + '</figcaption></figure>').join('') + '</div>';
       }
       if (links.length) h += '<p class="p-links">' + links.map((l) => '<a href="' + l.href + '">' + esc(l.label) + '</a> <span class="p-url">(' + esc(l.href.replace(/^https?:\/\//, '').replace(/%20/g, ' ')) + ')</span>').join('<br>') + '</p>';
