@@ -1,0 +1,588 @@
+/* =====================================================
+   TUTORIAL 8: THREE LIBRARY INTEGRATION EXAMPLES
+   Building on Tutorial 7's styling patterns
+   ===================================================== */
+
+/* ROOT VARIABLES */
+:root {
+    --primary-color: #007cba;
+    --secondary-color: #28a745;
+    --warning-color: #ffc107;
+    --error-color: #dc3545;
+    --info-color: #17a2b8;
+    --background-color: #f8f9fa;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --text-muted: #666;
+    --border-color: #ddd;
+    --shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+    --border-radius: 0.5rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 3rem;
+}
+
+/* BASE STYLES */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: var(--spacing-md);
+    background: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 75rem;
+    margin: 0 auto;
+}
+
+/* HEADER */
+header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-xxl) var(--spacing-xl);
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+    color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+header h1 {
+    margin-bottom: var(--spacing-sm);
+    font-size: 2.5rem;
+    font-weight: 300;
+}
+
+header p {
+    font-size: 1.2rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* LOADING SECTION (from Tutorial 7) */
+.loading-section {
+    background: var(--card-background);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: var(--spacing-lg);
+    border-left: 0.25rem solid var(--warning-color);
+}
+
+.loading-section h2 {
+    color: var(--warning-color);
+    margin-top: 0;
+}
+
+.status-display {
+    background: #fff3cd;
+    border: 2px solid var(--warning-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+}
+
+.status-display.loading {
+    background: #cce7ff;
+    border-color: var(--primary-color);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-display.success {
+    background: #d4edda;
+    border-color: var(--secondary-color);
+}
+
+.status-display.error {
+    background: #f8d7da;
+    border-color: var(--error-color);
+}
+
+.status-message {
+    margin: 0;
+    font-weight: bold;
+}
+
+.load-button {
+    background: var(--warning-color);
+    color: #212529;
+    border: none;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.load-button:hover:not(:disabled) {
+    background: #e0a800;
+    transform: translateY(-1px);
+}
+
+.load-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.data-summary {
+    background: #e8f5e8;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-weight: bold;
+    color: #155724;
+    margin-top: var(--spacing-md);
+}
+
+/* STATUS SECTION */
+.status-section {
+    background: var(--card-background);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: var(--spacing-lg);
+    border-left: 0.25rem solid var(--info-color);
+}
+
+.status-section h2 {
+    color: var(--info-color);
+    margin-top: 0;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--spacing-md);
+}
+
+.status-item {
+    background: #f8f9fa;
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    text-align: center;
+    border: 2px solid var(--border-color);
+}
+
+.status-item strong {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-size: 1.1rem;
+}
+
+/* STATUS INDICATORS */
+.status-loaded {
+    background: #d4edda !important;
+    color: #155724 !important;
+    padding: 0.25rem var(--spacing-sm);
+    border-radius: 0.25rem;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+.status-failed {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+    padding: 0.25rem var(--spacing-sm);
+    border-radius: 0.25rem;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+/* EXAMPLES SECTION */
+.examples-section {
+    background: var(--card-background);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: var(--spacing-lg);
+    border-left: 0.25rem solid var(--primary-color);
+}
+
+.examples-section h2 {
+    color: var(--primary-color);
+    margin-top: 0;
+}
+
+.example-card {
+    background: #f8f9fa;
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-xl);
+    border: 2px solid var(--border-color);
+}
+
+.example-card:last-child {
+    margin-bottom: 0;
+}
+
+.example-card h3 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    font-size: 1.3rem;
+}
+
+.example-card p {
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-sm);
+}
+
+.example-card p strong {
+    color: var(--text-color);
+}
+
+/* DEMO BUTTONS */
+.demo-button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    margin-bottom: var(--spacing-lg);
+    width: 100%;
+}
+
+.demo-button:hover:not(:disabled) {
+    background: #005a87;
+    transform: translateY(-1px);
+}
+
+.demo-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* DEMO AREAS */
+.demo-area {
+    background: white;
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* CHART CONTAINER */
+.chart-container {
+    position: relative;
+    height: 20rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#rating-chart {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* MAP CONTAINER */
+.map-container {
+    height: 20rem;
+    width: 100%;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+#restaurant-map {
+    height: 480px;
+    width: 100%;
+    border-radius: var(--border-radius);
+}
+
+/* RESTAURANT CARDS (for GSAP animation) */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--spacing-lg);
+    min-height: 10rem;
+}
+
+.restaurant-card {
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    text-align: center;
+    opacity: 0; /* Start hidden for GSAP animation */
+    transition: transform 0.3s ease; /* For hover effects */
+}
+
+.restaurant-card h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.restaurant-card p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.restaurant-cuisine {
+    font-style: italic;
+    color: var(--info-color);
+}
+
+.restaurant-rating {
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+.restaurant-location {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* CODE PREVIEW */
+.code-preview {
+    background: #e8f5e8;
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    border-left: 0.25rem solid var(--secondary-color);
+}
+
+.code-preview h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--secondary-color);
+    font-size: 1rem;
+}
+
+.code-preview code {
+    background: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    display: block;
+    overflow-x: auto;
+    color: #e83e8c;
+}
+
+/* PATTERN SUMMARY */
+.pattern-summary {
+    background: var(--card-background);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: var(--spacing-lg);
+    border-left: 0.25rem solid var(--warning-color);
+}
+
+.pattern-summary h2 {
+    color: var(--warning-color);
+    margin-top: 0;
+}
+
+.pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.pattern-step {
+    background: #fff3cd;
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    text-align: center;
+    border-left: 0.25rem solid var(--warning-color);
+}
+
+.step-number {
+    background: var(--warning-color);
+    color: #212529;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin: 0 auto var(--spacing-md);
+}
+
+.step-content h4 {
+    color: #856404;
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 1rem;
+}
+
+.step-content p {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 0.9rem;
+    color: #856404;
+}
+
+.step-content code {
+    background: white;
+    padding: 0.25rem var(--spacing-sm);
+    border-radius: 0.25rem;
+    border: 1px solid #ffeaa7;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: #856404;
+    display: block;
+    margin-top: var(--spacing-sm);
+    overflow-x: auto;
+}
+
+/* ASSIGNMENT PLANNING */
+.assignment-planning {
+    background: var(--card-background);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border-left: 0.25rem solid var(--secondary-color);
+}
+
+.assignment-planning h2 {
+    color: var(--secondary-color);
+    margin-top: 0;
+}
+
+.planning-advice {
+    background: #e8f5e8;
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    border-left: 0.25rem solid var(--secondary-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+.planning-advice h4 {
+    color: var(--secondary-color);
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+}
+
+.planning-advice ul {
+    margin: 0;
+    padding-left: var(--spacing-xl);
+}
+
+.planning-advice li {
+    margin-bottom: var(--spacing-sm);
+    color: #155724;
+}
+
+.planning-advice li strong {
+    color: var(--secondary-color);
+}
+
+.choice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.choice-card {
+    background: #f8f9fa;
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.choice-card:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.choice-card h4 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+}
+
+.choice-card p {
+    margin: var(--spacing-sm) 0;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.choice-card p strong {
+    color: var(--text-color);
+}
+
+/* UTILITY CLASSES */
+.hidden {
+    display: none !important;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 48rem) {
+    .container {
+        padding: var(--spacing-sm);
+    }
+    
+    header {
+        padding: var(--spacing-xl) var(--spacing-md);
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    .loading-section,
+    .status-section,
+    .examples-section,
+    .pattern-summary,
+    .assignment-planning {
+        padding: var(--spacing-lg);
+    }
+    
+    .example-card {
+        padding: var(--spacing-lg);
+    }
+    
+    .status-grid,
+    .pattern-grid,
+    .choice-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cards-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-container,
+    .map-container {
+        height: 15rem;
+    }
+    
+    .step-number {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+    }
+}

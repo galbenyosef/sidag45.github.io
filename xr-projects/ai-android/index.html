@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mira — AI Assistant</title>
+<meta name="description" content="Mira, a 3D AI assistant with a living temple light." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f3efe7;
+    --ink: #17151c;
+    --ink-2: #57525f;
+    --line: rgba(23, 21, 28, 0.1);
+    --card: rgba(255, 255, 255, 0.62);
+    --lilac: #c9b8ff;
+    --cyan: #39e6ff;
+    --mint: #b8f5dc;
+    --led: #39e6ff;
+    --radius: 28px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    overflow-x: hidden;
+  }
+  /* soft ambient blobs */
+  .blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: .55; pointer-events: none; z-index: 0; }
+  .b1 { width: 520px; height: 520px; background: var(--lilac); top: -140px; left: -120px; }
+  .b2 { width: 460px; height: 460px; background: var(--mint); bottom: -160px; right: -80px; }
+  .b3 { width: 300px; height: 300px; background: #ffd6b8; top: 40%; left: 38%; opacity: .35; }
+
+  header {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 1240px; margin: 0 auto; padding: 22px 24px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: "Space Grotesk"; font-weight: 700; font-size: 20px; letter-spacing: -.02em; }
+  .brand i { width: 12px; height: 12px; border-radius: 50%; border: 2.5px solid var(--led); box-shadow: 0 0 12px var(--led); transition: border-color .4s, box-shadow .4s; }
+  .tag { font-size: 13px; color: var(--ink-2); border: 1px solid var(--line); padding: 7px 12px; border-radius: 999px; background: rgba(255,255,255,.5); }
+
+  main {
+    position: relative; z-index: 1;
+    max-width: 1240px; margin: 0 auto; padding: 8px 24px 40px;
+    display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 28px; align-items: stretch;
+  }
+
+  /* ---------- stage ---------- */
+  .stage {
+    position: relative; border-radius: var(--radius); overflow: hidden;
+    background:
+      radial-gradient(60% 55% at 50% 38%, rgba(255,255,255,.95), rgba(255,255,255,0) 70%),
+      linear-gradient(160deg, #e9e2ff 0%, #f6efe6 55%, #dff7ee 100%);
+    border: 1px solid var(--line);
+    min-height: 640px;
+    box-shadow: 0 30px 80px -40px rgba(60, 40, 120, .35);
+  }
+  .stage canvas { position: absolute; inset: 0; z-index: 1; width: 100% !important; height: 100% !important; display: block;
+    -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 99%); mask-image: linear-gradient(to bottom, #000 78%, transparent 99%); }
+  .halo { position: absolute; left: 50%; top: 40%; width: 70%; aspect-ratio: 1; transform: translate(-50%, -50%);
+    z-index: 0; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--led) 22%, transparent), transparent 62%);
+    transition: background .6s; pointer-events: none; }
+  .status {
+    position: absolute; left: 20px; top: 20px; z-index: 3;
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 14px 9px 11px; border-radius: 999px;
+    background: rgba(255,255,255,.78); backdrop-filter: blur(10px); border: 1px solid var(--line);
+    font-size: 13px; font-weight: 600;
+  }
+  .status .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--led); box-shadow: 0 0 10px var(--led); transition: background .4s, box-shadow .4s; }
+  .hint { position: absolute; right: 20px; top: 22px; z-index: 3; font-size: 12px; color: var(--ink-2); }
+  .loader { position: absolute; inset: 0; display: grid; place-items: center; z-index: 4; font-size: 14px; color: var(--ink-2); transition: opacity .6s; pointer-events: none; }
+
+  .modes {
+    position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 3;
+    display: flex; gap: 6px; padding: 6px; border-radius: 999px;
+    background: rgba(255,255,255,.8); backdrop-filter: blur(10px); border: 1px solid var(--line);
+    max-width: calc(100% - 32px); overflow-x: auto; scrollbar-width: none;
+  }
+  .modes button {
+    flex: none; border: 0; background: transparent; color: var(--ink-2); font: 600 12.5px Inter; cursor: pointer;
+    padding: 8px 12px; border-radius: 999px; display: flex; align-items: center; gap: 7px; transition: background .2s, color .2s;
+  }
+  .modes button i { width: 8px; height: 8px; border-radius: 50%; }
+  .modes button.on, .modes button:hover { background: var(--ink); color: #fff; }
+
+  /* ---------- chat ---------- */
+  .chat {
+    display: flex; flex-direction: column; min-height: 640px; max-height: 760px;
+    border-radius: var(--radius); background: var(--card); backdrop-filter: blur(16px);
+    border: 1px solid var(--line); overflow: hidden;
+  }
+  .chat-head { padding: 26px 26px 14px; }
+  .chat-head h1 { font-family: "Space Grotesk"; font-size: clamp(30px, 3.4vw, 44px); line-height: 1.02; letter-spacing: -.035em; margin: 0 0 10px; }
+  .chat-head h1 span { background: linear-gradient(90deg, #6d4bff, #12b5d4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .chat-head p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.5; max-width: 44ch; }
+
+  .log { flex: 1; overflow-y: auto; padding: 10px 26px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 85%; padding: 12px 15px; border-radius: 18px; font-size: 14.5px; line-height: 1.5; animation: pop .3s ease; }
+  .msg.bot { background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 6px; align-self: flex-start; }
+  .msg.me { background: var(--ink); color: #fff; border-bottom-right-radius: 6px; align-self: flex-end; }
+  .typing { display: inline-flex; gap: 4px; }
+  .typing b { width: 6px; height: 6px; border-radius: 50%; background: #b3aec0; animation: bob 1s infinite; }
+  .typing b:nth-child(2) { animation-delay: .15s; } .typing b:nth-child(3) { animation-delay: .3s; }
+  @keyframes bob { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px); } }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 26px 12px; }
+  .chips button { border: 1px solid var(--line); background: rgba(255,255,255,.7); border-radius: 999px; padding: 8px 13px; font: 500 13px Inter; color: var(--ink); cursor: pointer; transition: transform .15s, background .2s; }
+  .chips button:hover { background: #fff; transform: translateY(-1px); }
+
+  form { display: flex; gap: 8px; padding: 14px; border-top: 1px solid var(--line); background: rgba(255,255,255,.55); }
+  form input { flex: 1; min-width: 0; border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 14px 18px; font: 15px Inter; color: var(--ink); outline: none; }
+  form input:focus { border-color: #8f78ff; box-shadow: 0 0 0 4px rgba(143,120,255,.15); }
+  .icon-btn { flex: none; width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--line); background: #fff; cursor: pointer; display: grid; place-items: center; color: var(--ink); }
+  .icon-btn.send { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .icon-btn[aria-pressed="true"] { background: #e7e0ff; border-color: #8f78ff; }
+  .icon-btn svg { width: 20px; height: 20px; }
+
+  @media (max-width: 920px) {
+    main { grid-template-columns: 1fr; padding: 4px 16px 24px; gap: 16px; }
+    header { padding: 16px; }
+    .stage { min-height: 0; aspect-ratio: 4 / 5; max-height: 72vh; }
+    .chat { min-height: 520px; }
+    .hint { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .msg { animation: none; } }
+</style>
+</head>
+<body>
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+  <header>
+    <div class="brand"><i></i> mira</div>
+    <div class="tag">AI teammate · beta</div>
+  </header>
+
+  <main>
+    <section class="stage" id="stage" aria-label="Mira, 3D AI assistant">
+      <div class="halo"></div>
+      <div class="status"><span class="dot"></span><span id="statusText">Online</span></div>
+      <div class="hint">move your cursor — she's watching 👀</div>
+      <div class="loader" id="loader">Waking Mira up…</div>
+      <div class="modes" id="modes" aria-label="Preview indicator states">
+        <button data-mode="idle" class="on"><i style="background:#39e6ff"></i>Idle</button>
+        <button data-mode="listening"><i style="background:#5b8cff"></i>Listening</button>
+        <button data-mode="thinking"><i style="background:#ffb547"></i>Thinking</button>
+        <button data-mode="speaking"><i style="background:#39e6ff"></i>Speaking</button>
+        <button data-mode="error"><i style="background:#ff4d5e"></i>Error</button>
+      </div>
+    </section>
+
+    <section class="chat">
+      <div class="chat-head">
+        <h1>Hey, I'm Mira.<br /><span>Your AI teammate.</span></h1>
+        <p>Ask me about this studio, our work, or how to get in touch. Watch my temple — that's how you know what I'm up to.</p>
+      </div>
+      <div class="log" id="log" aria-live="polite"></div>
+      <div class="chips" id="chips">
+        <button>What do you do?</button>
+        <button>Show me projects</button>
+        <button>Are you human?</button>
+        <button>How do I contact you?</button>
+      </div>
+      <form id="form" autocomplete="off">
+        <button type="button" class="icon-btn" id="voiceBtn" aria-pressed="false" title="Voice replies">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+        </button>
+        <input id="input" placeholder="Message Mira…" aria-label="Message Mira" />
+        <button class="icon-btn send" type="submit" title="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </button>
+      </form>
+    </section>
+  </main>
+
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from "three";
+
+/* =========================================================
+   Scene — a depth-displaced photographic head with a live
+   shader for blinking, gaze, speech and the temple LED.
+   ========================================================= */
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+stage.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(24, 1, 0.1, 50);
+camera.position.set(0, 0.12, 5.4);
+
+const loader = new THREE.TextureLoader();
+const load = (u) => new Promise((res, rej) => loader.load(u, res, undefined, rej));
+
+const [feat, colorTex, depthTex] = await Promise.all([
+  fetch("assets/mira-features.json").then((r) => r.json()),
+  load("assets/mira-color.png"),
+  load("assets/mira-depth.png"),
+]);
+colorTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+colorTex.minFilter = THREE.LinearMipmapLinearFilter;
+depthTex.generateMipmaps = false;
+depthTex.minFilter = depthTex.magFilter = THREE.LinearFilter;
+
+const v4 = (e) => new THREE.Vector4(e.c[0], e.c[1], e.hx, e.hy);
+const uniforms = {
+  uMap: { value: colorTex },
+  uDepth: { value: depthTex },
+  uDepthScale: { value: 0.62 },
+  uTime: { value: 0 },
+  uBlink: { value: 0 },
+  uGaze: { value: new THREE.Vector2() },
+  uMouth: { value: 0 },
+  uEyeR: { value: v4(feat.eyeR) },
+  uEyeL: { value: v4(feat.eyeL) },
+  uCornerY: { value: feat.mouth.cornerY ?? feat.mouth.c[1] },
+  uMouthG: { value: new THREE.Vector4(feat.mouth.c[0], feat.mouth.c[1], feat.mouth.hw, feat.mouth.chin[1]) },
+  uLed: { value: new THREE.Vector4(feat.led.c[0], feat.led.c[1], feat.led.rx, feat.led.ry) },
+  uLedColor: { value: new THREE.Color("#39e6ff") },
+  uLedI: { value: 0.7 },
+  uLedSpin: { value: 0 },
+  uLight: { value: new THREE.Vector3(0.45, 0.35, 0.82).normalize() },
+};
+
+const vert = /* glsl */ `
+  uniform sampler2D uDepth;
+  uniform float uDepthScale;
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    vec3 p = position;
+    p.z += texture2D(uDepth, uv).r * uDepthScale;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+  }`;
+
+const frag = /* glsl */ `
+  precision highp float;
+  uniform sampler2D uMap, uDepth;
+  uniform float uDepthScale, uTime, uBlink, uMouth, uLedI, uLedSpin;
+  uniform vec2 uGaze;
+  uniform vec4 uEyeR, uEyeL, uMouthG, uLed;
+  uniform float uCornerY;
+  uniform vec3 uLedColor, uLight;
+  varying vec2 vUv;
+
+  // image space: x right, y down (matches the source photo)
+  vec2 eyeRemap(vec2 src, vec2 img, vec4 e) {
+    float dx = (img.x - e.x) / (e.z * 1.22);
+    if (abs(dx) >= 1.0) return src;
+    float s = sqrt(1.0 - dx * dx);
+    float top = e.y - e.w * 1.35 * s;
+    float bot = e.y + e.w * 1.15 * s;
+    float lid = mix(top, bot, uBlink);
+    float A = top - e.w * 2.6;
+    if (uBlink > 0.002 && img.y > A && img.y < lid) {
+      src.y = A + (img.y - A) * (top - A) / max(lid - A, 1e-5);   // eyelid skin slides down
+    } else if (img.y >= lid && img.y < bot) {
+      float w = s * (1.0 - smoothstep(bot - e.w * 0.5, bot, img.y));
+      src -= uGaze * vec2(e.z * 0.16, e.w * 0.22) * w;           // subtle saccades
+    }
+    return src;
+  }
+
+  vec2 mouthRemap(vec2 src, vec2 img, out float inner) {
+    inner = -1.0;
+    vec4 m = uMouthG;
+    float dx = (img.x - m.x) / (m.z * 0.9);
+    if (abs(dx) >= 1.0 || uMouth < 0.002) return src;
+    float s = pow(1.0 - dx * dx, 0.85);
+    float gap = uMouth * m.z * 0.135 * s;
+    float dl = clamp((img.x - m.x) / (m.z * 0.8), -1.0, 1.0);
+    float lip = mix(m.y, uCornerY, dl * dl), C = m.w;   // follow the smile curve
+    if (img.y > lip && img.y < C) {
+      if (img.y < lip + gap) inner = (img.y - lip) / max(gap, 1e-5);
+      else src.y = lip + (img.y - lip - gap) * (C - lip) / (C - lip - gap); // jaw drops, chin compresses
+    }
+    return src;
+  }
+
+  void main() {
+    vec2 img = vec2(vUv.x, 1.0 - vUv.y);
+    vec2 src = img;
+    src = eyeRemap(src, img, uEyeR);
+    src = eyeRemap(src, img, uEyeL);
+    float inner;
+    src = mouthRemap(src, img, inner);
+
+    vec4 tex = texture2D(uMap, vec2(src.x, 1.0 - src.y));
+    if (tex.a < 0.04) discard;
+    vec3 col = tex.rgb;
+
+    if (inner >= 0.0) {
+      vec3 dark = mix(vec3(0.16, 0.05, 0.06), vec3(0.30, 0.10, 0.10), smoothstep(0.0, 1.0, inner));
+      float teeth = (1.0 - smoothstep(0.0, 0.38, inner)) * smoothstep(0.35, 0.7, uMouth);
+      dark = mix(dark, vec3(0.86, 0.82, 0.78), teeth * 0.75);
+      float edge = smoothstep(0.0, 0.2, inner) * (1.0 - smoothstep(0.8, 1.0, inner));
+      col = mix(col, dark, 0.35 + 0.65 * edge);
+    }
+
+    // ---- relight from the depth map so the head reads as volume when it turns ----
+    float e = 3.0 / 512.0;
+    float hL = texture2D(uDepth, vUv - vec2(e, 0.)).r, hR = texture2D(uDepth, vUv + vec2(e, 0.)).r;
+    float hD = texture2D(uDepth, vUv - vec2(0., e)).r, hU = texture2D(uDepth, vUv + vec2(0., e)).r;
+    float k = uDepthScale / (4.0 * e);
+    vec3 n = normalize(vec3(-(hR - hL) * k, -(hU - hD) * k, 1.0));
+    float lam = max(dot(n, uLight), 0.0);
+    col *= 0.94 + 0.1 * lam;
+    float rim = pow(1.0 - clamp(n.z, 0.0, 1.0), 3.0);
+    col += vec3(1.0, 0.96, 0.93) * rim * 0.05;
+
+    // ---- temple LED: a thin ring glowing from beneath the skin ----
+    vec2 lp = (img - uLed.xy) / uLed.zw;
+    float r = length(lp);
+    float ring = exp(-pow((r - 1.0) / 0.22, 2.0));
+    float ang = atan(lp.y, lp.x);
+    float a = fract(ang / 6.28318 + uTime * 0.85);
+    float arc = mix(1.0, 0.1 + smoothstep(0.0, 0.06, a) * (1.0 - smoothstep(0.3, 0.6, a)), uLedSpin);
+    float halo = exp(-pow(r / 2.4, 2.0));
+    vec3 led = uLedColor;
+    col = mix(col, min(led * 1.25 + 0.05, vec3(1.0)), clamp(ring * arc * uLedI, 0.0, 1.0) * 0.97);
+    col += led * halo * uLedI * 0.22 * (0.55 + 0.45 * arc);
+    col += led * (1.0 - smoothstep(0.0, 1.0, r)) * uLedI * 0.05;
+
+    float wisp = sin(img.x * 91.0) * 0.006 + sin(img.x * 233.0 + 1.7) * 0.004;
+    float outA = tex.a * smoothstep(0.0, 0.05, img.y + wisp)     // soften frame edges
+               * smoothstep(0.0, 0.07, img.x) * smoothstep(0.0, 0.07, 1.0 - img.x);
+    gl_FragColor = vec4(col, outA);
+  }`;
+
+const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: vert, fragmentShader: frag, transparent: true });
+const geo = new THREE.PlaneGeometry(2, 2, 400, 400);
+const head = new THREE.Mesh(geo, mat);
+const rig = new THREE.Group();          // pivot around the neck
+head.position.set(0, 0.12, -0.38);
+rig.add(head);
+rig.position.set(0, -0.12, 0);
+scene.add(rig);
+
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  // keep the bust framed on both wide and tall stages
+  const fitH = 2.25, fitW = 2.0;
+  const vfov = THREE.MathUtils.degToRad(camera.fov);
+  const distH = fitH / 2 / Math.tan(vfov / 2);
+  const distW = fitW / 2 / Math.tan(vfov / 2) / camera.aspect;
+  camera.position.z = Math.max(distH, distW) + 0.2;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage);
+resize();
+document.getElementById("loader").remove();
+
+/* =========================================================
+   Behaviour — states, blinking, gaze, speech, head motion
+   ========================================================= */
+const MODES = {
+  idle:      { color: "#39e6ff", label: "Online" },
+  listening: { color: "#5b8cff", label: "Listening…" },
+  thinking:  { color: "#ffb547", label: "Thinking…" },
+  speaking:  { color: "#39e6ff", label: "Speaking" },
+  error:     { color: "#ff4d5e", label: "Something went wrong" },
+};
+let mode = "idle";
+const ledTarget = new THREE.Color(MODES.idle.color);
+const statusText = document.getElementById("statusText");
+const modeBtns = [...document.querySelectorAll("#modes button")];
+
+function setMode(m) {
+  mode = m;
+  ledTarget.set(MODES[m].color);
+  statusText.textContent = MODES[m].label;
+  document.documentElement.style.setProperty("--led", MODES[m].color);
+  modeBtns.forEach((b) => b.classList.toggle("on", b.dataset.mode === m));
+}
+modeBtns.forEach((b) => b.addEventListener("click", () => {
+  if (b.dataset.mode === "speaking") return say("This is what I look like when I'm talking to you. Pretty human, right?");
+  setMode(b.dataset.mode);
+}));
+
+// pointer → head + eyes
+const pointer = new THREE.Vector2(0, 0);
+const look = new THREE.Vector2(0, 0);
+addEventListener("pointermove", (e) => {
+  const r = stage.getBoundingClientRect();
+  pointer.set(
+    THREE.MathUtils.clamp(((e.clientX - (r.left + r.width / 2)) / innerWidth) * 2.2, -1, 1),
+    THREE.MathUtils.clamp(((e.clientY - (r.top + r.height * 0.38)) / innerHeight) * 2.2, -1, 1)
+  );
+});
+addEventListener("pointerleave", () => pointer.set(0, 0));
+
+// blinking
+let nextBlink = 1.5, blinkT = -1, doubleBlink = false;
+function blinkCurve(t) { // t in seconds since blink start
+  const close = 0.075, hold = 0.035, open = 0.13;
+  if (t < close) return t / close;
+  if (t < close + hold) return 1;
+  if (t < close + hold + open) return 1 - (t - close - hold) / open;
+  return -1;
+}
+
+// saccades
+const gaze = new THREE.Vector2(), gazeTarget = new THREE.Vector2();
+let nextSaccade = 0.8;
+
+// speech
+let mouth = 0, mouthTarget = 0, nextViseme = 0, speakingUntil = 0;
+
+const clock = new THREE.Clock();
+const tmpQ = new THREE.Quaternion(), worldLight = new THREE.Vector3(0.45, 0.35, 0.82).normalize();
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function tick() {
+  const rawDt = clock.getDelta();
+  const dt = Math.min(rawDt, 0.05);
+  const t = clock.elapsedTime;
+  uniforms.uTime.value = t;
+
+  // --- head follows pointer with soft spring + idle drift ---
+  const k = 1 - Math.pow(0.0025, dt);
+  look.lerp(pointer, k);
+  const drift = reduce ? 0 : 1;
+  const breathe = Math.sin(t * 1.25) * 0.006 * drift;
+  let yaw = look.x * 0.3 + Math.sin(t * 0.37) * 0.035 * drift;
+  let pitch = look.y * 0.16 + Math.sin(t * 0.29 + 1.3) * 0.02 * drift;
+  let roll = Math.sin(t * 0.23) * 0.015 * drift - look.x * 0.03;
+  if (mode === "thinking") { pitch -= 0.06; roll += 0.05; yaw += Math.sin(t * 0.8) * 0.05; }
+  if (mode === "listening") { roll -= 0.04; pitch += 0.02; }
+  if (mode === "speaking") { pitch += Math.sin(t * 5.3) * 0.012 + mouth * 0.02; yaw += Math.sin(t * 2.1) * 0.02; }
+  rig.rotation.set(pitch, yaw, roll);
+  rig.position.y = -0.12 + breathe;
+
+  // keep the key light fixed in the world while the head turns
+  tmpQ.copy(rig.quaternion).invert();
+  uniforms.uLight.value.copy(worldLight).applyQuaternion(tmpQ);
+
+  // --- blinks ---
+  if (blinkT < 0 && t > nextBlink) { blinkT = 0; }
+  if (blinkT >= 0) {
+    blinkT += rawDt;
+    const b = blinkCurve(blinkT);
+    if (b < 0) {
+      blinkT = -1;
+      uniforms.uBlink.value = 0;
+      if (!doubleBlink && Math.random() < 0.18) { doubleBlink = true; nextBlink = t + 0.12; }
+      else { doubleBlink = false; nextBlink = t + 2.2 + Math.random() * 3.6; }
+    } else uniforms.uBlink.value = b;
+  }
+
+  // --- eyes: saccades + pointer ---
+  if (t > nextSaccade) {
+    gazeTarget.set((Math.random() - 0.5) * 0.7, (Math.random() - 0.5) * 0.4);
+    nextSaccade = t + 0.6 + Math.random() * 2.2;
+  }
+  const g = new THREE.Vector2(look.x * 0.9 + gazeTarget.x, -look.y * 0.6 + gazeTarget.y);
+  if (mode === "thinking") g.set(0.55, -0.6);
+  gaze.lerp(g, 1 - Math.pow(0.00001, dt));
+  uniforms.uGaze.value.copy(gaze);
+
+  // --- mouth ---
+  if (mode === "speaking") {
+    if (t > nextViseme) {
+      const pause = Math.random() < 0.14;
+      mouthTarget = pause ? 0.05 : 0.3 + Math.random() * 0.7;
+      nextViseme = t + (pause ? 0.16 : 0.07 + Math.random() * 0.07);
+    }
+    if (!speechActive && t > speakingUntil) finishSpeaking();
+  } else mouthTarget = 0;
+  mouth += (mouthTarget - mouth) * (1 - Math.pow(0.000002, dt));
+  uniforms.uMouth.value = Math.max(0, mouth);
+
+  // --- LED ---
+  uniforms.uLedColor.value.lerp(ledTarget, 1 - Math.pow(0.00002, dt));
+  let I = 0.6, spin = 0;
+  switch (mode) {
+    case "idle": I = 0.5 + 0.3 * (0.5 + 0.5 * Math.sin(t * 1.7)); break;
+    case "listening": I = 0.95 + 0.05 * Math.sin(t * 9); break;
+    case "thinking": I = 1.0; spin = 1; break;
+    case "speaking": I = 0.6 + 0.45 * mouth; break;
+    case "error": I = Math.sin(t * 11) > 0 ? 1.0 : 0.15; break;
+  }
+  uniforms.uLedI.value += (I - uniforms.uLedI.value) * (mode === "error" ? 1 : 1 - Math.pow(0.001, dt));
+  uniforms.uLedSpin.value += (spin - uniforms.uLedSpin.value) * (1 - Math.pow(0.01, dt));
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+/* =========================================================
+   Chat — scripted brain (swap respond() for your LLM API)
+   ========================================================= */
+const log = document.getElementById("log");
+const form = document.getElementById("form");
+const input = document.getElementById("input");
+const voiceBtn = document.getElementById("voiceBtn");
+let voiceOn = false, speechActive = false, busy = false;
+
+voiceBtn.addEventListener("click", () => {
+  voiceOn = !voiceOn;
+  voiceBtn.setAttribute("aria-pressed", voiceOn);
+  if (!voiceOn) speechSynthesis?.cancel();
+});
+
+function bubble(text, who) {
+  const el = document.createElement("div");
+  el.className = `msg ${who}`;
+  el.textContent = text;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+  return el;
+}
+
+const BRAIN = [
+  [/\b(hi|hey|hello|yo|sup)\b/i, "Hey hey! I'm Mira — I live on this site and I'm here to help. What are you curious about?"],
+  [/(what do you do|services|offer|help with|studio)/i, "We design and build digital products — websites, apps, and 3D/XR experiences that actually feel alive. Kind of like me."],
+  [/(project|work|portfolio|case)/i, "There's a whole lineup of XR experiments — gesture-controlled games, 3D product reveals, and interactive explainers. Want me to point you to one?"],
+  [/(human|real|robot|ai|android|temple|light|led)/i, "Ha — fair question. I'm an AI. The ring on my temple gives it away: blue when I'm listening, amber while I think, cyan when I talk."],
+  [/(contact|email|reach|hire|book|call)/i, "Easiest way is email — drop a note at hello@enclave-studios.com and a real human will get back to you fast."],
+  [/(price|cost|budget|quote)/i, "Every project's a bit different. Share what you're building and a rough timeline, and we'll send a clear quote."],
+  [/(error|break|bug)/i, null],
+  [/(thank|thanks|ty|cool|nice|love)/i, "Anytime! I'll be right here if anything else comes up ✨"],
+];
+function respond(q) {
+  for (const [re, a] of BRAIN) if (re.test(q)) return a;
+  return "Good question — I'm still learning that one. Try asking about our work, services, or how to get in touch.";
+}
+
+function say(text) {
+  return new Promise((resolve) => {
+    setMode("speaking");
+    const words = text.split(/\s+/);
+    const el = bubble("", "bot");
+    let i = 0;
+    const perWord = voiceOn ? 330 : 230;
+    const typer = setInterval(() => {
+      el.textContent = words.slice(0, ++i).join(" ");
+      log.scrollTop = log.scrollHeight;
+      if (i >= words.length) clearInterval(typer);
+    }, perWord);
+    speakingUntil = clock.elapsedTime + (words.length * perWord) / 1000 + 0.3;
+    onDone = () => { clearInterval(typer); el.textContent = text; resolve(); };
+    if (voiceOn && "speechSynthesis" in window) {
+      const u = new SpeechSynthesisUtterance(text);
+      const v = speechSynthesis.getVoices().find((v) => /female|samantha|victoria|zira|google us english/i.test(v.name));
+      if (v) u.voice = v;
+      u.rate = 1.04; u.pitch = 1.08;
+      speechActive = true;
+      u.onend = u.onerror = () => { speechActive = false; };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }
+  });
+}
+let onDone = null;
+function finishSpeaking() {
+  if (mode !== "speaking") return;
+  setMode(document.activeElement === input && input.value ? "listening" : "idle");
+  onDone?.(); onDone = null;
+}
+
+async function ask(q) {
+  if (busy || !q.trim()) return;
+  busy = true;
+  bubble(q, "me");
+  input.value = "";
+  setMode("thinking");
+  const typing = bubble("", "bot");
+  typing.innerHTML = '<span class="typing"><b></b><b></b><b></b></span>';
+  await new Promise((r) => setTimeout(r, 900 + Math.random() * 900));
+  typing.remove();
+  const a = respond(q);
+  if (a === null) {
+    setMode("error");
+    bubble("Oops — that's my error state. (Red ring = something went wrong.) Back to normal in a sec.", "bot");
+    await new Promise((r) => setTimeout(r, 2600));
+    setMode("idle");
+  } else {
+    await say(a);
+  }
+  busy = false;
+}
+
+form.addEventListener("submit", (e) => { e.preventDefault(); ask(input.value); });
+document.getElementById("chips").addEventListener("click", (e) => { if (e.target.tagName === "BUTTON") ask(e.target.textContent); });
+input.addEventListener("input", () => { if (!busy) setMode(input.value ? "listening" : "idle"); });
+input.addEventListener("blur", () => { if (!busy && mode === "listening") setMode("idle"); });
+
+// handy hooks for wiring a real backend / debugging
+window.mira = { setMode, say, uniforms };
+
+setTimeout(() => say("Hey, I'm Mira 👋 Ask me anything about this studio."), 700);
+</script>
+</body>
+</html>

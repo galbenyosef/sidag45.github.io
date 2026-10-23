@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial 8: Three Library Integration Examples</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- All three libraries via CDN - Students can see the pattern -->
+    <!-- Uncomment these includes to access your chosen library -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script> -->
+
+    <!--     
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> -->
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script> -->
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tutorial 8: Three Library Integration Examples</h1>
+            <p>Same data, three different libraries. See the universal integration pattern in action.</p>
+        </header>
+
+        <!-- Data Loading (Building on Tutorial 6) -->
+        <section class="loading-section">
+            <h2>Step 1: Load Your Restaurant Data</h2>
+            <div id="loading-status" class="status-display">
+                <p class="status-message">Ready to load restaurant data</p>
+            </div>
+            <button id="load-data-button" class="load-button">Load Restaurant Data</button>
+            <div id="data-summary" class="data-summary hidden">
+                <p><span id="record-count">0</span> restaurants loaded</p>
+            </div>
+        </section>
+
+        <!-- Library Status Check -->
+        <section class="status-section hidden" id="library-status-section">
+            <h2>Step 2: Check All Libraries Loaded</h2>
+            <p>Before using any library, always verify it loaded successfully:</p>
+            <div class="status-grid">
+                <div class="status-item">
+                    <strong>📊 Chart.js:</strong> <span id="chart-status">Checking...</span>
+                </div>
+                <div class="status-item">
+                    <strong>🗺️ Leaflet.js:</strong> <span id="leaflet-status">Checking...</span>
+                </div>
+                <div class="status-item">
+                    <strong>✨ GSAP:</strong> <span id="gsap-status">Checking...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Three Working Examples -->
+        <section class="examples-section hidden" id="examples-section">
+            <h2>Step 3: See All Three Options Working</h2>
+            <p>Same restaurant data from restaurants.json, enhanced with three different libraries:</p>
+
+            <!-- Example 1: Chart.js - Data Visualization -->
+            <div class="example-card">
+                <h3>📊 Option 1: Data Visualization with Chart.js</h3>
+                <p><strong>Best for:</strong> Numbers, comparisons, trends in your data</p>
+                <p><strong>Use Case:</strong> Turn your stats view into interactive charts</p>
+                
+                <button id="chart-button" class="demo-button">Show Cuisine Distribution Chart</button>
+                <div class="demo-area">
+                    <div class="chart-container">
+                        <!-- Replace this chart with a more useful one -->
+                        <canvas id="restaurant-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="code-preview">
+                    <h4>Integration Pattern:</h4>
+                    <code>new Chart(canvas, { type: 'bar', data: processedData });</code>
+                </div>
+            </div>
+
+            <!-- Example 2: Leaflet.js - Interactive Map -->
+            <div class="example-card">
+                <h3>🗺️ Option 2: Geographic Display with Leaflet.js</h3>
+                <p><strong>Best for:</strong> Location data, spatial patterns</p>
+                <p><strong>Use Case:</strong> Add map view to show restaurant locations</p>
+                
+                <button id="map-button" class="demo-button">Show Restaurant Locations Map</button>
+                <div class="demo-area">
+                    <div id="restaurant-map" class="map-container">
+                        <p>Click button to load interactive map</p>
+                    </div>
+                </div>
+                
+                <div class="code-preview">
+                    <h4>Integration Pattern:</h4>
+                    <code>L.map('restaurant-map').addLayer(markers);</code>
+                </div>
+            </div>
+
+            <!-- Example 3: GSAP - Smooth Animations -->
+            <div class="example-card">
+                <h3>✨ Option 3: Smooth Animations with GSAP</h3>
+                <p><strong>Best for:</strong> View transitions, loading states, user feedback</p>
+                <p><strong>Use Case:</strong> Animations too complex to support with CSS</p>
+                
+                <button id="animation-button" class="demo-button">Animate Restaurant Cards</button>
+                <div class="demo-area">
+                    <div id="restaurant-cards" class="cards-container">
+                        <!-- Cards will be generated and animated here -->
+                    </div>
+                </div>
+                
+                <div class="code-preview">
+                    <h4>Integration Pattern:</h4>
+                    <code>gsap.from('.restaurant-card', { opacity: 0, stagger: 0.2 });</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pattern Summary -->
+        <section class="pattern-summary hidden" id="pattern-summary">
+            <h2>Integration Patterns</h2>
+            <p>Notice how all three examples follow the exact same steps:</p>
+            
+            <div class="pattern-grid">
+                <div class="pattern-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Include via CDN</h4>
+                        <p>Add script tag in HTML head</p>
+                        <code>&lt;script src="https://..."&gt;</code>
+                    </div>
+                </div>
+                <div class="pattern-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Check Library Loaded</h4>
+                        <p>Verify library is available</p>
+                        <code>if (typeof Chart !== 'undefined')</code>
+                    </div>
+                </div>
+                <div class="pattern-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Process Your Data</h4>
+                        <p>Transform for library format</p>
+                        <code>restaurants.map(r => r.cuisine)</code>
+                    </div>
+                </div>
+                <div class="pattern-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Initialize Library</h4>
+                        <p>Create instance with your data</p>
+                        <code>new Library(element, options)</code>
+                    </div>
+                </div>
+                <div class="pattern-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>Handle Errors</h4>
+                        <p>Graceful fallback if it fails</p>
+                        <code>try/catch with fallback display</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="tutorial-support.js" defer></script>
+    <script src="script.js" defer type="module"></script>
+</body>
+</html>
