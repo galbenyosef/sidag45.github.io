@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 0 Results</title>
+<meta name="description" content="AR Graffiti Phase 0: does a placed marker show up in the same spot for everyone?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f2ee; --panel: #ffffff; --ink: #17181b; --muted: #6a6c72; --line: #dedad3;
+    --accent: #ff5a1f; --good: #1f9d55; --warn: #c98a00; --bad: #d23c3c; --ring: #c9c4ba;
+    --a1: #ff5a1f; --a2: #2a6fdb; --a3: #1f9d55; --a4: #9b4dca; --a5: #c98a00; --a6: #0f8f8f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111214; --panel: #1a1c1f; --ink: #ecebe8; --muted: #9a9ca2; --line: #2c2f34;
+      --ring: #3a3d43; --good: #3cc47a; --warn: #e5a91a; --bad: #ef5a5a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111214; --panel: #1a1c1f; --ink: #ecebe8; --muted: #9a9ca2; --line: #2c2f34;
+    --ring: #3a3d43; --good: #3cc47a; --warn: #e5a91a; --bad: #ef5a5a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 "IBM Plex Sans", system-ui, sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 16px 64px; }
+  header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; border-bottom: 2px solid var(--ink); padding-bottom: 16px; }
+  h1 { margin: 0; font-size: clamp(24px, 4vw, 36px); line-height: 1.1; letter-spacing: -0.02em; }
+  h1 small { display: block; font: 600 12px/1.4 "IBM Plex Mono", monospace; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  h2 { font-size: 13px; font-family: "IBM Plex Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 40px 0 12px; font-weight: 600; }
+  .mono { font-family: "IBM Plex Mono", monospace; }
+  .muted { color: var(--muted); }
+  .verdict { font: 700 15px "IBM Plex Mono", monospace; padding: 8px 14px; border: 2px solid currentColor; letter-spacing: 0.06em; }
+  .v-pass { color: var(--good); } .v-marginal { color: var(--warn); } .v-fail { color: var(--bad); } .v-open { color: var(--muted); }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); padding: 18px; min-width: 0; }
+  .card h3 { margin: 0 0 4px; font-size: 16px; }
+  .stat { display: flex; justify-content: space-between; gap: 8px; border-top: 1px dashed var(--line); padding: 7px 0; font-size: 14px; }
+  .stat b { font-family: "IBM Plex Mono", monospace; font-weight: 600; }
+  .checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .checks li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; background: var(--panel); border: 1px solid var(--line); padding: 10px 12px; }
+  .tick { font: 700 15px "IBM Plex Mono", monospace; }
+  .layout { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+  svg text { fill: var(--muted); font: 11px "IBM Plex Mono", monospace; }
+  #bull text { font-size: 8px; }
+  #bull { max-width: 420px; display: block; margin: 0 auto; }
+  .tablewrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { font: 600 11px "IBM Plex Mono", monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  td.num { font-family: "IBM Plex Mono", monospace; text-align: right; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; margin-top: 8px; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--c); margin-right: 6px; vertical-align: -1px; }
+  form { display: grid; gap: 10px; max-width: 560px; }
+  input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); width: 100%; }
+  button { font: 600 14px "IBM Plex Sans", sans-serif; padding: 10px 16px; background: var(--ink); color: var(--bg); border: 0; cursor: pointer; }
+  .note { font-size: 13px; color: var(--muted); }
+  .empty { padding: 24px; text-align: center; color: var(--muted); background: var(--panel); border: 1px dashed var(--line); }
+  #error { color: var(--bad); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><small>AR Graffiti · Phase 0</small>Does everyone see it in the same spot?</h1>
+    <div id="overall" class="verdict v-open">NO DATA YET</div>
+  </header>
+
+  <section id="setup" hidden>
+    <h2>Connect</h2>
+    <form id="cfg">
+      <label>Supabase project URL<input name="url" placeholder="https://xxxx.supabase.co" required></label>
+      <label>Publishable (anon) key<input name="key" placeholder="sb_publishable_…" required></label>
+      <button>Load results</button>
+      <p class="note">Saved in this browser only. Or add <span class="mono">?demo</span> to the address to see the page with sample data.</p>
+    </form>
+  </section>
+
+  <p id="error"></p>
+  <main id="report" hidden>
+    <h2>The brief's success criteria</h2>
+    <ul class="checks" id="checks"></ul>
+
+    <h2>By kind of spot <span class="muted" style="text-transform:none;letter-spacing:0">— other people's measurements only; the placer's own and weak-localization ones are left out</span></h2>
+    <div class="grid" id="spots"></div>
+
+    <h2>Where the marker landed vs. the real X</h2>
+    <div class="layout">
+      <div class="card">
+        <h3>Position error, seen from above</h3>
+        <p class="note" style="margin:0 0 8px">Centre = the chalk X. Rings at 25 cm, 50 cm and 1 m. Each dot is one measurement, coloured by phone.</p>
+        <svg id="bull" viewBox="-130 -130 260 260" role="img" aria-label="Scatter of position errors"></svg>
+        <div class="legend" id="bullLegend"></div>
+      </div>
+      <div class="card">
+        <h3>Error over time since placing</h3>
+        <p class="note" style="margin:0 0 8px">Does the same marker drift as hours and days pass? Horizontal error (cm) against hours since it was placed.</p>
+        <svg id="drift" viewBox="0 0 320 220" role="img" aria-label="Error against hours since placement"></svg>
+      </div>
+    </div>
+
+    <h2>Markers</h2>
+    <div class="tablewrap"><table id="anchors"></table></div>
+
+    <h2>All measurements</h2>
+    <div class="tablewrap"><table id="meas"></table></div>
+    <p class="note">Signed in as an anonymous viewer. Refreshes every 30 s.</p>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+// Optional: hard-code your project here so the page works without the form.
+// The publishable/anon key is meant to be public; the tables are protected by row-level security.
+const SUPABASE_URL = "";
+const SUPABASE_KEY = "";
+
+const $ = (s) => document.querySelector(s);
+const params = new URLSearchParams(location.search);
+const palette = ["--a1", "--a2", "--a3", "--a4", "--a5", "--a6"].map(v => getComputedStyle(document.documentElement).getPropertyValue(v).trim());
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch { return null; } }
+
+async function load() {
+  if (params.has("demo")) return demoData();
+  const url = SUPABASE_URL || store("p0.url"), key = SUPABASE_KEY || store("p0.key");
+  if (!url || !key) { $("#setup").hidden = false; return null; }
+  const sb = window.supabase.createClient(url, key, { auth: { persistSession: true, storageKey: "p0-viewer" } });
+  const { data: s } = await sb.auth.getSession();
+  if (!s.session) { const { error } = await sb.auth.signInAnonymously(); if (error) throw error; }
+  const [a, r, m] = await Promise.all([
+    sb.from("anchors").select("*").order("created_at", { ascending: false }).limit(500),
+    sb.from("resolve_sessions").select("*").order("created_at", { ascending: false }).limit(5000),
+    sb.from("measurements").select("*").order("created_at", { ascending: false }).limit(5000),
+  ]);
+  for (const x of [a, r, m]) if (x.error) throw x.error;
+  return { anchors: a.data, sessions: r.data, measurements: m.data };
+}
+
+$("#cfg").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  store("p0.url", f.get("url").trim()); store("p0.key", f.get("key").trim());
+  $("#setup").hidden = true; refresh();
+});
+
+// ───── stats helpers ─────
+const q = (arr, p) => { if (!arr.length) return NaN; const s = [...arr].sort((a, b) => a - b); const i = (s.length - 1) * p; const lo = Math.floor(i), hi = Math.ceil(i); return s[lo] + (s[hi] - s[lo]) * (i - lo); };
+const cm = (m) => isNaN(m) ? "—" : `${Math.round(m * 100)} cm`;
+const deg = (d) => isNaN(d) ? "—" : `${d.toFixed(1)}°`;
+const sec = (s) => isNaN(s) ? "—" : `${s.toFixed(1)} s`;
+const pct = (x) => isNaN(x) ? "—" : `${Math.round(x * 100)}%`;
+const short = (id) => (id || "").slice(0, 8);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function verdictFor(sessions, meas) {
+  // Brief: pass = small consistent offset (tens of cm), right orientation, reliable across times and days.
+  const others = sessions.filter(s => !s.is_placer);
+  const succ = others.length ? others.filter(s => s.success).length / others.length : NaN;
+  const h = meas.map(m => m.horizontal_error_m), y = meas.map(m => Math.abs(m.yaw_error_deg ?? 0));
+  const p90h = q(h, 0.9), p90y = q(y, 0.9);
+  const lights = new Set(meas.map(m => m.light).filter(Boolean)).size;
+  const nextDay = meas.some(m => (m.hours_since_placed ?? 0) >= 18);
+  const missing = [];
+  if (others.length < 5) missing.push(`${5 - others.length} more loads`);
+  if (meas.length < 5) missing.push(`${5 - meas.length} more measurements`);
+  if (!nextDay) missing.push("a next-day measurement");
+  if (lights < 2) missing.push("a second lighting condition");
+  let v = "open";
+  if (meas.length && others.length) {
+    if (succ >= 0.9 && p90h <= 0.5 && p90y <= 10) v = missing.length ? "pass-so-far" : "pass";
+    else if (succ >= 0.7 && p90h <= 1.5 && p90y <= 20) v = "marginal";
+    else v = "fail";
+  }
+  return { v, succ, p90h, p90y, med: q(h, 0.5), medY: q(y, 0.5), missing, n: meas.length, loads: others.length };
+}
+const vLabel = { pass: ["PASS", "v-pass"], "pass-so-far": ["ON TRACK", "v-pass"], marginal: ["MARGINAL", "v-marginal"], fail: ["FAIL", "v-fail"], open: ["NOT ENOUGH DATA", "v-open"] };
+
+function render(d) {
+  const { anchors, sessions, measurements } = d;
+  $("#report").hidden = false;
+  const byId = Object.fromEntries(anchors.map(a => [a.id, a]));
+  const clean = measurements.filter(m => !m.is_placer && !m.low_confidence);
+
+  // Checks against the brief.
+  const loaders = sessions.filter(s => !s.is_placer && s.success);
+  const otherAccount = loaders.filter(s => byId[s.anchor_id] && s.user_id !== byId[s.anchor_id].created_by);
+  const otherDevice = otherAccount.filter(s => s.device_model !== byId[s.anchor_id].device_model);
+  const okPos = clean.filter(m => m.horizontal_error_m <= 0.5);
+  const okYaw = clean.filter(m => Math.abs(m.yaw_error_deg ?? 99) <= 10);
+  const lights = [...new Set(clean.map(m => m.light).filter(Boolean))];
+  const nextDay = clean.filter(m => (m.hours_since_placed ?? 0) >= 18);
+  const tick = (ok, partial) => ok ? `<span class="tick v-pass">✓</span>` : partial ? `<span class="tick v-marginal">~</span>` : `<span class="tick v-open">○</span>`;
+  const checks = [
+    [otherDevice.length > 0, false, "Two separate devices", `${otherDevice.length} successful loads on a different phone model than the placer's.`],
+    [otherAccount.length > 0, false, "Two separate accounts", `${otherAccount.length} successful loads by an account other than the placer's (${new Set(sessions.map(s => s.user_id)).size} accounts seen).`],
+    [clean.length && okPos.length / clean.length >= 0.9, okPos.length > 0, "Same position", `${okPos.length} of ${clean.length} measurements within 50 cm of the chalk X. Median ${cm(q(clean.map(m => m.horizontal_error_m), 0.5))}.`],
+    [clean.length && okYaw.length / clean.length >= 0.9, okYaw.length > 0, "Same orientation", `${okYaw.length} of ${clean.length} within 10° of the real facing. Median ${deg(q(clean.map(m => Math.abs(m.yaw_error_deg ?? 0)), 0.5))}.`],
+    [lights.length >= 2, lights.length === 1, "Different times / lighting", lights.length ? `Measured in: ${lights.join(", ")}.` : "No measurements yet."],
+    [nextDay.length > 0, false, "Days apart", `${nextDay.length} measurements taken 18+ hours after their marker was placed.`],
+  ];
+  $("#checks").innerHTML = checks.map(([ok, partial, t, s]) => `<li>${tick(ok, partial)}<div><b>${t}</b><br><span class="muted">${esc(s)}</span></div></li>`).join("");
+
+  // Per spot type.
+  const spots = [...new Set(anchors.map(a => a.spot || "Other"))];
+  let best = "open";
+  $("#spots").innerHTML = spots.map(sp => {
+    const ids = new Set(anchors.filter(a => (a.spot || "Other") === sp).map(a => a.id));
+    const ss = sessions.filter(s => ids.has(s.anchor_id)), mm = clean.filter(m => ids.has(m.anchor_id));
+    const r = verdictFor(ss, mm);
+    const locks = ss.filter(s => s.success && !s.is_placer).map(s => s.lock_s);
+    const rank = { pass: 4, "pass-so-far": 3, marginal: 2, fail: 1, open: 0 };
+    if (rank[r.v] > rank[best]) best = r.v;
+    const [lab, cls] = vLabel[r.v];
+    return `<div class="card"><h3>${esc(sp)}</h3><div class="verdict ${cls}" style="display:inline-block;font-size:12px;padding:4px 8px;margin:4px 0 10px">${lab}</div>
+      <div class="stat"><span>Loaded OK</span><b>${pct(r.succ)} <span class="muted">(${r.loads})</span></b></div>
+      <div class="stat"><span>Median offset</span><b>${cm(r.med)}</b></div>
+      <div class="stat"><span>90% within</span><b>${cm(r.p90h)}</b></div>
+      <div class="stat"><span>Median rotation</span><b>${deg(r.medY)}</b></div>
+      <div class="stat"><span>Median lock time</span><b>${sec(q(locks, 0.5))}</b></div>
+      ${r.missing.length ? `<p class="note" style="margin:8px 0 0">Still needs: ${esc(r.missing.join(", "))}.</p>` : ""}</div>`;
+  }).join("") || `<div class="empty">No markers placed yet.</div>`;
+  const [ol, oc] = vLabel[best];
+  $("#overall").className = `verdict ${oc}`; $("#overall").textContent = best === "open" ? "NOT ENOUGH DATA" : `BEST SPOT: ${ol}`;
+
+  // Device colours.
+  const devices = [...new Set(measurements.map(m => `${m.device_model || "?"} · ${short(m.user_id)}`))];
+  const colorOf = (m) => palette[devices.indexOf(`${m.device_model || "?"} · ${short(m.user_id)}`) % palette.length];
+
+  // Bullseye (100 px = 1 m).
+  const S = 100, ring = css("--ring"), ink = css("--ink");
+  let svg = [0.25, 0.5, 1].map(r => `<circle r="${r * S}" fill="none" stroke="${ring}" stroke-dasharray="${r === 1 ? "0" : "3 3"}"/><text x="${r * S * 0.71 + 3}" y="${-r * S * 0.71 - 3}">${r * 100}cm</text>`).join("");
+  svg += `<line x1="-125" x2="125" y1="0" y2="0" stroke="${ring}"/><line y1="-125" y2="125" x1="0" x2="0" stroke="${ring}"/><text x="3" y="-117">N</text><text x="114" y="-4">E</text>`;
+  svg += `<path d="M-7 -7L7 7M-7 7L7 -7" stroke="${ink}" stroke-width="2.5"/>`;
+  for (const m of measurements.filter(m => m.direction_known !== false)) {
+    let x = (m.east_error_m ?? 0) * S, y = -(m.north_error_m ?? 0) * S;
+    const out = Math.hypot(x, y) > 122; if (out) { const k = 122 / Math.hypot(x, y); x *= k; y *= k; }
+    const faded = m.is_placer || m.low_confidence;
+    svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${out ? 6 : 4.5}" fill="${faded ? "none" : colorOf(m)}" stroke="${colorOf(m)}" stroke-width="1.6"><title>${esc(byId[m.anchor_id]?.label || "")}: ${cm(m.horizontal_error_m)}, ${deg(m.yaw_error_deg)}${faded ? " (placer / weak)" : ""}</title></circle>`;
+  }
+  $("#bull").innerHTML = svg;
+  $("#bullLegend").innerHTML = devices.map((d, i) => `<span style="--c:${palette[i % palette.length]}">${esc(d)}</span>`).join("") + `<span class="muted" style="--c:transparent">Hollow = placer's own or weak localization</span>`;
+
+  // Drift chart.
+  const W = 320, H = 220, L = 40, B = 28, T = 10, R = 10;
+  const pts = measurements.filter(m => (m.hours_since_placed ?? -1) >= 0);
+  const maxH = Math.max(24, ...pts.map(m => m.hours_since_placed)), maxE = Math.max(1, ...pts.map(m => m.horizontal_error_m));
+  const X = (h) => L + (Math.log1p(h) / Math.log1p(maxH)) * (W - L - R), Y = (e) => H - B - (e / maxE) * (H - B - T);
+  let dsvg = `<line x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}" stroke="${ring}"/><line x1="${L}" x2="${L}" y1="${T}" y2="${H - B}" stroke="${ring}"/>`;
+  for (const h of [0, 1, 6, 24, 72, 168].filter(h => h <= maxH)) dsvg += `<text x="${X(h)}" y="${H - 10}" text-anchor="middle">${h < 24 ? h + "h" : h / 24 + "d"}</text>`;
+  for (const e of [0, 0.5, 1, 2, 5].filter(e => e <= maxE)) dsvg += `<text x="${L - 6}" y="${Y(e) + 4}" text-anchor="end">${e * 100}</text><line x1="${L}" x2="${W - R}" y1="${Y(e)}" y2="${Y(e)}" stroke="${ring}" stroke-dasharray="2 4"/>`;
+  for (const m of pts) dsvg += `<circle cx="${X(m.hours_since_placed).toFixed(1)}" cy="${Y(m.horizontal_error_m).toFixed(1)}" r="4" fill="${m.is_placer || m.low_confidence ? "none" : colorOf(m)}" stroke="${colorOf(m)}" stroke-width="1.5"/>`;
+  $("#drift").innerHTML = dsvg;
+
+  // Tables.
+  $("#anchors").innerHTML = `<tr><th>Marker</th><th>Spot</th><th>Type</th><th>Placed by</th><th class="num">Place acc.</th><th class="num">Loads</th><th class="num">OK</th><th class="num">Median offset</th><th class="num">Median rot.</th></tr>` +
+    anchors.map(a => {
+      const ss = sessions.filter(s => s.anchor_id === a.id && !s.is_placer), mm = clean.filter(m => m.anchor_id === a.id);
+      return `<tr><td>${esc(a.label)}</td><td>${esc(a.spot)}</td><td>${esc(a.anchor_type)}</td><td class="mono">${short(a.created_by)} · ${esc(a.device_model)}</td>
+        <td class="num">±${(a.place_h_acc ?? 0).toFixed(2)} m / ${(a.place_yaw_acc ?? 0).toFixed(1)}°</td><td class="num">${ss.length}</td><td class="num">${pct(ss.length ? ss.filter(s => s.success).length / ss.length : NaN)}</td>
+        <td class="num">${cm(q(mm.map(m => m.horizontal_error_m), 0.5))}</td><td class="num">${deg(q(mm.map(m => Math.abs(m.yaw_error_deg ?? 0)), 0.5))}</td></tr>`;
+    }).join("");
+  $("#meas").innerHTML = `<tr><th>When</th><th>Marker</th><th>Phone · account</th><th>Light</th><th class="num">Offset</th><th class="num">E / N</th><th class="num">Height</th><th class="num">Rotation</th><th class="num">Since placed</th><th>Flags</th></tr>` +
+    measurements.map(m => `<tr><td>${new Date(m.created_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td><td>${esc(byId[m.anchor_id]?.label || short(m.anchor_id))}</td>
+      <td class="mono">${esc(m.device_model)} · ${short(m.user_id)}</td><td>${esc(m.light)}</td><td class="num">${cm(m.horizontal_error_m)}</td>
+      <td class="num">${m.direction_known === false ? "—" : `${Math.round((m.east_error_m ?? 0) * 100)} / ${Math.round((m.north_error_m ?? 0) * 100)}`}</td>
+      <td class="num">${cm(m.vertical_error_m)}</td><td class="num">${deg(m.yaw_error_deg)}</td><td class="num">${(m.hours_since_placed ?? 0).toFixed(1)} h</td>
+      <td>${[m.is_placer && "placer", m.low_confidence && "weak loc."].filter(Boolean).join(", ")}</td></tr>`).join("");
+}
+
+async function refresh() {
+  try { const d = await load(); if (d) { $("#error").textContent = ""; render(d); } }
+  catch (e) { $("#error").textContent = "Couldn't load results: " + (e.message || e); $("#setup").hidden = false; }
+}
+refresh();
+if (!params.has("demo")) setInterval(refresh, 30000);
+
+// ───── sample data for ?demo ─────
+function demoData() {
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd() + 1e-9)) * Math.cos(2 * Math.PI * rnd());
+  const users = ["a1b2c3d4-0000", "e5f6a7b8-0000", "c9d0e1f2-0000"], phones = ["Pixel 8", "iPhone15,3", "SM-S918B"];
+  const spots = [["Open / well-mapped", 0.12, 1.5], ["Plain / featureless", 0.45, 5], ["Shaded / trees", 0.9, 9]];
+  const lights = ["Sunny", "Overcast", "Dusk"];
+  const anchors = [], sessions = [], measurements = []; let id = 0;
+  const now = Date.now();
+  spots.forEach(([spot, sd, ysd], si) => {
+    const a = { id: "an" + si, created_at: new Date(now - 30 * 3600e3).toISOString(), created_by: users[0], device_model: phones[0], label: `${spot.split(" ")[0]} · Oct 11 14:${10 + si}`, spot, anchor_type: "terrain", place_h_acc: 0.4 + si * 0.2, place_yaw_acc: 1.5 + si };
+    anchors.push(a);
+    for (let k = 0; k < 9; k++) {
+      const u = 1 + (k % 2), ok = rnd() > si * 0.12, hrs = [0.2, 2, 6, 26, 28, 29][k % 6];
+      const s = { id: "s" + id++, anchor_id: a.id, user_id: users[u], device_model: phones[u], is_placer: false, success: ok, lock_s: 6 + rnd() * 10 + si * 8, light: lights[k % 3] };
+      sessions.push(s);
+      if (!ok) continue;
+      const e = gauss() * sd, n = gauss() * sd;
+      measurements.push({ id: "m" + id++, created_at: new Date(now - (30 - hrs) * 3600e3).toISOString(), anchor_id: a.id, user_id: users[u], device_model: phones[u], light: lights[k % 3], is_placer: false, low_confidence: rnd() < 0.08,
+        horizontal_error_m: Math.hypot(e, n), east_error_m: e, north_error_m: n, vertical_error_m: gauss() * 0.1, yaw_error_deg: gauss() * ysd, hours_since_placed: hrs, direction_known: true });
+    }
+  });
+  return { anchors, sessions, measurements };
+}
+</script>
+</body>
+</html>
