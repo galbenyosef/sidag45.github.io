@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Giza VR</title>
+<style>
+  :root { --sand:#e9c48a; --ink:#10242c; }
+  html,body { margin:0; height:100%; background:#7fc3d6; overflow:hidden; font-family: "Helvetica Neue", Arial, sans-serif; }
+  canvas { display:block; }
+  #panel {
+    position:fixed; left:16px; top:16px; max-width:min(340px, calc(100vw - 32px));
+    background:rgba(16,36,44,.62); color:#f4ead8; padding:14px 16px; border-radius:12px;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); line-height:1.45; font-size:13px;
+  }
+  #panel h1 { margin:0 0 4px; font-size:18px; letter-spacing:.14em; text-transform:uppercase; color:var(--sand); font-weight:600; }
+  #panel p { margin:4px 0; opacity:.9; }
+  #panel kbd { background:rgba(255,255,255,.14); padding:1px 5px; border-radius:4px; font-size:12px; }
+  #hide { position:absolute; top:8px; right:10px; background:none; border:0; color:#f4ead8; font-size:16px; cursor:pointer; opacity:.7; }
+  #loading { position:fixed; inset:0; display:grid; place-items:center; color:var(--ink); font-size:14px; letter-spacing:.2em; text-transform:uppercase; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="loading">Raising the plateau…</div>
+<div id="panel">
+  <button id="hide" aria-label="Hide">×</button>
+  <h1>Giza</h1>
+  <p>The Great Sphinx and the pyramids, under a noon sun.</p>
+  <p><b>Quest:</b> press <b>Enter VR</b>. Left stick moves, right stick turns, hold either trigger to move faster, right <b>A</b> to jump between viewpoints.</p>
+  <p><b>Desktop:</b> drag to look, <kbd>W A S D</kbd> to walk, <kbd>Shift</kbd> to run, <kbd>V</kbd> next viewpoint.</p>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+
+/* ---------- renderer / scene ---------- */
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.xr.enabled = true;
+renderer.xr.setReferenceSpaceType('local-floor');
+renderer.xr.setFoveation?.(1);
+document.body.appendChild(renderer.domElement);
+document.body.appendChild(VRButton.createButton(renderer));
+document.getElementById('loading').remove();
+document.getElementById('hide').onclick = () => document.getElementById('panel').style.display = 'none';
+
+const scene = new THREE.Scene();
+const HAZE = new THREE.Color('#cfe3e0');
+scene.fog = new THREE.Fog(HAZE, 380, 2600);
+
+const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 6000);
+const rig = new THREE.Group();          // player rig (moved by locomotion)
+rig.add(camera);
+scene.add(rig);
+
+/* ---------- sun & sky ---------- */
+const SUN_DIR = new THREE.Vector3(0.55, 0.62, 0.35).normalize();
+
+const skyMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite: false, fog: false,
+  uniforms: { sunDir: { value: SUN_DIR } },
+  vertexShader: `varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader: `
+    varying vec3 vDir; uniform vec3 sunDir;
+    void main(){
+      float h = clamp(vDir.y, 0., 1.);
+      vec3 zenith  = vec3(0.07, 0.42, 0.56);
+      vec3 mid     = vec3(0.28, 0.66, 0.76);
+      vec3 horizon = vec3(0.80, 0.89, 0.87);
+      vec3 col = mix(horizon, mid, smoothstep(0.0, 0.22, h));
+      col = mix(col, zenith, smoothstep(0.2, 0.95, h));
+      float s = max(dot(normalize(vDir), sunDir), 0.);
+      col += vec3(1.0, 0.96, 0.85) * pow(s, 900.) * 6.0;     // disc
+      col += vec3(1.0, 0.93, 0.78) * pow(s, 18.) * 0.55;      // glare
+      col += vec3(0.9, 0.95, 0.9)  * pow(s, 3.)  * 0.12;      // wide bloom
+      // faint diagonal light rays like the photo
+      float ray = sin(atan(vDir.x - sunDir.x, vDir.y - sunDir.y) * 22.) * 0.5 + 0.5;
+      col += vec3(1.) * ray * pow(s, 6.) * 0.10;
+      if (vDir.y < 0.) col = horizon;
+      gl_FragColor = vec4(col, 1.);
+    }`
+});
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(5000, 48, 24), skyMat));
+
+const sun = new THREE.DirectionalLight('#fff1d6', 3.2);
+sun.position.copy(SUN_DIR).multiplyScalar(150);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -70, right: 70, top: 70, bottom: -70, near: 10, far: 400 });
+sun.shadow.bias = -0.0004;
+sun.shadow.normalBias = 0.6;
+scene.add(sun, sun.target);
+scene.add(new THREE.HemisphereLight('#a9d8e6', '#c89a5c', 1.1));
+
+/* ---------- procedural textures ---------- */
+function rng(seed) { return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+function canvasTex(size, draw, repeat = 1) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  draw(c.getContext('2d'), size);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(repeat, repeat);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return t;
+}
+function speckle(g, s, n, alpha, r) {
+  for (let i = 0; i < n; i++) {
+    const v = r() < .5 ? 0 : 255;
+    g.fillStyle = `rgba(${v},${v},${v},${alpha * r()})`;
+    g.fillRect(r() * s, r() * s, 1 + r() * 2, 1 + r() * 2);
+  }
+}
+// sandstone strata (sphinx & enclosure)
+const strataTex = canvasTex(512, (g, s) => {
+  const r = rng(7);
+  g.fillStyle = '#d6a466'; g.fillRect(0, 0, s, s);
+  let y = 0;
+  while (y < s) {
+    const h = 6 + r() * 26;
+    const l = 58 + r() * 14;
+    g.fillStyle = `hsl(34, ${44 + r() * 14}%, ${l}%)`;
+    g.fillRect(0, y, s, h);
+    g.fillStyle = 'rgba(90,55,25,.35)'; g.fillRect(0, y + h - 2, s, 2);   // bedding seam
+    y += h;
+  }
+  for (let i = 0; i < 120; i++) { // vertical cracks
+    g.strokeStyle = `rgba(80,50,20,${.12 + r() * .2})`; g.lineWidth = 1;
+    const x = r() * s, y0 = r() * s;
+    g.beginPath(); g.moveTo(x, y0); g.lineTo(x + (r() - .5) * 6, y0 + 8 + r() * 30); g.stroke();
+  }
+  speckle(g, s, 9000, .18, r);
+});
+// pyramid limestone blocks
+const blockTex = canvasTex(512, (g, s) => {
+  const r = rng(13);
+  g.fillStyle = '#d9d2c2'; g.fillRect(0, 0, s, s);
+  const rows = 8;
+  const rh = s / rows;
+  for (let j = 0; j < rows; j++) {
+    let x = -r() * 60;
+    while (x < s) {
+      const w = 40 + r() * 50;
+      const l = 76 + r() * 9;
+      g.fillStyle = `hsl(40, ${14 + r() * 10}%, ${l}%)`;
+      g.fillRect(x + 1, j * rh + 1, w - 2, rh - 3);
+      x += w;
+    }
+    g.fillStyle = 'rgba(90,80,60,.55)'; g.fillRect(0, j * rh + rh - 3, s, 3); // course shadow
+  }
+  speckle(g, s, 7000, .16, r);
+});
+// smooth casing stone (Khafre's cap)
+const casingTex = canvasTex(256, (g, s) => {
+  const r = rng(3); g.fillStyle = '#e6dfcf'; g.fillRect(0, 0, s, s); speckle(g, s, 3000, .12, r);
+});
+// sand
+const sandTex = canvasTex(512, (g, s) => {
+  const r = rng(21);
+  g.fillStyle = '#e2c79a'; g.fillRect(0, 0, s, s);
+  for (let i = 0; i < 40; i++) {
+    g.strokeStyle = `rgba(170,130,80,${.05 + r() * .07})`; g.lineWidth = 2 + r() * 4;
+    const y = r() * s; g.beginPath(); g.moveTo(0, y);
+    for (let x = 0; x <= s; x += 16) g.lineTo(x, y + Math.sin(x * .03 + i) * 6);
+    g.stroke();
+  }
+  speckle(g, s, 16000, .22, r);
+}, 1);
+// nemes headcloth stripes
+const nemesTex = canvasTex(256, (g, s) => {
+  const r = rng(5);
+  g.fillStyle = '#cf9f62'; g.fillRect(0, 0, s, s);
+  for (let y = 0; y < s; y += 16) { g.fillStyle = 'rgba(95,60,25,.38)'; g.fillRect(0, y, s, 5); }
+  speckle(g, s, 4000, .2, r);
+});
+
+const M = {
+  stone:  new THREE.MeshStandardMaterial({ map: strataTex, roughness: .95, color: '#ffffff' }),
+  stoneDark: new THREE.MeshStandardMaterial({ map: strataTex, roughness: 1, color: '#d9c0a0' }),
+  nemes:  new THREE.MeshStandardMaterial({ map: nemesTex, roughness: .9 }),
+  face:   new THREE.MeshStandardMaterial({ map: strataTex, roughness: .9, color: '#f3dcc0' }),
+  shadow: new THREE.MeshStandardMaterial({ color: '#5b3d22', roughness: 1 }),
+  pyr:    new THREE.MeshStandardMaterial({ map: blockTex, roughness: .95, color: '#d8cdb8' }),
+  casing: new THREE.MeshStandardMaterial({ map: casingTex, roughness: .8, color: '#e2d8c4' }),
+  sand:   new THREE.MeshStandardMaterial({ map: sandTex, roughness: 1 }),
+  build:  new THREE.MeshStandardMaterial({ color: '#b9a17c', roughness: 1 }),
+};
+
+/* ---------- helpers ---------- */
+// box whose top face is scaled (taper) — used for headdress, face, torso
+function taperBox(w, h, d, topX = 1, topZ = 1, shiftZ = 0) {
+  const g = new THREE.BoxGeometry(w, h, d, 1, 1, 1);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) if (p.getY(i) > 0) { p.setX(i, p.getX(i) * topX); p.setZ(i, p.getZ(i) * topZ + shiftZ); }
+  g.computeVertexNormals();
+  return g;
+}
+function worldUV(geo, scale) {   // planar-ish UVs so texture density is consistent in metres
+  geo = geo.toNonIndexed();
+  const p = geo.attributes.position, n = new THREE.Vector3(), a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+  const uv = new Float32Array(p.count * 2);
+  for (let i = 0; i < p.count; i += 3) {
+    a.fromBufferAttribute(p, i); b.fromBufferAttribute(p, i + 1); c.fromBufferAttribute(p, i + 2);
+    n.subVectors(c, b).cross(new THREE.Vector3().subVectors(a, b)).normalize();
+    for (let k = 0; k < 3; k++) {
+      const v = [a, b, c][k];
+      let u, w;
+      if (Math.abs(n.y) > .7) { u = v.x; w = v.z; } else if (Math.abs(n.x) > Math.abs(n.z)) { u = v.z; w = v.y; } else { u = v.x; w = v.y; }
+      uv[(i + k) * 2] = u / scale; uv[(i + k) * 2 + 1] = w / scale;
+    }
+  }
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.computeVertexNormals();
+  return geo;
+}
+function mesh(geo, mat, x, y, z, parent, opts = {}) {
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y, z);
+  if (opts.rx) m.rotation.x = opts.rx; if (opts.ry) m.rotation.y = opts.ry; if (opts.rz) m.rotation.z = opts.rz;
+  m.castShadow = opts.cast ?? true; m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+// baked into world-space matrix then world-UV'd, so stacked layers share continuous strata
+function layer(w, h, d, mat, x, y, z, parent, r) {
+  const g = worldUV(new THREE.BoxGeometry(w, h, d).translate(x, y, z), 9);
+  return mesh(g, mat, 0, 0, 0, parent);
+}
+
+/* ---------- ground ---------- */
+{
+  const size = 6000, seg = 160;
+  const g = new THREE.PlaneGeometry(size, size, seg, seg).rotateX(-Math.PI / 2);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), z = p.getZ(i);
+    const d = Math.hypot(x, z + 300);
+    const dune = (Math.sin(x * .004) * Math.cos(z * .003) * 12 + Math.sin(x * .011 + z * .007) * 4);
+    p.setY(i, dune * THREE.MathUtils.smoothstep(d, 500, 1400) - 0.02);
+  }
+  g.computeVertexNormals();
+  sandTex.repeat.set(size / 14, size / 14);
+  const ground = mesh(g, M.sand, 0, 0, 0, scene, { cast: false });
+}
+
+/* ---------- the Sphinx ---------- */
+const sphinx = new THREE.Group();
+scene.add(sphinx);
+{
+  const r = rng(99);
+  const L = 0.85;                       // stratum thickness (m)
+  // Body (lion, lying) – rump at z=-46, chest at z=-2
+  for (let i = 0; i < 16; i++) {
+    const y = i * L + L / 2;
+    const t = i / 15;
+    const erode = Math.exp(-((t - .45) ** 2) / .02) * 1.4;        // eroded mid band
+    const w = 11.6 - erode - Math.pow(t, 3) * 4.5 + (r() - .5) * .5;
+    const len = 43 - Math.pow(t, 2.4) * 10 + (r() - .5) * .8;
+    layer(w, L * 1.01, len, i % 3 ? M.stone : M.stoneDark, (r() - .5) * .3, y, -46 + len / 2 + Math.pow(t, 2) * 3, sphinx, r);
+  }
+  // haunch bulges
+  for (const s of [-1, 1]) for (let i = 0; i < 7; i++) {
+    const y = i * L + L / 2 + 1;
+    layer(1.4 - i * .12, L, 12 - i * .9, M.stoneDark, s * (5.9 - i * .05), y, -38, sphinx, r);
+  }
+  // chest / forequarters rising to neck
+  for (let i = 0; i < 15; i++) {
+    const y = i * L + L / 2;
+    const t = i / 14;
+    const w = 11.2 - Math.pow(t, 1.6) * 4.6 + (r() - .5) * .4;
+    const d = 8.5 - t * 3 + (r() - .5) * .3;
+    layer(w, L * 1.01, d, i % 4 ? M.stone : M.stoneDark, 0, y, -2 + t * .8, sphinx, r);
+  }
+  // fore paws
+  for (const s of [-1, 1]) {
+    for (let i = 0; i < 4; i++) {
+      const y = i * L + L / 2;
+      const w = 3.4 - i * .25, len = 16 - i * .6;
+      layer(w, L * 1.01, len, M.stone, s * 3.9, y, 1 + len / 2, sphinx, r);
+    }
+    for (let k = 0; k < 4; k++) mesh(new THREE.BoxGeometry(.7, 1.6, 1.2), M.stone, s * 3.9 + (k - 1.5) * .8, .8, 17.2, sphinx); // toes
+  }
+  // tail curling round right haunch
+  mesh(new THREE.BoxGeometry(.8, .6, 10), M.stoneDark, 6.2, .5, -38, sphinx);
+
+  /* head */
+  const head = new THREE.Group();
+  head.position.set(0, 12.6, 0.8);
+  sphinx.add(head);
+  // neck
+  mesh(new THREE.CylinderGeometry(2.4, 3.0, 4.4, 10), M.stone, 0, 0.6, 0, head);
+  // nemes back mass (tapered, striped)
+  mesh(taperBox(8.4, 6.6, 6.2, .62, .7, -.5), M.nemes, 0, 4.7, -.9, head);
+  // nemes top crown
+  mesh(taperBox(5.4, 1.2, 4.8, .8, .8), M.nemes, 0, 8.4, -.6, head);
+  // lappets (front flaps beside the face)
+  for (const s of [-1, 1]) {
+    mesh(taperBox(1.1, 6.2, 2.5, .7, .9), M.nemes, s * 3.35, 2.3, 1.7, head, { rz: s * .08 });
+    mesh(new THREE.BoxGeometry(.9, 5.4, .5), M.nemes, s * 2.75, 4.6, 2.8, head, { rz: s * -.06 }); // band framing face
+  }
+  // face
+  const face = new THREE.Group(); face.position.set(0, 4.6, 2.6); head.add(face);
+  mesh(taperBox(4.4, 5.4, 2.6, .92, .9), M.face, 0, 0, 0, face);                  // face block
+  mesh(taperBox(4.6, 1.1, 2.2, .96, .9), M.face, 0, 2.9, -.1, face);              // forehead band
+  mesh(new THREE.BoxGeometry(.5, .8, .3), M.face, 0, 2.6, 1.3, face);              // uraeus scar
+  mesh(taperBox(3.2, 1.6, 2.0, 1.25, 1), M.face, 0, -3.1, .1, face);              // jaw/chin
+  for (const s of [-1, 1]) {
+    mesh(new THREE.BoxGeometry(1.25, .32, .5), M.face, s * .95, 1.25, 1.35, face);   // brow
+    mesh(new THREE.BoxGeometry(1.0, .38, .12), M.shadow, s * .95, .82, 1.32, face);  // eye socket
+    mesh(new THREE.BoxGeometry(.5, .2, .14), M.face, s * .95, .82, 1.36, face);      // eyeball
+    mesh(new THREE.BoxGeometry(.6, 1.6, .9), M.face, s * 2.5, .4, -.4, face);        // ear
+    mesh(new THREE.BoxGeometry(.25, 1.0, .3), M.shadow, s * 2.62, .4, -.05, face);  // ear canal
+    mesh(new THREE.BoxGeometry(.9, 1.6, .5), M.face, s * 1.45, -.6, 1.2, face);      // cheeks
+  }
+  // nose (eroded stub) + mouth
+  mesh(taperBox(1.0, 1.5, .9, .55, .6, .05), M.face, 0, -.15, 1.55, face, { rx: -.15 });
+  mesh(new THREE.BoxGeometry(1.0, .55, .5), M.shadow, 0, -.6, 1.5, face);           // broken nose shadow
+  mesh(new THREE.BoxGeometry(1.7, .28, .4), M.face, 0, -1.45, 1.4, face);           // upper lip
+  mesh(new THREE.BoxGeometry(1.5, .12, .3), M.shadow, 0, -1.65, 1.42, face);        // mouth line
+  mesh(new THREE.BoxGeometry(1.5, .3, .4), M.face, 0, -1.85, 1.35, face);           // lower lip
+  // breast plate under chin (stela-like)
+  mesh(new THREE.BoxGeometry(4.8, 3.2, 1.4), M.stone, 0, -2.6, 2.0, head);
+}
+
+/* ---------- enclosure (the quarry pit walls) ---------- */
+{
+  const r = rng(41);
+  const g = new THREE.Group(); scene.add(g);
+  function wall(x0, z0, x1, z1, hBase) {
+    const len = Math.hypot(x1 - x0, z1 - z0), ang = Math.atan2(z1 - z0, x1 - x0);
+    const n = Math.ceil(len / 3.2);
+    for (let i = 0; i < n; i++) {
+      const t = (i + .5) / n, h = hBase + (r() - .5) * 2.4;
+      const x = x0 + (x1 - x0) * t, z = z0 + (z1 - z0) * t;
+      for (let k = 0; k < Math.ceil(h / 1.2); k++) {
+        const bw = 3.2 + r() * .6, bh = 1.2, bd = 2.6 + r() * 1.2;
+        const m = mesh(new THREE.BoxGeometry(bw, bh, bd), r() < .3 ? M.stoneDark : M.stone, x + (r() - .5) * .4, k * bh + bh / 2, z + (r() - .5) * .4, g);
+        m.rotation.y = -ang + (r() - .5) * .04;
+      }
+    }
+  }
+  wall(-34, -66, 34, -66, 8);     // back
+  wall(-34, -66, -34, 16, 7);     // left
+  wall(34, -66, 34, 4, 6);        // right
+  wall(34, 4, 54, 4, 4);
+  wall(-34, 16, -60, 16, 3.5);
+  // scattered blocks & temple remains in front
+  for (let i = 0; i < 28; i++) {
+    const bx = (r() < .5 ? -1 : 1) * (14 + r() * 18), bz = 22 + r() * 30;
+    if (Math.hypot(bx + 24, bz - 40) < 9) continue;
+    const m = mesh(new THREE.BoxGeometry(1.2 + r() * 2, .8 + r() * 1.4, 1.2 + r() * 2), M.stone, bx, .5, bz, g);
+    m.rotation.y = r() * Math.PI;
+  }
+  for (let i = 0; i < 6; i++) mesh(new THREE.BoxGeometry(2, 4 + r() * 2, 2), M.stoneDark, (i < 3 ? -1 : 1) * (14 + (i % 3) * 7), 2.5, 56, g);
+}
+
+/* ---------- pyramids ---------- */
+function pyramid(base, height, x, z, mat, rotY = 0) {
+  const h = base / 2, S = Math.hypot(h, height);     // slant height
+  const pos = [], uv = [];
+  const corners = [[-h, -h], [h, -h], [h, h], [-h, h]];
+  for (let i = 0; i < 4; i++) {
+    const a = corners[i], b = corners[(i + 1) % 4];
+    pos.push(a[0], 0, a[1], 0, height, 0, b[0], 0, b[1]);
+    uv.push(0, 0, base / 2 / 16, S / 16, base / 16, 0);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, mat);
+  m.position.set(x, 0, z); m.rotation.y = rotY;
+  m.castShadow = false; m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+// Khufu (left), Khafre (right, with casing cap), Menkaure (far right, small) — placed to echo the photo
+pyramid(230, 139, -10, -480, M.pyr, .12);
+pyramid(215, 136, 300, -330, M.pyr, .12);
+{ const cap = pyramid(52, 33, 300, -330, M.casing, .12); cap.position.y = 103.3; cap.scale.setScalar(1.01); }
+pyramid(102, 65, 520, -620, M.pyr, .12);
+// queens' pyramids
+pyramid(46, 30, -190, -470, M.pyr, .12);
+pyramid(46, 30, -190, -530, M.pyr, .12);
+
+/* distant village / ruins on the horizon */
+{
+  const r = rng(77);
+  for (let i = 0; i < 40; i++) {
+    const w = 4 + r() * 10, h = 3 + r() * 9;
+    mesh(new THREE.BoxGeometry(w, h, w * (0.6 + r())), M.build, 140 + r() * 200, h / 2, -150 - r() * 60, scene, { cast: false });
+  }
+  mesh(new THREE.CylinderGeometry(1.2, 2, 22, 8), M.build, 170, 11, -170, scene, { cast: false }); // obelisk-ish tower
+}
+
+/* ---------- viewpoints ---------- */
+const viewpoints = [
+  { p: [-24, 0, 40], look: [6, 16, -10] },   // the photo's angle: low, front-left
+  { p: [0, 0, 36], look: [0, 16, 0] },      // face to face
+  { p: [-48, 0, -10], look: [0, 8, -20] },  // profile
+  { p: [-30, 0, -240], look: [-10, 60, -480] }, // behind, toward Khufu
+  { p: [160, 0, -200], look: [300, 70, -330] }, // foot of Khafre
+];
+let vpIndex = 0;
+const yawObj = { yaw: 0, pitch: 0 };
+function goTo(i) {
+  vpIndex = (i + viewpoints.length) % viewpoints.length;
+  const v = viewpoints[vpIndex];
+  rig.position.set(...v.p);
+  const dx = v.look[0] - v.p[0], dz = v.look[2] - v.p[2];
+  const eye = renderer.xr.isPresenting ? 0 : 1.6;
+  yawObj.yaw = Math.atan2(-dx, -dz);
+  yawObj.pitch = Math.atan2(v.look[1] - eye, Math.hypot(dx, dz));
+  rig.rotation.y = yawObj.yaw;
+  if (!renderer.xr.isPresenting) { camera.position.set(0, 1.6, 0); camera.rotation.set(yawObj.pitch, 0, 0); }
+}
+goTo(0);
+
+/* ---------- desktop controls ---------- */
+const keys = {};
+addEventListener('keydown', e => { keys[e.code] = true; if (e.code === 'KeyV') goTo(vpIndex + 1); });
+addEventListener('keyup', e => keys[e.code] = false);
+let drag = null;
+renderer.domElement.addEventListener('pointerdown', e => drag = { x: e.clientX, y: e.clientY });
+addEventListener('pointerup', () => drag = null);
+addEventListener('pointermove', e => {
+  if (!drag || renderer.xr.isPresenting) return;
+  yawObj.yaw -= (e.clientX - drag.x) * .004;
+  yawObj.pitch = THREE.MathUtils.clamp(yawObj.pitch - (e.clientY - drag.y) * .004, -1.4, 1.4);
+  drag = { x: e.clientX, y: e.clientY };
+  rig.rotation.y = yawObj.yaw; camera.rotation.x = yawObj.pitch;
+});
+
+/* ---------- XR controllers ---------- */
+let snapReady = true, aReady = true;
+renderer.xr.addEventListener('sessionstart', () => { camera.position.set(0, 0, 0); camera.rotation.set(0, 0, 0); goTo(vpIndex); startWind(); });
+renderer.xr.addEventListener('sessionend', () => goTo(vpIndex));
+
+function blocked(p) {   // keep the player out of the Sphinx body & pyramids
+  if (Math.abs(p.x) < 7 && p.z > -48 && p.z < 18) return true;
+  for (const [x, z, h] of [[-10, -480, 120], [300, -330, 112], [520, -620, 55]]) if (Math.abs(p.x - x) < h && Math.abs(p.z - z) < h) return true;
+  return false;
+}
+const tmp = new THREE.Vector3(), fwd = new THREE.Vector3(), right = new THREE.Vector3();
+function move(dx, dz, speed, dt) {
+  camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize();
+  right.crossVectors(fwd, THREE.Object3D.DEFAULT_UP);
+  tmp.copy(rig.position).addScaledVector(fwd, -dz * speed * dt).addScaledVector(right, dx * speed * dt);
+  if (!blocked(tmp)) rig.position.copy(tmp);
+}
+
+/* ---------- ambient wind ---------- */
+let audioStarted = false;
+function startWind() {
+  if (audioStarted) return; audioStarted = true;
+  const ac = new (window.AudioContext || window.webkitAudioContext)();
+  const buf = ac.createBuffer(1, ac.sampleRate * 4, ac.sampleRate), d = buf.getChannelData(0);
+  let last = 0; for (let i = 0; i < d.length; i++) { last = (last + (Math.random() * 2 - 1) * .02) / 1.02; d[i] = last * 3.5; }
+  const src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 500;
+  const gain = ac.createGain(); gain.gain.value = .35;
+  const lfo = ac.createOscillator(); lfo.frequency.value = .08;
+  const lfoG = ac.createGain(); lfoG.gain.value = .2;
+  lfo.connect(lfoG).connect(gain.gain);
+  src.connect(lp).connect(gain).connect(ac.destination);
+  src.start(); lfo.start();
+}
+addEventListener('pointerdown', startWind, { once: true });
+
+/* ---------- loop ---------- */
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const dt = Math.min(clock.getDelta(), .05);
+  if (renderer.xr.isPresenting) {
+    const session = renderer.xr.getSession();
+    let fast = false;
+    for (const src of session.inputSources) {
+      const gp = src.gamepad; if (!gp) continue;
+      if (gp.buttons[0]?.pressed) fast = true;
+    }
+    for (const src of session.inputSources) {
+      const gp = src.gamepad; if (!gp) continue;
+      const ax = gp.axes[2] ?? 0, ay = gp.axes[3] ?? 0;
+      if (src.handedness === 'left' && Math.hypot(ax, ay) > .15) move(ax, ay, fast ? 40 : 6, dt);
+      if (src.handedness === 'right') {
+        if (Math.abs(ax) > .7 && snapReady) { rig.rotation.y -= Math.sign(ax) * Math.PI / 6; snapReady = false; }
+        if (Math.abs(ax) < .3) snapReady = true;
+        const a = gp.buttons[4]?.pressed;
+        if (a && aReady) { goTo(vpIndex + 1); aReady = false; }
+        if (!a) aReady = true;
+      }
+    }
+  } else {
+    const sp = keys.ShiftLeft || keys.ShiftRight ? 40 : 8;
+    const dx = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
+    const dz = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
+    if (dx || dz) move(dx, dz, sp, dt);
+  }
+  renderer.render(scene, camera);
+});
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

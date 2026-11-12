@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your feed · TerpFeed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="feed">
+  <main id="main">
+    <div class="container feed-layout">
+      <aside class="sidebar" aria-label="Feed views">
+        <p class="eyebrow">Feed</p>
+        <ul class="side-nav" id="views">
+          <li><button data-view="all" aria-pressed="true">All updates</button></li>
+          <li><button data-view="important" aria-pressed="false">Important</button></li>
+          <li><button data-view="saved" aria-pressed="false">Saved</button></li>
+        </ul>
+        <div class="following">
+          <p class="eyebrow">Following</p>
+          <ul class="side-nav" id="following-list"></ul>
+          <a class="btn btn--ghost btn--sm btn--block" href="explore.html">+ Find groups</a>
+        </div>
+      </aside>
+
+      <section aria-labelledby="feed-heading">
+        <h1 id="feed-heading" class="sr-only">Your feed</h1>
+        <div class="feed-toolbar">
+          <div class="chips" id="filters" role="group" aria-label="Filter posts">
+            <button class="chip" data-filter="all" aria-pressed="true">All</button>
+            <button class="chip" data-filter="Classes" aria-pressed="false">Classes</button>
+            <button class="chip" data-filter="Clubs" aria-pressed="false">Clubs</button>
+            <button class="chip" data-filter="Sports/Rec" aria-pressed="false">Sports/Rec</button>
+            <button class="chip" data-filter="Interests" aria-pressed="false">Interests</button>
+            <button class="chip" data-filter="announcement" aria-pressed="false">Announcements</button>
+            <button class="chip" data-filter="event" aria-pressed="false">Events</button>
+          </div>
+        </div>
+        <p class="results-count" id="feed-count" aria-live="polite" style="margin-top:0"></p>
+        <div class="feed-list" id="feed-list"></div>
+      </section>
+
+      <aside class="rightbar" aria-label="Upcoming and suggested">
+        <section class="card widget">
+          <h3>Upcoming events</h3>
+          <div id="upcoming"></div>
+        </section>
+        <section class="card widget">
+          <h3>Suggested groups</h3>
+          <div id="suggestions"></div>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <script src="js/app.js"></script>
+  <script src="js/feed.js"></script>
+</body>
+</html>

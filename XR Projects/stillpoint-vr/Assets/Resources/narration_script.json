@@ -1,0 +1,26 @@
+{
+  "lines": [
+    { "id": "intro", "anchor": "start", "at": 3, "minMinutes": 0,
+      "text": "Welcome. Settle into a comfortable seat, and let your shoulders soften. There is nowhere else you need to be right now." },
+    { "id": "follow_light", "anchor": "start", "at": 22, "minMinutes": 0,
+      "text": "In front of you, a soft light is breathing. As it grows, breathe in. As it fades, let the breath go." },
+    { "id": "arrive", "anchor": "start", "at": 60, "minMinutes": 0,
+      "text": "Notice the sounds around you. You don't need to do anything with them. Just let them arrive, and let them pass." },
+    { "id": "body", "anchor": "frac", "at": 0.3, "minMinutes": 5,
+      "text": "Bring your attention to your body. Feel the weight of your hands, the ground beneath you, and the gentle rise and fall of your chest." },
+    { "id": "jaw", "anchor": "frac", "at": 0.42, "minMinutes": 10,
+      "text": "Let your jaw loosen. Let your forehead go smooth. With each breath out, release a little more." },
+    { "id": "thoughts", "anchor": "frac", "at": 0.55, "minMinutes": 5,
+      "text": "If thoughts come, that's alright. Notice them like clouds drifting by, and gently return to your breath." },
+    { "id": "counting", "anchor": "frac", "at": 0.65, "minMinutes": 20,
+      "text": "Let's count a few breaths together. Breathe in, one. Breathe out, two. Keep counting quietly to ten, then begin again." },
+    { "id": "deepen", "anchor": "frac", "at": 0.75, "minMinutes": 10,
+      "text": "Each breath carries you a little deeper into stillness. There is nothing to fix, and nothing to finish." },
+    { "id": "gratitude", "anchor": "frac", "at": 0.85, "minMinutes": 20,
+      "text": "Think of one small thing you are grateful for today. Let that feeling rest in your chest for a few breaths." },
+    { "id": "return", "anchor": "end", "at": 40, "minMinutes": 0,
+      "text": "In a moment, we'll begin to return. Take one more slow, full breath in, and let it go." },
+    { "id": "close", "anchor": "end", "at": 14, "minMinutes": 0,
+      "text": "Gently carry this calm with you into the rest of your day. When you're ready, open your awareness to the room around you." }
+  ]
+}

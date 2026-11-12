@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Explore groups · TerpFeed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="explore">
+  <main id="main">
+    <div class="container">
+      <h1>Explore groups</h1>
+      <p class="muted">Find classes, clubs, teams and interest groups at UMD.</p>
+
+      <form id="search-form" role="search" onsubmit="return false">
+        <label class="search-field">
+          <span class="sr-only">Search groups</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="search" placeholder="Search by name or course code, e.g. INST630" autocomplete="off">
+        </label>
+      </form>
+
+      <div class="chips" id="categories" role="group" aria-label="Category">
+        <button class="chip" data-category="all" aria-pressed="true">All</button>
+        <button class="chip" data-category="Classes" aria-pressed="false">Classes</button>
+        <button class="chip" data-category="Clubs" aria-pressed="false">Clubs</button>
+        <button class="chip" data-category="Sports/Rec" aria-pressed="false">Sports/Rec</button>
+        <button class="chip" data-category="Interests" aria-pressed="false">Interests</button>
+      </div>
+
+      <p class="results-count" id="results-count" aria-live="polite"></p>
+      <div class="group-grid" id="results"></div>
+    </div>
+  </main>
+  <script src="js/app.js"></script>
+  <script src="js/explore.js"></script>
+</body>
+</html>

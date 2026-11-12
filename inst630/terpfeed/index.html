@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TerpFeed · Every UMD update in one feed</title>
+  <meta name="description" content="Follow the UMD classes, clubs, teams and interest groups you care about and see every update in one low-noise feed.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="home">
+  <main id="main">
+    <div class="container">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">For UMD students</p>
+          <h1>Every class, club and team. <span>One feed.</span></h1>
+          <p class="hero__lede">Stop checking Canvas, TerpLink, GroupMe and email separately. Follow what you care about and see every update in one place, with the important ones on top.</p>
+          <div class="hero__cta" id="hero-cta">
+            <a class="btn btn--primary" href="login.html?mode=signup">Sign up with your UMD email</a>
+            <a class="btn btn--ghost" href="explore.html">Browse groups</a>
+          </div>
+          <p class="muted" style="font-size:0.9rem">Works with @umd.edu and @terpmail.umd.edu addresses.</p>
+        </div>
+
+        <div class="hero__preview" aria-label="Example feed">
+          <article class="card post post--important">
+            <div class="post__head">
+              <span class="group-icon" aria-hidden="true">IN</span>
+              <div><strong>INST711</strong><div class="post__meta">Announcement · 2h ago</div></div>
+              <span class="badge badge--accent" style="margin-left:auto">Important</span>
+            </div>
+            <h3 class="post__title">Midterm room changed to HBK 0302</h3>
+            <p class="post__body">Same time, new room. Bring a pencil and your student ID.</p>
+          </article>
+          <article class="card post">
+            <div class="post__head">
+              <span class="group-icon" aria-hidden="true">TT</span>
+              <div><strong>Terp Tennis Club</strong><div class="post__meta">Event · Yesterday</div></div>
+            </div>
+            <h3 class="post__title">Fall doubles social</h3>
+            <div class="post__event"><strong>Sat, Nov 21 · 10:00 AM</strong><span class="muted">Campus Rec Center</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="steps" aria-labelledby="how-heading">
+        <h2 id="how-heading" class="sr-only">How it works</h2>
+        <div class="card step">
+          <div class="step__num">01</div>
+          <h3>Verify your UMD email</h3>
+          <p class="muted">Only UMD students can join, so every group and post comes from campus.</p>
+        </div>
+        <div class="card step">
+          <div class="step__num">02</div>
+          <h3>Follow classes, clubs and teams</h3>
+          <p class="muted">Search by name or course code, like INST630, and follow in one click.</p>
+        </div>
+        <div class="card step">
+          <div class="step__num">03</div>
+          <h3>Get one low-noise feed</h3>
+          <p class="muted">Important posts are highlighted. Events go straight to your Google or Outlook calendar.</p>
+        </div>
+      </section>
+
+      <section class="compare" aria-labelledby="compare-heading">
+        <p class="eyebrow eyebrow--accent">The problem</p>
+        <h2 id="compare-heading">Four places to check. One you'll actually open.</h2>
+        <div class="compare__grid">
+          <div class="card"><h3>Canvas</h3><p class="muted">Class announcements buried under assignments.</p></div>
+          <div class="card"><h3>TerpLink</h3><p class="muted">Club events most students rarely check.</p></div>
+          <div class="card"><h3>GroupMe</h3><p class="muted">Team chats where updates get lost in the noise.</p></div>
+          <div class="card"><h3>Email</h3><p class="muted">Admin notices that sit unread in the inbox.</p></div>
+        </div>
+      </section>
+
+      <section class="cta-band">
+        <h2>Ready to clean up your week?</h2>
+        <a class="btn" href="login.html?mode=signup" id="band-cta">Create your feed</a>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Logged-in visitors get a shortcut to their feed instead of sign-up buttons.
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!TF.getUser()) return;
+      document.getElementById("hero-cta").innerHTML =
+        '<a class="btn btn--primary" href="feed.html">Go to your feed</a>' +
+        '<a class="btn btn--ghost" href="explore.html">Browse groups</a>';
+      const band = document.getElementById("band-cta");
+      band.href = "feed.html";
+      band.textContent = "Open your feed";
+    });
+  </script>
+</body>
+</html>

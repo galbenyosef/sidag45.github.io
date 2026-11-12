@@ -1,0 +1,128 @@
+[
+  {
+    "id": "inst630",
+    "name": "INST630",
+    "fullName": "INST630: Introduction to Programming for the Information Professional",
+    "category": "Classes",
+    "courseCode": "INST630",
+    "followers": 48,
+    "verified": true,
+    "description": "Official course group for INST630. Announcements, deadlines and office hours from the teaching team.",
+    "admins": ["Course instructor", "Teaching assistant"],
+    "tags": ["web development", "html", "javascript"]
+  },
+  {
+    "id": "inst631",
+    "name": "INST631",
+    "fullName": "INST631: Introduction to Human-Computer Interaction",
+    "category": "Classes",
+    "courseCode": "INST631",
+    "followers": 52,
+    "verified": true,
+    "description": "Course group for INST631. Studio critiques, project milestones and reading reminders.",
+    "admins": ["Course instructor"],
+    "tags": ["hci", "ux research", "design"]
+  },
+  {
+    "id": "inst711",
+    "name": "INST711",
+    "fullName": "INST711: User Experience Design",
+    "category": "Classes",
+    "courseCode": "INST711",
+    "followers": 41,
+    "verified": true,
+    "description": "Course group for INST711. Room changes, exam logistics and group project check-ins.",
+    "admins": ["Course instructor", "Teaching assistant"],
+    "tags": ["ux", "design"]
+  },
+  {
+    "id": "terp-tennis",
+    "name": "Terp Tennis Club",
+    "category": "Sports/Rec",
+    "followers": 412,
+    "verified": false,
+    "description": "Casual and competitive tennis for all levels. Weekly hits Tue/Thu at Campus Rec.",
+    "admins": ["Club President", "Treasurer", "Social Chair"],
+    "tags": ["tennis", "sports"]
+  },
+  {
+    "id": "club-running",
+    "name": "Club Running",
+    "category": "Sports/Rec",
+    "followers": 310,
+    "verified": false,
+    "description": "Group runs around College Park four days a week, plus fall and spring races.",
+    "admins": ["Captain", "Vice Captain"],
+    "tags": ["running", "sports"]
+  },
+  {
+    "id": "climbing",
+    "name": "Terp Climbing",
+    "category": "Sports/Rec",
+    "followers": 198,
+    "verified": false,
+    "description": "Bouldering and top-rope sessions at the Eppley climbing wall. Beginners welcome.",
+    "admins": ["Club President"],
+    "tags": ["climbing", "sports"]
+  },
+  {
+    "id": "ux-club",
+    "name": "UMD UX Club",
+    "category": "Clubs",
+    "followers": 268,
+    "verified": false,
+    "description": "Workshops, portfolio reviews and talks with UX designers and researchers.",
+    "admins": ["President", "Events Lead"],
+    "tags": ["ux research", "design", "careers"]
+  },
+  {
+    "id": "hackers",
+    "name": "Hackers @ UMD",
+    "category": "Clubs",
+    "followers": 890,
+    "verified": false,
+    "description": "Hack nights, workshops and the Bitcamp community. All majors welcome.",
+    "admins": ["Director", "Workshop Lead"],
+    "tags": ["programming", "hackathons"]
+  },
+  {
+    "id": "startup-shell",
+    "name": "Startup Shell",
+    "category": "Clubs",
+    "followers": 520,
+    "verified": false,
+    "description": "Student-run startup incubator. Weekly demo nights and founder office hours.",
+    "admins": ["Director"],
+    "tags": ["startups", "entrepreneurship"]
+  },
+  {
+    "id": "women-in-tech",
+    "name": "Women in Tech",
+    "category": "Clubs",
+    "followers": 375,
+    "verified": false,
+    "description": "Mentorship, networking and technical workshops for women and allies in tech.",
+    "admins": ["President", "Mentorship Chair"],
+    "tags": ["careers", "community"]
+  },
+  {
+    "id": "xr-lab",
+    "name": "Terrapin XR Lab",
+    "category": "Interests",
+    "followers": 154,
+    "verified": false,
+    "description": "Students building and testing AR and VR projects. Headsets available to borrow.",
+    "admins": ["Lab Coordinator"],
+    "tags": ["xr", "vr", "ar"]
+  },
+  {
+    "id": "ux-research",
+    "name": "UX Research Circle",
+    "category": "Interests",
+    "followers": 96,
+    "verified": false,
+    "description": "Reading group and practice sessions for usability testing and interviews.",
+    "admins": ["Organizer"],
+    "tags": ["ux research", "hci"]
+  }
+]
